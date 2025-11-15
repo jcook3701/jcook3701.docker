@@ -1,0 +1,44 @@
+---
+authors:
+  - "Jared Cook @jcook3701"
+# Optional dependencies on other collections
+dependencies:
+  jcook3701.pkgs: "*"
+  jcook3701.utils: "*"
+  ansible.builtin: "*"
+  community.general: ">=8.0.0"
+description: >
+  Ansible installer for docker packages.
+namespace: jcook3701
+name: docker
+version: 0.1.0
+license:
+  - MIT
+license_file: LICENSE
+readme: ./README.md
+tags:
+  - lab
+  - homelab
+  - automation
+  - infrastructure
+# Optional — minimum Ansible version required
+build_ignore:
+  - .gitignore
+  - .github/
+  - tests/
+  - docs/
+  - scripts/
+  - .venv/
+repository: >-
+  https://github.com/jcook3701/\
+  jcook3701.jcook3701.docker
+documentation: >-
+  https://github.com/jcook3701/\
+  jcook3701.jcook3701.docker/blob/main/README.md
+homepage: >-
+  https://github.com/jcook3701/\
+  jcook3701.jcook3701.docker
+issues: >-
+  https://github.com/jcook3701/\
+  jcook3701.jcook3701.docker/issues
+...

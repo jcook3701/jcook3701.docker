@@ -1,0 +1,18 @@
+services:
+  web:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: '{{ gitlab_conf.hostname }}'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url '{{ gitlab_conf.hostname }}:8929'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+    ports:
+      - '8929:8929'    # Web Interface
+      - '4433:443'   # HTTPS (if needed)
+      - '2222:22'    # SSH for Git
+    volumes:
+      - './config:/etc/gitlab'
+      - './logs:/var/log/gitlab'
+      - './data:/var/opt/gitlab'
+    shm_size: '256m' # Required for internal monitoring

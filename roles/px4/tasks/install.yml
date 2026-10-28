@@ -1,0 +1,60 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Install baseline system utilities
+  ansible.builtin.package:
+    name: "{{ px4_dependency_pkgs }}"
+    state: present
+
+- name: Clone PX4 Autopilot repository with submodules
+  ansible.builtin.git:
+    repo: "{{ px4_git_repo }}"
+    dest: "{{ px4_dest_dir }}"
+    recursive: yes
+    version: "{{ px4_version }}"
+  become: true
+  become_user: "{{ sudo_user }}"
+  when: sudo_user != "root"
+
+- name: Deploy docker-compose.yml template to PX4 directory
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ px4_dest_dir }}/docker-compose.yml"
+    mode: "0644"
+  become: true
+  become_user: "{{ sudo_user }}"
+  when: sudo_user != "root"
+
+- name: Create .env file for dynamic user permission mapping
+  ansible.builtin.copy:
+    dest: "{{ px4_dest_dir }}/.env"
+    content: |
+      UID={{ sudo_user_uid }}
+      GID={{ sudo_user_gid }}
+    mode: "0644"
+  become: true
+  become_user: "{{ sudo_user }}"
+  when: sudo_user != "root"
+
+- name: Create an alias to start the headless PX4 container stack
+  ansible.builtin.lineinfile:
+    path: "{{ px4_bash_alias_file }}"
+    line: "alias px4-up='docker compose -f {{ px4_dest_dir }}/docker-compose.yml up -d'"
+    create: yes
+    mode: "0644"
+    state: present
+  become: true
+  become_user: "{{ sudo_user }}"
+  when:
+  - sudo_user != "root"
+
+- name: Create an alias to stop the headless PX4 container stack
+  ansible.builtin.lineinfile:
+    path: "{{ px4_bash_alias_file }}"
+    line: "alias px4-down='docker compose -f {{ px4_dest_dir }}/docker-compose.yml down'"
+    create: yes
+    mode: "0644"
+    state: present
+  become: true
+  become_user: "{{ sudo_user }}"
+  when: sudo_user != "root"

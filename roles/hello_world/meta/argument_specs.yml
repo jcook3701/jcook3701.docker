@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Manage Docker hello-world container lifecycle."
+    description: "This role executes the Docker hello-world container, captures output, and handles image teardown."
+    author: "Jared W. Cook"
+    options:
+      hello_world_container_engine:
+        type: "str"
+        required: false
+        default: "docker"
+        choices: ["docker", "podman"]
+        description: "The background execution runtime used to manage the hello-world components."
+      hello_world_state:
+        type: "str"
+        required: false
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "The desired state of the hello-world container and its cached local image."

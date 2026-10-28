@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+galaxy_info:
+  author: Jared Cook
+  description: "This role executes the Docker unifi_os_server container,
+    captures output, and handles image teardown."
+  company: "Cook's Code, Inc."
+  license: "AGPL-3.0-or-later"
+  min_ansible_version: ">=2.10"
+  role_name: unifi_os_server
+
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - packages
+    - docker
+    - desktop
+    - apps
+
+dependencies:
+  - role: jcook3701.pkgs.docker_ce
+
+collections:
+  - jcook3701.utils
+  - community.docker
+  - containers.podman

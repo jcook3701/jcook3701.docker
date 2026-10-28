@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Ensure 'Hello World' is installed and configured
+  ansible.builtin.include_tasks:  state/install.yml
+  when: hello_world_state | default('present') == 'present'
+
+- name: Ensure 'Hello World' is uninstalled from system
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: hello_world_state | default('present') == 'absent'
+
+- name: Ensure 'Hello World' is purged from system
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: hello_world_state | default('present') == 'teardown'

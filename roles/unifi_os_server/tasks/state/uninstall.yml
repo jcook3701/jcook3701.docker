@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Trigger container engine stack removal
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    engine_project_src: "{{ unifi_os_server_base_dir }}"
+    engine_platform_type: "{{ unifi_os_server_container_engine }}"
+    engine_desired_state: "teardown"
+    engine_trigger_condition: true

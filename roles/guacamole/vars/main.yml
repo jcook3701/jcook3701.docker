@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+guacamole_git_repo: "https://github.com/mark-sellars/guacamole"
+guacamole_bash_alias_file: "{{ sudo_user_home }}/.ansible_aliases"
+
+guacamole_auth_types:
+  - { duo: "guac_duo" }
+  - { duo_gd: "guac_duo_gdcert" }
+  - { ldap: "guac_ldap" }
+  - { no_duo: "guac_no_duo" }
+
+guacamole_conf:
+  hostname: "guacd"
+  port: "4822"
+  ssl: false
+
+guacamole_directory:
+  conf: "/etc/guacamole"
+  init: "/etc/guacamole/init"
+  home: "/etc/guacamole/guacamole_home"
+  ldap: "/etc/guacamole/ldap"
+  nginx: "/etc/guacamole/nginx"

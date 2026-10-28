@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+timesketch_container_engine: "docker"
+timesketch_state: present
+
+# Infrastructure Storage and Path Routing
+timesketch_base_dir: "/srv/timesketch"
+timesketch_config_dir: "{{ timesketch_base_dir }}/config"
+timesketch_upload_dir: "{{ timesketch_base_dir }}/upload"
+timesketch_postgres_data_dir: "{{ timesketch_base_dir }}/postgres_data"
+timesketch_opensearch_data_dir: "{{ timesketch_base_dir }}/opensearch_data"
+
+# Networking Configuration
+timesketch_listen_port: 8443
+timesketch_network_name: "timesketch_net"
+
+# Application Security Credentials
+timesketch_admin_user: "admin"
+timesketch_admin_password: "SetSecurePasswordHere"
+timesketch_db_user: "timesketch"
+timesketch_db_password: "SetSecureDatabasePasswordHere"
+timesketch_db_name: "timesketch"
+
+# Resource and Engine Controls
+timesketch_opensearch_jvm_opts: "-Xms2g -Xmx2g"
+timesketch_opensearch_version: "2.11.0"
+timesketch_postgres_version: "15-alpine"
+timesketch_redis_version: "7-alpine"

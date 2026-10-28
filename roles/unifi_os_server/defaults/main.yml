@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# Platform deployment controls
+unifi_os_server_container_engine: "docker"
+unifi_os_server_state: "present"
+
+# Container versions and image configurations
+unifi_os_server_image: "jacobalberty/unifi"
+unifi_os_server_version: "latest"
+
+# System deployment directories
+unifi_os_server_base_dir: "/opt/unifi-os"
+unifi_os_server_data_dir: "{{ unifi_os_server_base_dir }}/data"
+unifi_os_server_log_dir: "{{ unifi_os_server_base_dir }}/logs"
+unifi_os_server_cert_dir: "{{ unifi_os_server_base_dir }}/cert"
+
+# Docker Compose network and service configurations
+unifi_os_server_container_name: "unifi-os-server"
+unifi_os_server_network_name: "unifi-network"
+unifi_os_server_restart_policy: "unless-stopped"
+
+# Network interface port bindings
+unifi_os_server_port_http: 8080
+unifi_os_server_port_https: 8443
+unifi_os_server_port_portal: 8843
+unifi_os_server_port_speedtest: 6789
+unifi_os_server_port_stun: 3478
+unifi_os_server_port_discovery: 10001
+unifi_os_server_port_syslog: 5514
+
+# Memory limits for the Java virtual machine
+unifi_os_server_jvm_init_xms: "1024m"
+unifi_os_server_jvm_max_xmx: "2048m"

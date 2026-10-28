@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Manage unifi_os_server Docker image on localhost
+  hosts: localhost
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Install unifi_os_server Docker Image
+      ansible.builtin.include_role:
+        name: jcook3701.docker.unifi_os_server

@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Execute Docker 'Hello World'
+  community.docker.docker_container:
+    name: ansible_hello_test
+    image: hello-world
+    state: started
+    detach: false
+    cleanup: true
+  register: container_result
+
+- name: Display 'Hello World' console output
+  ansible.builtin.debug:
+    msg: "{{ container_result.container.Output.split('\n') }}"

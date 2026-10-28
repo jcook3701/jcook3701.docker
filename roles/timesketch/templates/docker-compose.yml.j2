@@ -1,0 +1,124 @@
+{#
+# docker-compose.yml.j2 for jcook3701.docker.timesketch
+#
+# SPDX-FileCopyrightText: Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#}
+
+{% macro docker_compose() -%}
+services:
+  timesketch-web:
+    image: google/timesketch:latest
+    container_name: timesketch-web
+    environment:
+      - TIMESKETCH_USER={{ timesketch_admin_user }}
+      - TIMESKETCH_PASSWORD={{ timesketch_admin_password }}
+    volumes:
+      - "{{ timesketch_config_dir }}:/etc/timesketch"
+      - "{{ timesketch_upload_dir }}:/usr/share/timesketch/upload"
+    ports:
+      - "{{ timesketch_listen_port }}:8000"
+    depends_on:
+      timesketch-opensearch:
+        condition: service_healthy
+      timesketch-postgres:
+        condition: service_healthy
+    networks:
+      - {{ timesketch_network_name }}
+    restart: always
+
+  timesketch-worker:
+    image: google/timesketch:latest
+    container_name: timesketch-worker
+    command: celery -A timesketch.tasks worker --loglevel=info
+    volumes:
+      - "{{ timesketch_config_dir }}:/etc/timesketch"
+      - "{{ timesketch_upload_dir }}:/usr/share/timesketch/upload"
+    depends_on:
+      timesketch-opensearch:
+        condition: service_healthy
+      timesketch-postgres:
+        condition: service_healthy
+      timesketch-redis:
+        condition: service_healthy
+    networks:
+      - {{ timesketch_network_name }}
+    restart: always
+
+  timesketch-opensearch:
+    image: opensearchproject/opensearch:{{ timesketch_opensearch_version }}
+    container_name: timesketch-opensearch
+    environment:
+      - cluster.name=timesketch
+      - node.name=timesketch-opensearch
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS={{ timesketch_opensearch_jvm_opts }}"
+      - DISABLE_SECURITY_PLUGIN=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - "{{ timesketch_opensearch_data_dir }}:/usr/share/opensearch/data"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - {{ timesketch_network_name }}
+    restart: always
+
+  timesketch-postgres:
+    image: postgres:{{ timesketch_postgres_version }}
+    container_name: timesketch-postgres
+    environment:
+      - POSTGRES_USER={{ timesketch_db_user }}
+      - POSTGRES_PASSWORD={{ timesketch_db_password }}
+      - POSTGRES_DB={{ timesketch_db_name }}
+    volumes:
+      - "{{ timesketch_postgres_data_dir }}:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{ timesketch_db_user }} -d {{ timesketch_db_name }}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - {{ timesketch_network_name }}
+    restart: always
+
+  timesketch-redis:
+    image: redis:{{ timesketch_redis_version }}
+    container_name: timesketch-redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - {{ timesketch_network_name }}
+    restart: always
+
+networks:
+  {{ timesketch_network_name }}:
+    driver: bridge
+{%- endmacro %}
+
+{{- docker_compose() -}}

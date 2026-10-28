@@ -1,0 +1,54 @@
+{#
+# docker-compose.yml.j2 for jcook3701.docker.unifi_os_server
+#
+# SPDX-FileCopyrightText: Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#}
+
+{% macro docker_compose() -%}
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+networks:
+  unifi_network:
+    name: "{{ unifi_os_server_network_name }}"
+
+services:
+  unifi_server:
+    container_name: "{{ unifi_os_server_container_name }}"
+    image: "{{ unifi_os_server_image }}:{{ unifi_os_server_version }}"
+    restart: "{{ unifi_os_server_restart_policy }}"
+    networks:
+      - unifi_network
+    environment:
+      - JVM_INIT_XMS={{ unifi_os_server_jvm_init_xms }}
+      - JVM_MAX_XMX={{ unifi_os_server_jvm_max_xmx }}
+      - TZ={{ unifi_os_server_timezone | default('UTC') }}
+    volumes:
+      - "{{ unifi_os_server_data_dir }}:/unifi/data"
+      - "{{ unifi_os_server_log_dir }}:/unifi/log"
+      - "{{ unifi_os_server_cert_dir }}:/unifi/cert"
+    ports:
+      - "{{ unifi_os_server_port_http }}:8080/tcp"
+      - "{{ unifi_os_server_port_https }}:8443/tcp"
+      - "{{ unifi_os_server_port_portal }}:8843/tcp"
+      - "{{ unifi_os_server_port_speedtest }}:6789/tcp"
+      - "{{ unifi_os_server_port_stun }}:3478/udp"
+      - "{{ unifi_os_server_port_discovery }}:10001/udp"
+      - "{{ unifi_os_server_port_syslog }}:5514/udp"
+{%- endmacro %}
+
+{{- docker_compose() -}}

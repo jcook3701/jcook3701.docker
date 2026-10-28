@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Stop and remove PX4 Docker containers if running
+  ansible.builtin.command:
+    cmd: "docker compose -f {{ px4_dest_dir }}/docker-compose.yml down"
+  failed_when: false
+  become: true
+  become_user: "{{ sudo_user }}"
+  when: sudo_user != "root"
+
+- name: Remove PX4 Autopilot repository directory
+  ansible.builtin.file:
+    path: "{{ px4_dest_dir }}"
+    state: absent
+  become: true
+  become_user: "{{ sudo_user }}"
+  when: sudo_user != "root"
+
+- name: Remove px4-up alias from Ansible aliases file
+  ansible.builtin.lineinfile:
+    path: "{{ px4_bash_alias_file }}"
+    regexp: '^alias px4-up='
+    state: absent
+  become: true
+  become_user: "{{ sudo_user }}"
+  when: sudo_user != "root"
+
+- name: Remove px4-down alias from Ansible aliases file
+  ansible.builtin.lineinfile:
+    path: "{{ px4_bash_alias_file }}"
+    regexp: '^alias px4-down='
+    state: absent
+  become: true
+  become_user: "{{ sudo_user }}"
+  when: sudo_user != "root"

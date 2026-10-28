@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+px4_version: "main"
+px4_dest_dir: "{{ sudo_user_home }}/.ansible-git-repos/PX4-Autopilot"
+px4_docker_image: "px4io/px4-dev"
+px4_docker_tag: "latest"

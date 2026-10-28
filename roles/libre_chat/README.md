@@ -1,6 +1,5 @@
 # [LibreChat](https://github.com/danny-avila/LibreChat?tab=readme-ov-file)
 
-
 Helpful Links:
 
 1. [API Pricing](https://openai.com/api/pricing/)

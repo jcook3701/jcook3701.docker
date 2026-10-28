@@ -1,0 +1,39 @@
+{#
+# docker-compose.yml.j2 for jcook3701.docker.px4
+#
+# SPDX-FileCopyrightText: Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#}
+
+{% macro docker_compose() -%}
+version: '3.8'
+
+services:
+  px4_sitl:
+    image: "{{ px4_docker_image }}:{{ px4_docker_tag }}"
+    container_name: px4_sitl_headless
+    network_mode: host
+    user: "${UID}:${GID}"
+    environment:
+      - LOCAL_USER_ID=${UID}
+    volumes:
+      - {{ px4_dest_dir }}:/src/PX4-Autopilot:rw
+    working_dir: /src/PX4-Autopilot
+    command: bash -c "make px4_sitl none"
+    restart: unless-stopped
+{%- endmacro %}
+
+{{- docker_compose() -}}

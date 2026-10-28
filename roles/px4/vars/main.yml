@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+px4_git_repo: "https://github.com/PX4/PX4-Autopilot"
+px4_bash_alias_file: "{{ sudo_user_home }}/.ansible_aliases"

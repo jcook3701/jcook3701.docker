@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+guacamole_state: present
+guacamole_auth_type: "ldap"
+
+# Github Options
+guacamole_version: "master"
+guacamole_dest_dir: "{{ sudo_user_home }}/.ansible-git-repos/guacamole"
+
+# Docker Options
+guacamole_docker_image: "guacamole/guacamole"
+guacamole_docker_tag: "latest"
+
+# Domain Options
+guacamole_top_level_domain: "com"
+guacamole_second_level_domain: "jcook3701"
+
+# LDAP Options
+guacamole_ldap:
+  hostname: "ldap-server"
+  admin: "ldap-admin"
+
+# SSL Options
+guacamole_ssl:
+  country: "US"
+  state: "California"
+  city: "San Diego"

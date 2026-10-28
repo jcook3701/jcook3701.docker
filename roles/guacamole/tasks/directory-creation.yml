@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name:  Manage Guacamole directories state
+  ansible.builtin.file:
+    path: "{{ folder.value }}"
+    state: "{{ (guacamole_state == 'present') | ternary('directory', 'absent') }}"
+    mode: "0755"
+  loop: "{{ guacamole_directory | dict2items }}"
+  loop_control:
+    loop_var: folder
+    label: "{{ folder.value }} ({{ guacamole_state }})"

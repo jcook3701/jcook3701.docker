@@ -1,0 +1,92 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy and manage UniFi OS Server via Docker Compose."
+    description: "This role sets up the persistent storage, network configurations, port definitions, and JVM constraints for running UniFi OS Server containerized."
+    author: "Jared W. Cook"
+    options:
+      unifi_os_server_container_engine:
+        type: str
+        default: "docker"
+        choices: ["docker", "podman"]
+        description: "The underlying tool environment platform executing service deployment stacks."
+      unifi_os_server_state:
+        type: str
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "The target installation or cleanup baseline enforcement configuration layer profile state indicator."
+      unifi_os_server_image:
+        type: str
+        default: "jacobalberty/unifi"
+        description: "The container image registry path for the UniFi application."
+      unifi_os_server_version:
+        type: str
+        default: "latest"
+        description: "The version tag of the UniFi image to deploy."
+      unifi_os_server_base_dir:
+        type: str
+        default: "/opt/unifi-os"
+        description: "The absolute base directory path on the host for all persistent container deployment subdirectories."
+      unifi_os_server_data_dir:
+        type: str
+        default: "/opt/unifi-os/data"
+        description: "Host directory mapping path for persistent internal database files."
+      unifi_os_server_log_dir:
+        type: str
+        default: "/opt/unifi-os/logs"
+        description: "Host directory mapping path for centralized service log file output collection."
+      unifi_os_server_cert_dir:
+        type: str
+        default: "/opt/unifi-os/cert"
+        description: "Host directory mapping path tracking custom secure layer communication certificate entries."
+      unifi_os_server_container_name:
+        type: str
+        default: "unifi-os-server"
+        description: "The identifier tracking the initialized engine execution container instance."
+      unifi_os_server_network_name:
+        type: str
+        default: "unifi-network"
+        description: "The designated isolated virtual bridge backend networking structure namespace identifier."
+      unifi_os_server_restart_policy:
+        type: str
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Engine runtime recovery routine evaluation metrics framework context logic choice tracking rules."
+      unifi_os_server_port_http:
+        type: int
+        default: 8080
+        description: "Port binding mapping for device initialization inform utility services communication pipelines."
+      unifi_os_server_port_https:
+        type: int
+        default: 8443
+        description: "Port binding mapping for local area browser user dashboard interface web control portals."
+      unifi_os_server_port_portal:
+        type: int
+        default: 8843
+        description: "Port binding mapping routing processing structures handling secure guest access verification capture landings."
+      unifi_os_server_port_speedtest:
+        type: int
+        default: 6789
+        description: "Port binding mapping verifying link throughput capacity assessment check benchmarks metric collection tasks."
+      unifi_os_server_port_stun:
+        type: int
+        default: 3478
+        description: "Port binding mapping managing session traversal validation echo signals communication routes network layers."
+      unifi_os_server_port_discovery:
+        type: int
+        default: 10001
+        description: "Port binding mapping handling automated broad layer component sweep broadcast discovery resolution loops."
+      unifi_os_server_port_syslog:
+        type: int
+        default: 5514
+        description: "Port binding mapping routing structural remote infrastructure tracking event telemetry daemon relays downstream."
+      unifi_os_server_jvm_init_xms:
+        type: str
+        default: "1024m"
+        description: "The initial execution block environment memory reservation metric requested by runtime applications."
+      unifi_os_server_jvm_max_xmx:
+        type: str
+        default: "2048m"
+        description: "The ceiling constraint limit memory processing block standard boundary context parameter values allowed."

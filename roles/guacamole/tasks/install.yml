@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Generate Guacamole database initialization script
+  community.general.docker_container:
+    name: guacamole_init_generator
+    image: guacamole/guacamole
+    command: /opt/guacamole/bin/initdb.sh --postgres
+    cleanup: true
+    detach: false
+  register: docker_output
+
+- name: Save initialization SQL to file
+  ansible.builtin.copy:
+    content: "{{ docker_output.container.Output }}"
+    dest: "{{ guacamole_directory.init }}/initdb.sql"
+    mode: "0644"

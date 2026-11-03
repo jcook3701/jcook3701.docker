@@ -1,0 +1,50 @@
+{#
+# compose.yml.j2 for jcook3701.docker.frigate_nvr
+#
+# SPDX-FileCopyrightText: Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#}
+
+{% macro compose() -%}
+services:
+  frigate:
+    container_name: frigate
+    image: "{{ frigate_nvr_image }}:{{ frigate_nvr_version }}"
+    privileged: {{ frigate_nvr_privileged | bool | lower }}
+    shm_size: "{{ frigate_nvr_shm_size }}"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "{{ frigate_nvr_web_port }}:5000"
+      - "{{ frigate_nvr_rtsp_port }}:1935"
+      - "{{ frigate_nvr_webrtc_port }}:8554"
+      - "{{ frigate_nvr_webrtc_udp_port }}:8555/udp"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - "{{ frigate_nvr_project_src }}/config.yml:/config/config.yml:ro"
+      - "{{ frigate_nvr_storage_dir }}:/media/frigate"
+    devices:
+{% for device in frigate_nvr_devices %}
+      - "{{ device }}"
+{% endfor %}
+    environment:
+      FRIGATE_MQTT_HOST: "{{ frigate_nvr_mqtt_host }}"
+      FRIGATE_MQTT_USER: "{{ frigate_nvr_mqtt_user }}"
+      FRIGATE_MQTT_PASSWORD: "{{ frigate_nvr_mqtt_password }}"
+{%- endmacro %}
+
+{{- compose() -}}

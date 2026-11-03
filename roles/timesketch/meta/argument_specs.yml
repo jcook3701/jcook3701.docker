@@ -1,0 +1,113 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy and manage a containerized Timesketch orchestration stack."
+    description:
+      - "Validates, structures, and provisions long-running Timesketch web, worker, and core data storage engines."
+    author: "Jared Cook"
+    options:
+      timesketch_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker", "podman"]
+        description: "The targeted container virtualization abstraction runtime platform engine."
+
+      timesketch_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Desired structural assertion state of the deployment components."
+
+      timesketch_debug_mode:
+        type: "bool"
+        default: true
+        description: "Toggles verbose tracing flags across configuration initialization processes."
+
+      timesketch_image:
+        type: "str"
+        default: "us-docker.pkg.dev/osdfir-registry/timesketch/timesketch:latest"
+        description: "The complete upstream remote image repository URI target path name reference."
+
+      timesketch_opensearch_version:
+        type: "str"
+        default: "2.11.0"
+        description: "Version tag identifier reference for the OpenSearch data storage indexing layer."
+
+      timesketch_postgres_version:
+        type: "str"
+        default: "15-alpine"
+        description: "Version tag identifier reference for the backend relational PostgreSQL datastore engine."
+
+      timesketch_redis_version:
+        type: "str"
+        default: "7-alpine"
+        description: "Version tag identifier reference for the persistent memory cache task messaging queue broker."
+
+      timesketch_base_dir:
+        type: "path"
+        default: "/opt/timesketch"
+        description: "Root structural parent file path tracking system variables on the destination host node."
+
+      timesketch_config_dir:
+        type: "path"
+        default: "/opt/timesketch/config"
+        description: "Target folder routing configuration manifest files for application mounting hooks."
+
+      timesketch_upload_dir:
+        type: "path"
+        default: "/opt/timesketch/upload"
+        description: "Target location storing uploaded binary evidence files processed by analyzer routines."
+
+      timesketch_postgres_data_dir:
+        type: "path"
+        default: "/opt/timesketch/postgres_data"
+        description: "Target location mapping backing blocks for relational database state preservation files."
+
+      timesketch_opensearch_data_dir:
+        type: "path"
+        default: "/opt/timesketch/opensearch_data"
+        description: "Target location mapping persistent structural document stores for search records."
+
+      timesketch_listen_port:
+        type: "int"
+        default: 8444
+        description: "The host network adapter ingress network tracking port allocation number mapping target."
+
+      timesketch_network_name:
+        type: "str"
+        default: "timesketch_net"
+        description: "The custom bridge isolated local runtime container virtual interface mapping name identifier."
+
+      timesketch_admin_user:
+        type: "str"
+        default: "admin"
+        description: "The primary administrative credential control user account login handle access name."
+
+      timesketch_admin_password:
+        type: "str"
+        default: "SetSecurePasswordHere"
+        no_log: true
+        description: "The primary administrative control profile login pass phrase token authorization key string."
+
+      timesketch_db_user:
+        type: "str"
+        default: "timesketch"
+        description: "Relational service platform programmatic management engine entry point user connection handle."
+
+      timesketch_db_password:
+        type: "str"
+        default: "SetSecureDatabasePasswordHere"
+        no_log: true
+        description: "Relational database platform structural schema authentication token encryption access key pass."
+
+      timesketch_db_name:
+        type: "str"
+        default: "timesketch"
+        description: "Target relational scheme namespace folder created for internal data tables."
+
+      timesketch_opensearch_jvm_opts:
+        type: "str"
+        default: "-Xms2g -Xmx2g"
+        description: "Java virtual machine garbage memory constraint threshold tuning argument control string hooks."

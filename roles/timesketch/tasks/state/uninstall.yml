@@ -1,3 +1,11 @@
 # SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
+- name: Trigger container engine stack removal
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    container_engine_project_src: "{{ timesketch_directory.base | default('/opt/timesketch') }}"
+    container_engine_platform_type: "{{ timesketch_container_engine | default('docker') }}"
+    container_engine_desired_state: teardown
+    container_engine_trigger_condition: true

@@ -1,3 +1,16 @@
 # SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
+- name: Debug Teardown of Timesketch application
+  ansible.builtin.debug:
+    msg: "timesketch_directory.base: {{ timesketch_directory.base }}"
+  when: timesketch_debug_mode | default(false) | bool
+
+- name: Include standard termination routine definitions
+  ansible.builtin.include_tasks: uninstall.yml
+
+- name: Purge remaining historical data layers and configurations
+  ansible.builtin.file:
+    path: "{{ timesketch_directory.base | default('/opt/timesketch') }}"
+    state: absent
+  become: true

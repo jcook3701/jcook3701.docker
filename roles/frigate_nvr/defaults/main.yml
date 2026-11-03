@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# Runtime and Operational Toggles
+# -----------------------------------------------------------------------------
+frigate_nvr_container_engine: "docker" # Options: docker, podman
+frigate_nvr_state: "present"           # Options: present, absent, teardown
+
+# Container Image and Delivery Configurations
+# -----------------------------------------------------------------------------
+frigate_nvr_image: "ghcr.io/blakeblackshear/frigate"
+frigate_nvr_version: "stable"
+
+# Host Path Allocations and Persistent Volume Storage
+# -----------------------------------------------------------------------------
+frigate_nvr_base_dir: "/opt/frigate_nvr"
+frigate_nvr_config_dir: "{{ frigate_nvr_base_dir + '/config' }}"
+frigate_nvr_logs_dir: "{{ frigate_nvr_base_dir + '/logs' }}"
+frigate_nvr_storage_dir: "{{ frigate_nvr_base_dir + '/storage' }}"
+
+# Networking Configuration and Host Port Bindings
+# -----------------------------------------------------------------------------
+frigate_nvr_web_port: 5000
+frigate_nvr_rtsp_port: 1935
+frigate_nvr_webrtc_port: 8554
+frigate_nvr_webrtc_udp_port: 8555
+
+# Hardware Shims, Device Passthrough, and Acceleration Toggles
+# -----------------------------------------------------------------------------
+frigate_nvr_privileged: false
+frigate_nvr_shm_size: "64mb"           # Recommended to scale up based on camera matrix counts
+frigate_nvr_devices: []
+  # Example configuration for hardware acceleration or Coral TPU:
+  # - "/dev/bus/usb:/dev/bus/usb"      # USB Coral TPU passthrough
+  # - "/dev/dri/renderD128:/dev/dri/renderD128" # Intel VAAPI Hardware Acceleration
+
+# Embedded Configuration Variables (Inline mapping or volume-linked template context)
+# -----------------------------------------------------------------------------
+frigate_nvr_mqtt_host: "localhost"
+frigate_nvr_mqtt_user: ""
+frigate_nvr_mqtt_password: ""

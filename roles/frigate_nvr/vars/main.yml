@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+frigate_nvr_directory:
+  base: "{{ frigate_nvr_base_dir | default('/opt/frigate_nvr') }}"
+  conf: "{{ frigate_nvr_config_dir | default('/opt/frigate_nvr/config') }}"
+  log: "{{ frigate_nvr_logs_dir | default('/opt/frigate_nvr/logs') }}"
+  storage: "{{ frigate_nvr_storage_dir | default('/opt/frigate_nvr/storage') }}"

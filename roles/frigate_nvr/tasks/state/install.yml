@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Execute Frigate NVR configuration tasks
+  ansible.builtin.include_tasks: "configure/main.yml"
+
+- name: Trigger container engine stack deployment
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    container_engine_project_src: "{{ frigate_nvr_directory.base | default('/opt/frigate_nvr') }}"
+    container_engine_platform_type: "{{ frigate_nvr_container_engine | default('docker') }}"
+    container_engine_desired_state: present
+    container_engine_trigger_condition: true

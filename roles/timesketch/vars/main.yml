@@ -1,4 +1,18 @@
 # SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
-timesketch_dep_pkg_names: "{{ timesketch_os_dep_pkg_names | default(['plaso']) }}"
+timesketch_directory:
+  base: "{{ timesketch_base_dir | default('/opt/timesketch') }}"
+  conf: "{{ timesketch_config_dir | default(timesketch_directory.base + '/config') }}"
+  upload: "{{ timesketch_upload_dir | default(timesketch_directory.base + '/upload') }}"
+  log: "{{ timesketch_logs_dir | default(timesketch_directory.base + '/logs') }}"
+  postgres_data: "{{ timesketch_postgres_data_dir
+                      | default(timesketch_directory.base + '/postgres_data') }}"
+  opensearch_data: "{{ timesketch_opensearch_data_dir
+                      | default(timesketch_directory.base + '/opensearch_data') }}"
+
+timesketch_file:
+  compose: "{{ timesketch_directory.base ~ '/compose.yml'
+              | default('/opt/timesketch/compose.yml') }}"
+  config: "{{ timesketch_directory.conf ~ '/timesketch.conf'
+              | default('/opt/timesketch/config/timesketch.conf') }}"

@@ -29,8 +29,9 @@ galaxy_info:
     - apps
 
 dependencies:
-  - role: docker_ce
+  - role: jcook3701.pkgs.docker_ce
 
 collections:
+  - jcook3701.utils
   - community.docker
   - containers.podman

@@ -29,7 +29,7 @@
   ansible.builtin.import_role:
     name: jcook3701.utils.container_engine
   vars:
-    engine_project_src: "{{ unifi_os_server_base_dir }}"
-    engine_platform_type: "{{ unifi_os_server_container_engine }}"
-    engine_desired_state: "present"
-    engine_trigger_condition: true
+    container_engine_project_src: "{{ unifi_os_server_base_dir }}"
+    container_engine_platform_type: "{{ unifi_os_server_container_engine }}"
+    container_engine_desired_state: "present"
+    container_engine_trigger_condition: true

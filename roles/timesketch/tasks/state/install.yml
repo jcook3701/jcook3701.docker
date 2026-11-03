@@ -1,10 +1,21 @@
 # SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
-- name: Install Timesketch OSINT-timeline Server
-  ansible.builtin.package:
-    name: "{{ timesketch_dep_pkg_names | default(['timesketch'])  }}"
-    state: present
-  become: true
+- name: Execute Timesketch configuration tasks
+  ansible.builtin.include_tasks: "configure/main.yml"
 
-- name: Install Timesketch OSINT-timeline Server
+- name: Adjust host kernel virtual memory mapping limits for OpenSearch
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: "262144"
+    state: present
+    reload: true
+
+- name: Trigger container engine stack deployment
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    container_engine_project_src: "{{ timesketch_directory.base | default('/opt/timesketch') }}"
+    container_engine_platform_type: "{{ timesketch_container_engine | default('docker') }}"
+    container_engine_desired_state: present
+    container_engine_trigger_condition: true

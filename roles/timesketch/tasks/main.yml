@@ -1,14 +1,6 @@
 # SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
-- name: Load timesketch OS-specific variables
-  ansible.builtin.include_vars: "{{ timesketch_vars }}"
-  with_first_found:
-    - "{{ ansible_facts['os_family'] | lower }}.yml"
-  loop_control:
-    loop_var: timesketch_vars
-    label: "Loading variables file: {{ timesketch_vars }}"
-
 - name: Ensure timesketch is installed and configured
   ansible.builtin.include_tasks:  state/install.yml
   when: timesketch_state | default('present') == 'present'

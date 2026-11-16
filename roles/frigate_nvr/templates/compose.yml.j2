@@ -31,12 +31,16 @@ services:
     ports:
       - "{{ frigate_nvr_web_port }}:5000"
       - "{{ frigate_nvr_rtsp_port }}:1935"
-      - "{{ frigate_nvr_webrtc_port }}:8554"
+      - "{{ frigate_nvr_webrtc_port }}:8554" # RTSP feeds
       - "{{ frigate_nvr_webrtc_udp_port }}:8555/udp"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - "{{ frigate_nvr_project_src }}/config.yml:/config/config.yml:ro"
-      - "{{ frigate_nvr_storage_dir }}:/media/frigate"
+      - "{{ frigate_nvr_directory.conf }}/config.yml:/config/config.yml:ro"
+      - "{{ frigate_nvr_directory.storage }}/:/media/frigate"
+      - type: tmpfs # 1GB In-memory filesystem for recording segment storage
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
     devices:
 {% for device in frigate_nvr_devices %}
       - "{{ device }}"

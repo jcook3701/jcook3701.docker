@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 - name: Ensure timesketch is installed and configured
-  ansible.builtin.include_tasks:  state/install.yml
+  ansible.builtin.include_tasks: state/install.yml
   when: timesketch_state | default('present') == 'present'
 
 - name: Ensure timesketch is uninstalled from system

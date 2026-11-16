@@ -4,7 +4,7 @@
 - name: Execute Frigate NVR configuration tasks
   ansible.builtin.include_tasks: "configure/main.yml"
 
-- name: Trigger container engine stack deployment
+- name: Trigger Frigate NVR container engine stack deployment
   ansible.builtin.import_role:
     name: jcook3701.utils.container_engine
   vars:

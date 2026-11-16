@@ -6,4 +6,4 @@
 
 - name: Include Timesketch Database Creation tasks
   ansible.builtin.include_tasks: "02_database.yml"
-  when: false | bool  # TODO: Remove this when the database creation tasks are implemented
+  when: false | bool # TODO: Remove this when the database creation tasks are implemented

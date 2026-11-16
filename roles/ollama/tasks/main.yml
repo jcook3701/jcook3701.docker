@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Ensure Ollama is installed and configured
+  ansible.builtin.include_tasks: state/install.yml
+  when: ollama_state | default('present') == 'present'
+
+- name: Ensure Ollama is uninstalled from system
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: ollama_state | default('present') == 'absent'
+
+- name: Ensure Ollama is purged from system
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: ollama_state | default('present') == 'teardown'

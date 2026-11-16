@@ -5,6 +5,7 @@
 # -----------------------------------------------------------------------------
 frigate_nvr_container_engine: "docker" # Options: docker, podman
 frigate_nvr_state: "present"           # Options: present, absent, teardown
+frigate_nvr_debug_mode: false
 
 # Container Image and Delivery Configurations
 # -----------------------------------------------------------------------------
@@ -39,3 +40,22 @@ frigate_nvr_devices: []
 frigate_nvr_mqtt_host: "localhost"
 frigate_nvr_mqtt_user: ""
 frigate_nvr_mqtt_password: ""
+
+# Camera Matrix Pipeline Configuration Arrays
+# -----------------------------------------------------------------------------
+frigate_nvr_cameras: []
+  # Example configuration schema for inventory/host provisioning:
+  # - name: front_door
+  #   enabled: true
+  #   detect_enabled: true
+  #   width: 1920
+  #   height: 1080
+  #   fps: 5
+  #   inputs:
+  #     - path: "rtsp://127.0.0.1:554/stream"
+  #       roles:
+  #         - detect
+  #         - record
+  #   zones:
+  #     driveway:
+  #       coordinates: "0,473,439,461,902,481,100,200"

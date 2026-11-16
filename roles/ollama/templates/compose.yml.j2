@@ -82,7 +82,7 @@ services:
       WEBUI_URL: "{{ ollama_webui_url | default('') }}"
       # Authentication & Registration
       WEBUI_AUTH: "{{ ollama_webui_auth | default(true) | bool | lower }}"
-      WEBUI_SECRET_KEY: "{{ ollama_webui_secret_key | default('change_this_to_a_secure_random_string_in_production') }}"
+      WEBUI_SECRET_KEY: {{ ollama_webui_secret_key | default('change_this_to_a_secure_random_string_in_production') | to_json }}
       ENABLE_SIGNUP: "{{ ollama_webui_enable_signup | default(false) | bool | lower }}"
       # Ollama Backend Connection
       OLLAMA_BASE_URLS: "{{ ollama_backend_internal_url | default('http://ollama:11434') }}"
@@ -90,7 +90,7 @@ services:
       NO_PROXY: "{{ ollama_webui_no_proxy | default('') }}"
       # RAG & Web Search
       ENABLE_WEB_SEARCH: "{{ ollama_webui_enable_rag_web_search | default(true) | bool | lower }}"
-      WEB_SEARCH_ENGINE: "{{ ollama_webui_rag_web_search_engine | default('duckduckgo') }}"
+      WEB_SEARCH_ENGINE: "{{ ollama_webui_rag_web_search_engine | default('searxng') }}"
       SEARXNG_QUERY_URL: "{{ ollama_webui_searxng_query_url | default('http://searxng:8080/search') }}"
       SEARXNG_LANGUAGE: "{{ ollama_webui_searxng_language | default('all') }}"
     networks:
@@ -127,7 +127,7 @@ services:
       TZ: "{{ ollama_n8n_timezone | default('America/Los_Angeles') }}"
 {% if ollama_n8n_encryption_key | default('') | length > 0 %}
       # Optional Explicit Encryption Key
-      N8N_ENCRYPTION_KEY: "{{ ollama_n8n_encryption_key }}"
+      N8N_ENCRYPTION_KEY: {{ ollama_n8n_encryption_key | to_json }}
 {% endif %}
 {% if ollama_n8n_editor_base_url | default('') | length > 0 %}
       N8N_EDITOR_BASE_URL: "{{ ollama_n8n_editor_base_url }}"
@@ -155,9 +155,11 @@ services:
       - "--servers={{ ollama_mcp_gateway_servers | default(['duckduckgo']) | join(',') }}"
       - "--transport={{ ollama_mcp_gateway_transport | default('streaming') }}"
       - "--port={{ ollama_mcp_gateway_internal_port | default(8811) }}"
-{% if ollama_mcp_gateway_auth_token | default('') | length > 0 %}
     environment:
-      MCP_GATEWAY_AUTH_TOKEN: "{{ ollama_mcp_gateway_auth_token }}"
+      # Allow the gateway to run against Docker Engine without Docker Desktop.
+      DOCKER_MCP_IN_CONTAINER: "1"
+{% if ollama_mcp_gateway_auth_token | default('') | length > 0 %}
+      MCP_GATEWAY_AUTH_TOKEN: {{ ollama_mcp_gateway_auth_token | to_json }}
 {% endif %}
     ports:
       - "{{ ollama_host_bind_ip | default('127.0.0.1') }}:{{ ollama_mcp_gateway_external_port | default(8811) }}:{{ ollama_mcp_gateway_internal_port | default(8811) }}"
@@ -189,6 +191,11 @@ services:
       - "warning"
     volumes:
       - "{{ ollama_directory.searxng_valkey | default('/opt/ollama/searxng/valkey') }}:/data"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
     networks:
       - ollama
 
@@ -201,7 +208,8 @@ services:
     pull_policy: always
     restart: "{{ ollama_restart_policy | default('unless-stopped') }}"
     depends_on:
-      - searxng-valkey
+      searxng-valkey:
+        condition: service_healthy
     ports:
       - "{{ ollama_host_bind_ip | default('127.0.0.1') }}:{{ ollama_searxng_external_port | default(8081) }}:{{ ollama_searxng_internal_port | default(8080) }}"
     volumes:
@@ -209,7 +217,7 @@ services:
       - "{{ ollama_directory.searxng_cache | default('/opt/ollama/searxng/cache') }}:/var/cache/searxng"
     environment:
       SEARXNG_PORT: "{{ ollama_searxng_internal_port | default(8080) }}"
-      SEARXNG_SECRET: "{{ ollama_searxng_secret_key }}"
+      SEARXNG_SECRET: {{ ollama_searxng_secret_key | to_json }}
       SEARXNG_VALKEY_URL: "{{ ollama_searxng_valkey_url | default('valkey://searxng-valkey:6379/0') }}"
       FORCE_OWNERSHIP: "true"
     networks:

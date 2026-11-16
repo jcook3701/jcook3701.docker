@@ -18,4 +18,9 @@ ollama_directory:
 # Infrastructure File Locations
 # ---------------------------------------------------------------------------
 ollama_file:
-  compose: "{{ ollama_directory.base ~ '/compose.yml' | default('/opt/ollama/compose.yml') }}"
+  compose: "{{ ollama_directory.base ~ '/compose.yml'
+                        | default('/opt/ollama/compose.yml') }}"
+  searxng_settings: "{{ ollama_directory.searxng_config ~ '/settings.yml'
+                        | default('/opt/ollama/searxng/config/settings.yml') }}"
+  searxng_limiter: "{{ ollama_directory.searxng_config ~ '/limiter.toml'
+                        | default('/opt/ollama/searxng/config/limiter.toml') }}"

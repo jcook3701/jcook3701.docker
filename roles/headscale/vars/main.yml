@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+headscale_directory:
+  base: "{{ headscale_base_dir
+                | default('/opt/headscale') }}"
+  config: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/config')
+                | default('/opt/headscale/config') }}"
+  lib: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/lib')
+                | default('/opt/headscale/lib') }}"
+  backups: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/backups')
+                | default('/opt/headscale/backups') }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+headscale_file:
+  compose: "{{ ((headscale_directory.base | default('/opt/headscale')) ~ '/compose.yml')
+                | default('/opt/headscale/compose.yml') }}"
+  config: "{{ ((headscale_directory.config | default('/opt/headscale/config')) ~ '/config.yaml')
+                | default('/opt/headscale/config/config.yaml') }}"

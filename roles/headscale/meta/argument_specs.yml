@@ -1,0 +1,302 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure Headscale using Docker
+    description:
+      - Deploy and manage a self-hosted Tailscale coordination server.
+      - Configure SQLite persistence, DNS, DERP, networking, and client policy.
+    author:
+      - Jared Cook
+    options:
+      # ---------------------------------------------------------------------
+      # Runtime Orchestration Engine and Service State
+      # ---------------------------------------------------------------------
+      headscale_container_engine:
+        type: str
+        required: false
+        default: "docker"
+        choices:
+          - "docker"
+          - "podman"
+        description:
+          - Container engine used by the shared lifecycle role.
+      headscale_state:
+        type: str
+        required: false
+        default: "present"
+        choices:
+          - "present"
+          - "absent"
+          - "teardown"
+        description:
+          - "Desired lifecycle: present, absent, or teardown."
+      headscale_debug_mode:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable optional role diagnostics.
+      # ---------------------------------------------------------------------
+      # Headscale Container Image and Identity
+      # ---------------------------------------------------------------------
+      headscale_image:
+        type: str
+        required: false
+        default: "docker.io/headscale/headscale:0.29.7"
+        description:
+          - Version-pinned official Headscale container image.
+      headscale_container_name:
+        type: str
+        required: false
+        default: "headscale"
+        description:
+          - Name assigned to the Headscale container.
+      headscale_pull_policy:
+        type: str
+        required: false
+        default: "always"
+        choices:
+          - "always"
+          - "missing"
+          - "never"
+        description:
+          - Docker Compose image pull policy.
+      headscale_restart_policy:
+        type: str
+        required: false
+        default: "unless-stopped"
+        choices:
+          - "no"
+          - "always"
+          - "on-failure"
+          - "unless-stopped"
+        description:
+          - Docker Compose container restart policy.
+      # ---------------------------------------------------------------------
+      # Infrastructure Storage and Path Routing
+      # ---------------------------------------------------------------------
+      headscale_base_dir:
+        type: path
+        required: false
+        default: "/opt/headscale"
+        description:
+          - Host root for the deployment, data, and configuration.
+      # ---------------------------------------------------------------------
+      # Networking Configuration
+      # ---------------------------------------------------------------------
+      headscale_host_bind_ip:
+        type: str
+        required: false
+        default: "127.0.0.1"
+        description:
+          - Host IP on which to publish the Headscale control port; localhost by default.
+      headscale_external_port:
+        type: int
+        required: false
+        default: 8080
+        description:
+          - Host TCP port mapped to the control API.
+      headscale_internal_port:
+        type: int
+        required: false
+        default: 8080
+        description:
+          - Container TCP port on which Headscale listens.
+      headscale_metrics_enabled:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable metrics listener; published only on host loopback.
+      headscale_metrics_external_port:
+        type: int
+        required: false
+        default: 9090
+        description:
+          - Host loopback port mapped to optional metrics listener.
+      headscale_metrics_internal_port:
+        type: int
+        required: false
+        default: 9090
+        description:
+          - Container port used by the optional metrics listener.
+      # ---------------------------------------------------------------------
+      # Control Server and Logging
+      # ---------------------------------------------------------------------
+      headscale_server_url:
+        type: str
+        required: false
+        default: "https://headscale.example.com"
+        description:
+          - Public HTTPS URL reachable by Tailscale clients; change placeholder before use.
+      headscale_trusted_proxies:
+        type: list
+        required: false
+        default: []
+        elements: str
+        description:
+          - Trusted reverse-proxy CIDRs permitted to supply forwarded client IP headers.
+      headscale_log_level:
+        type: str
+        required: false
+        default: "info"
+        choices:
+          - "panic"
+          - "fatal"
+          - "error"
+          - "warn"
+          - "info"
+          - "debug"
+          - "trace"
+        description:
+          - Headscale log level.
+      headscale_log_format:
+        type: str
+        required: false
+        default: "text"
+        choices:
+          - "text"
+          - "json"
+        description:
+          - Headscale log output format.
+      # ---------------------------------------------------------------------
+      # Tailnet Address Allocation
+      # ---------------------------------------------------------------------
+      headscale_prefix_v4:
+        type: str
+        required: false
+        default: "100.64.0.0/10"
+        description:
+          - IPv4 prefix for allocating tailnet addresses; must be within 100.64.0.0/10.
+      headscale_prefix_v6:
+        type: str
+        required: false
+        default: "fd7a:115c:a1e0::/48"
+        description:
+          - IPv6 prefix for allocating tailnet addresses; must be within fd7a:115c:a1e0::/48.
+      headscale_prefix_allocation:
+        type: str
+        required: false
+        default: "sequential"
+        choices:
+          - "sequential"
+          - "random"
+        description:
+          - Tailnet IP allocation strategy.
+      # ---------------------------------------------------------------------
+      # Headscale DNS Configuration
+      # ---------------------------------------------------------------------
+      headscale_dns_magic_dns:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Enable MagicDNS hostnames for tailnet clients.
+      headscale_dns_base_domain:
+        type: str
+        required: false
+        default: "tailnet.example.com"
+        description:
+          - DNS domain for MagicDNS; distinct from the control-server hostname.
+      headscale_dns_override_local_dns:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Push configured DNS resolvers to tailnet nodes.
+      headscale_dns_nameservers_global:
+        type: list
+        required: false
+        default: ["1.1.1.1", "1.0.0.1"]
+        elements: str
+        description:
+          - Global DNS resolver addresses advertised to clients.
+      headscale_dns_nameservers_split:
+        type: dict
+        required: false
+        default: {}
+        description:
+          - Split DNS mapping of domains to resolver address lists.
+      headscale_dns_search_domains:
+        type: list
+        required: false
+        default: []
+        elements: str
+        description:
+          - Additional DNS search domains advertised to clients.
+      headscale_dns_extra_records:
+        type: list
+        required: false
+        default: []
+        elements: dict
+        description:
+          - Extra MagicDNS A or AAAA record definitions.
+      # ---------------------------------------------------------------------
+      # DERP Relay Configuration
+      # ---------------------------------------------------------------------
+      headscale_derp_embedded_enabled:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable the embedded DERP relay; requires additional HTTPS/STUN routing.
+      headscale_derp_urls:
+        type: list
+        required: false
+        default: ["https://controlplane.tailscale.com/derpmap/default"]
+        elements: str
+        description:
+          - Remote DERP map URLs distributed to clients.
+      headscale_derp_auto_update_enabled:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Automatically refresh DERP maps.
+      headscale_derp_update_frequency:
+        type: str
+        required: false
+        default: "3h"
+        description:
+          - Frequency at which DERP maps are refreshed.
+      # ---------------------------------------------------------------------
+      # Access Policy and Client Features
+      # ---------------------------------------------------------------------
+      headscale_policy_mode:
+        type: str
+        required: false
+        default: "file"
+        choices:
+          - "file"
+          - "database"
+        description:
+          - "Location of access policy: file or database."
+      headscale_policy_path:
+        type: str
+        required: false
+        default: ""
+        description:
+          - Absolute path in the container to an optional HuJSON policy file.
+      headscale_taildrop_enabled:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Enable tailnet file sharing (Taildrop).
+      headscale_logtail_enabled:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Allow forwarding client logtail telemetry to Tailscale.
+      # ---------------------------------------------------------------------
+      # Additional Container Configuration
+      # ---------------------------------------------------------------------
+      headscale_extra_environment:
+        type: dict
+        required: false
+        default: {}
+        description:
+          - Additional environment variables for the Headscale container.

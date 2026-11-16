@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Create Headscale deployment and configuration directories
+  ansible.builtin.file:
+    path: "{{ directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ headscale_directory.base | default('/opt/headscale') }}"
+    - "{{ headscale_directory.config | default('/opt/headscale/config') }}"
+  loop_control:
+    loop_var: directory
+    label: "Creating directory: {{ directory }}"
+  become: true
+
+- name: Create restricted Headscale persistent data directories
+  ansible.builtin.file:
+    path: "{{ directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  loop:
+    - "{{ headscale_directory.lib | default('/opt/headscale/lib') }}"
+    - "{{ headscale_directory.backups | default('/opt/headscale/backups') }}"
+  loop_control:
+    loop_var: directory
+    label: "Creating directory: {{ directory }}"
+  become: true
+
+- name: Deploy Headscale application configuration
+  ansible.builtin.template:
+    src: headscale/config.yaml.j2
+    dest: "{{ headscale_file.config }}"
+    owner: root
+    group: root
+    mode: "0600"
+  become: true
+
+- name: Deploy Headscale Compose configuration
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ headscale_file.compose }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true

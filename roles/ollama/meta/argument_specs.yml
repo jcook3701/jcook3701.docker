@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 argument_specs:
   main:
@@ -217,7 +219,7 @@ argument_specs:
 
       ollama_webui_internal_port:
         type: int
-        default: 3000
+        default: 8080
         description:
           - Internal listening port of Open WebUI.
 
@@ -394,6 +396,14 @@ argument_specs:
         description:
           - Enable SearXNG request rate limiting.
 
+      ollama_searxng_limiter_pass_ips:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Trusted IP addresses or CIDR networks exempt from SearXNG limiter checks.
+          - Leave empty unless the exact client address or network is trusted.
+
       ollama_searxng_image_proxy:
         type: bool
         default: true
@@ -417,7 +427,7 @@ argument_specs:
 
       ollama_webui_rag_web_search_engine:
         type: str
-        default: duckduckgo
+        default: searxng
         description:
           - Search provider used by Open WebUI RAG web search.
 

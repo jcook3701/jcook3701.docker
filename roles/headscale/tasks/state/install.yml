@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Execute Headscale configuration tasks
+  ansible.builtin.include_tasks: "configure/main.yml"
+
+- name: Trigger Headscale container engine stack deployment
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    container_engine_project_src: "{{ headscale_directory.base | default('/opt/headscale') }}"
+    container_engine_platform_type: "{{ headscale_container_engine | default('docker') }}"
+    container_engine_desired_state: present
+    container_engine_trigger_condition: true
+
+# - name: Execute Headscale post-processing configuration tasks
+#  ansible.builtin.include_tasks: "post_processing/main.yml"

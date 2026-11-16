@@ -1,5 +1,16 @@
 # SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
-px4_git_repo: "https://github.com/PX4/PX4-Autopilot"
-px4_bash_alias_file: "{{ sudo_user_home }}/.ansible_aliases"
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+px4_directory:
+  base: "{{ px4_base_dir | default('/opt/px4') }}"
+  workspace: "{{ (px4_base_dir | default('/opt/px4')) ~ '/workspace' }}"
+  ccache: "{{ (px4_base_dir | default('/opt/px4')) ~ '/ccache' }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+px4_file:
+  compose: "{{ ((px4_directory.base | default('/opt/px4')) ~ '/compose.yml') | default('/opt/px4/compose.yml') }}"

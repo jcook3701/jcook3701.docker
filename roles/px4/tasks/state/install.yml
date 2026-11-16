@@ -19,7 +19,7 @@
 - name: Deploy docker-compose.yml template to PX4 directory
   ansible.builtin.template:
     src: docker-compose.yml.j2
-    dest: "{{ px4_dest_dir }}/docker-compose.yml"
+    dest: "{{ px4_dest_dir }}/compose.yml"
     mode: "0644"
   become: true
   become_user: "{{ sudo_user }}"

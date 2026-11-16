@@ -114,6 +114,8 @@ ollama_searxng_instance_name: "SearXNG"
 
 ollama_searxng_safe_search: 1
 ollama_searxng_limiter: true
+# IPs/CIDRs allowed to bypass SearXNG bot detection; empty by default.
+ollama_searxng_limiter_pass_ips: []
 ollama_searxng_image_proxy: true
 
 ollama_searxng_valkey_url: "valkey://searxng-valkey:6379/0"

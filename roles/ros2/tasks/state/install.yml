@@ -13,5 +13,5 @@
     container_engine_desired_state: present
     container_engine_trigger_condition: true
 
-- name: Execute ROS2 post-processing configuration tasks
-  ansible.builtin.include_tasks: "post_processing/main.yml"
+# - name: Execute ROS2 post-processing configuration tasks
+#  ansible.builtin.include_tasks: "post_processing/main.yml"

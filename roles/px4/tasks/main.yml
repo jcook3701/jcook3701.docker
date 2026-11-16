@@ -12,10 +12,14 @@
   with_first_found:
     - "{{ ansible_facts['os_family'] | lower }}.yml"
 
-- name: Route to uninstall tasks if requested
-  ansible.builtin.include_tasks: uninstall.yml
-  when: action | default('install') == 'uninstall'
-
 - name: Route to install tasks if requested
-  ansible.builtin.include_tasks: install.yml
-  when: action | default('install') == 'install'
+  ansible.builtin.include_tasks: state/install.yml
+  when: px4_state | default('install') == 'install'
+
+- name: Route to uninstall tasks if requested
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: px4_state | default('install') == 'uninstall'
+
+- name: Route to teardown tasks if requested
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: px4_state | default('install') == 'teardown'

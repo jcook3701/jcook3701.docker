@@ -52,6 +52,8 @@
         "pyupgrade",
         "qwen",
         "rpmnew",
+        "ros",
+        "ros2",
         "rustc",
         "searxng",
         "streetsidesoftware",

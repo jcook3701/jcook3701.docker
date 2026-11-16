@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+ros2_directory:
+  base: "{{ ros2_base_dir | default('/opt/ros2') }}"
+  workspace: "{{ (ros2_base_dir | default('/opt/ros2')) ~ '/workspace' }}"
+  workspace_src: "{{ (ros2_base_dir | default('/opt/ros2')) ~ '/workspace/src' }}"
+  ros_home: "{{ (ros2_base_dir | default('/opt/ros2')) ~ '/ros-home' }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+ros2_file:
+  compose: "{{ ((ros2_directory.base | default('/opt/ros2')) ~ '/compose.yml') | default('/opt/ros2/compose.yml') }}"

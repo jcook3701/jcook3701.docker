@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Remove the 'Hello World' image from the local cache
+  community.docker.docker_image:
+    name: hello-world
+    state: absent
+    force: true

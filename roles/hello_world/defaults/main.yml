@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+hello_world_container_engine: "docker"
+hello_world_state: present

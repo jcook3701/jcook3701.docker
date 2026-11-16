@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Ensure Frigate NVR is installed and configured
+  ansible.builtin.include_tasks:  state/install.yml
+  when: frigate_nvr_state | default('present') == 'present'
+
+- name: Ensure Frigate NVR is uninstalled from system
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: frigate_nvr_state | default('present') == 'absent'
+
+- name: Ensure Frigate NVR is purged from system
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: frigate_nvr_state | default('present') == 'teardown'

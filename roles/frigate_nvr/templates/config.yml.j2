@@ -1,0 +1,83 @@
+{#
+# compose.yml.j2 for jcook3701.docker.frigate_nvr
+#
+# SPDX-FileCopyrightText: Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#}
+
+{% macro config() -%}
+---
+# Frigate Global System Configuration
+# -----------------------------------------------------------------------------
+mqtt:
+  host: "{{ frigate_nvr_mqtt_host }}"
+  {% if frigate_nvr_mqtt_user | length > 0 %}
+  user: "{{ frigate_nvr_mqtt_user }}"
+  password: "{{ frigate_nvr_mqtt_password }}"
+  {% endif %}
+
+database:
+  path: /media/frigate/frigate.db
+
+# Global Video and Stream Interception Defaults
+# -----------------------------------------------------------------------------
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+record:
+  enabled: true
+  retain:
+    days: 7
+    mode: all
+
+snapshots:
+  enabled: true
+  retain:
+    default: 14
+
+# Camera Matrix Mapping Pipeline
+# -----------------------------------------------------------------------------
+cameras:
+{% for camera in frigate_nvr_cameras | default([]) %}
+  {{ camera.name }}:
+    enabled: {{ camera.enabled | default(true) | bool | lower }}
+    ffmpeg:
+      inputs:
+{% for input in camera.inputs %}
+        - path: "{{ input.path }}"
+          roles:
+{% for role in input.roles %}
+            - {{ role }}
+{% endfor %}
+{% endfor %}
+    detect:
+      enabled: {{ camera.detect_enabled | default(true) | bool | lower }}
+      width: {{ camera.width | default(1920) }}
+      height: {{ camera.height | default(1080) }}
+      fps: {{ camera.fps | default(5) }}
+{% if camera.zones is defined %}
+    zones:
+{% for zone_name, zone_details in camera.zones.items() %}
+      {{ zone_name }}:
+        coordinates: "{{ zone_details.coordinates }}"
+{% endfor %}
+{% endif %}
+{% endfor %}
+{%- endmacro %}
+
+{{- config() -}}

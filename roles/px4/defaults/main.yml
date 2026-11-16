@@ -1,0 +1,69 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+px4_container_engine: "docker"
+px4_state: present
+px4_debug_mode: false
+
+# ---------------------------------------------------------------------------
+# PX4 Development Container
+# ---------------------------------------------------------------------------
+# Official multi-architecture PX4 build toolchain (Ubuntu 24.04).
+px4_image: "docker.io/px4io/px4-dev:v1.17.0"
+px4_container_name: "px4"
+px4_pull_policy: "always"
+px4_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Optional PX4 Software-in-the-Loop Simulation
+# ---------------------------------------------------------------------------
+# Optional headless SIH simulator; does not require Gazebo or a display.
+px4_manage_sitl: false
+px4_sitl_image: "docker.io/px4io/px4-sitl:latest"
+px4_sitl_container_name: "px4-sitl"
+
+# Empty uses the simulator's default vehicle (quadcopter).
+# Other models include sihsim_airplane and sihsim_rover_ackermann.
+px4_sitl_model: ""
+px4_sitl_extra_environment: {}
+px4_sitl_extra_volumes: []
+
+# ---------------------------------------------------------------------------
+# Infrastructure Storage and Path Routing
+# ---------------------------------------------------------------------------
+px4_base_dir: "/opt/px4"
+
+# ---------------------------------------------------------------------------
+# Interactive Development Container
+# ---------------------------------------------------------------------------
+px4_tty: true
+px4_stdin_open: true
+
+# Keep the development toolchain running for docker compose exec.
+# This is not the SITL launch command.
+px4_command:
+  - "sleep"
+  - "infinity"
+
+# Empty preserves the upstream container user. Builds may create root-owned
+# files in the bind-mounted workspace unless user mapping is configured.
+px4_container_user: ""
+
+# ---------------------------------------------------------------------------
+# Networking and IPC
+# ---------------------------------------------------------------------------
+# Host networking is useful for PX4/MAVLink/DDS workflows on Linux.
+# No published ports should be declared alongside network_mode: host.
+px4_network_mode: "host"
+px4_ipc_mode: "private"
+
+# ---------------------------------------------------------------------------
+# Hardware and Environment Overrides
+# ---------------------------------------------------------------------------
+# Examples: /dev/ttyUSB0:/dev/ttyUSB0, /dev/serial/by-id/...:/dev/ttyUSB0
+px4_devices: []
+px4_extra_volumes: []
+px4_extra_environment: {}

@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Include standard termination routine definitions
+  ansible.builtin.include_tasks: uninstall.yml
+
+- name: Purge remaining historical data layers and configurations
+  ansible.builtin.file:
+    path: "{{ unifi_os_server_base_dir }}"
+    state: absent

@@ -1,0 +1,79 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Create persistent storage base subdirectories
+  ansible.builtin.file:
+    path: "{{ directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ ollama_directory.base | default('/opt/ollama') }}"
+    - "{{ ollama_directory.backups | default('/opt/ollama/backups') }}"
+    - "{{ ollama_directory.ollama | default('/opt/ollama/ollama') }}"
+    - "{{ ollama_directory.open_webui | default('/opt/ollama/open-webui') }}"
+  loop_control:
+    loop_var: directory
+    label: "Creating directory: {{ directory }}"
+  become: true
+
+- name: Create n8n persistent storage with container user ownership
+  ansible.builtin.file:
+    path: "{{ ollama_directory.n8n | default('/opt/ollama/n8n') }}"
+    state: directory
+    owner: "1000"
+    group: "1000"
+    mode: "0700"
+  become: true
+  when: ollama_manage_n8n | default(false) | bool
+
+- name: Create SearXNG persistent storage directories
+  ansible.builtin.file:
+    path: "{{ directory }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ ollama_directory.searxng_config | default('/opt/ollama/searxng/config') }}"
+    - "{{ ollama_directory.searxng_cache | default('/opt/ollama/searxng/cache') }}"
+  loop_control:
+    loop_var: directory
+    label: "Creating directory: {{ directory }}"
+  become: true
+  when: ollama_manage_searxng | default(false) | bool
+
+# Official valkey/valkey:9-alpine runs with UID 999 / GID 1000.
+- name: Create Valkey persistent data directory
+  ansible.builtin.file:
+    path: "{{ ollama_directory.searxng_valkey | default('/opt/ollama/searxng/valkey') }}"
+    state: directory
+    owner: "999"
+    group: "1000"
+    mode: "0750"
+  become: true
+  when: ollama_manage_searxng | default(false) | bool
+
+- name: Deploy SearXNG settings configuration
+  ansible.builtin.template:
+    src: searxng/settings.yml.j2
+    dest: "{{ ollama_file.searxng_settings }}"
+    mode: "0644"
+  become: true
+  when: ollama_manage_searxng | default(false) | bool
+
+- name: Deploy SearXNG limiter configuration
+  ansible.builtin.template:
+    src: searxng/limiter.toml.j2
+    dest: "{{ ollama_file.searxng_limiter }}"
+    mode: "0644"
+  become: true
+  when: ollama_manage_searxng | default(false) | bool
+
+- name: Deploy Ollama Compose configuration
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ ollama_file.compose }}"
+    owner: root
+    group: root
+    mode: "0600"
+  become: true

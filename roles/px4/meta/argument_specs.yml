@@ -1,0 +1,215 @@
+
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure PX4-Autopilot using Docker
+    description:
+      - Deploy and manage a PX4-Autopilot development environment using a container engine.
+      - Optionally deploy PX4 Software-in-the-Loop (SITL) simulation.
+      - Configure persistent workspaces, networking, hardware access, and runtime settings.
+    author:
+      - Jared Cook
+
+    options:
+      # ---------------------------------------------------------------------
+      # Runtime Orchestration Engine and Service State
+      # ---------------------------------------------------------------------
+      px4_container_engine:
+        type: str
+        required: false
+        default: docker
+        choices:
+          - docker
+          - podman
+        description:
+          - Container engine used to deploy and manage PX4-Autopilot.
+
+      px4_state:
+        type: str
+        required: false
+        default: present
+        choices:
+          - present
+          - absent
+          - teardown
+        description:
+          - Desired lifecycle state of the PX4 containers and configuration.
+
+      px4_debug_mode:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable additional debugging output during role execution.
+
+      # ---------------------------------------------------------------------
+      # PX4 Development Container
+      # ---------------------------------------------------------------------
+      px4_image:
+        type: str
+        required: false
+        default: docker.io/px4io/px4-dev:v1.17.0
+        description:
+          - Official PX4 development container image and version.
+
+      px4_container_name:
+        type: str
+        required: false
+        default: px4
+        description:
+          - Name assigned to the PX4 development container.
+
+      px4_pull_policy:
+        type: str
+        required: false
+        default: always
+        description:
+          - Container image pull policy used during deployment.
+
+      px4_restart_policy:
+        type: str
+        required: false
+        default: unless-stopped
+        description:
+          - Container restart policy controlling automatic startup and recovery.
+
+      # ---------------------------------------------------------------------
+      # Optional PX4 Software-in-the-Loop Simulation
+      # ---------------------------------------------------------------------
+      px4_manage_sitl:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable deployment of the optional PX4 SITL simulation container.
+
+      px4_sitl_image:
+        type: str
+        required: false
+        default: docker.io/px4io/px4-sitl:latest
+        description:
+          - Container image used for PX4 Software-in-the-Loop simulation.
+
+      px4_sitl_container_name:
+        type: str
+        required: false
+        default: px4-sitl
+        description:
+          - Name assigned to the PX4 SITL simulation container.
+
+      px4_sitl_model:
+        type: str
+        required: false
+        default: ""
+        description:
+          - Optional PX4 simulator vehicle model.
+          - Empty uses the default vehicle model provided by the image.
+
+      px4_sitl_extra_environment:
+        type: dict
+        required: false
+        default: {}
+        description:
+          - Additional environment variables passed to the PX4 SITL container.
+
+      px4_sitl_extra_volumes:
+        type: list
+        elements: str
+        required: false
+        default: []
+        description:
+          - Additional volume mappings mounted into the PX4 SITL container.
+
+      # ---------------------------------------------------------------------
+      # Infrastructure Storage and Path Routing
+      # ---------------------------------------------------------------------
+      px4_base_dir:
+        type: path
+        required: false
+        default: /opt/px4
+        description:
+          - Base directory for PX4 development workspaces and persistent storage.
+
+      # ---------------------------------------------------------------------
+      # Interactive Development Container
+      # ---------------------------------------------------------------------
+      px4_tty:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Allocate a pseudo-TTY for interactive PX4 development sessions.
+
+      px4_stdin_open:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Keep standard input open for interactive container access.
+
+      px4_command:
+        type: list
+        elements: str
+        required: false
+        default:
+          - sleep
+          - infinity
+        description:
+          - Command executed when the PX4 development container starts.
+          - Defaults to keeping the development environment available.
+
+      px4_container_user:
+        type: str
+        required: false
+        default: ""
+        description:
+          - Optional user or UID used to execute the PX4 development container.
+          - Empty preserves the default user defined by the container image.
+
+      # ---------------------------------------------------------------------
+      # Networking and IPC
+      # ---------------------------------------------------------------------
+      px4_network_mode:
+        type: str
+        required: false
+        default: host
+        description:
+          - Container networking mode used for PX4 communication.
+          - Host networking supports MAVLink and robotics integration.
+
+      px4_ipc_mode:
+        type: str
+        required: false
+        default: private
+        description:
+          - Container IPC namespace mode.
+          - Supports private or shared host IPC configurations.
+
+      # ---------------------------------------------------------------------
+      # Hardware and Environment Overrides
+      # ---------------------------------------------------------------------
+      px4_devices:
+        type: list
+        elements: str
+        required: false
+        default: []
+        description:
+          - Host hardware devices mapped into the PX4 development container.
+          - Supports serial interfaces, USB devices, and flight-controller hardware.
+
+      px4_extra_volumes:
+        type: list
+        elements: str
+        required: false
+        default: []
+        description:
+          - Additional host directories or volumes mounted into the PX4 container.
+
+      px4_extra_environment:
+        type: dict
+        required: false
+        default: {}
+        description:
+          - Additional environment variables passed to the PX4 development container.

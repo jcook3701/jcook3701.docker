@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Ensure unifi_os_server is installed and configured
+  ansible.builtin.include_tasks:  state/install.yml
+  when: unifi_os_server_state | default('present') == 'present'
+
+- name: Ensure unifi_os_server is uninstalled from system
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: unifi_os_server_state | default('present') == 'absent'
+
+- name: Ensure unifi_os_server is purged from system
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: unifi_os_server_state | default('present') == 'teardown'

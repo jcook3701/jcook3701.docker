@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+mirth_project_dir: "/opt/mirth-gateway"
+edan_mllp_port: "2575"
+
+mirth_db_name: "mirth_db"
+mirth_db_user: "mirth_admin"
+mirth_db_password: "ChangeThisToA_SecurePassword123!"

@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Execute Docker Nvidia Container to verify GPU access
+  community.docker.docker_container:
+    name: ansible_nvidia_test
+    image: nvidia/cuda:12.8.1-base-ubuntu24.04
+    state: started
+    detach: false
+    runtime: nvidia
+    device_requests:
+      - driver: nvidia
+        count: -1
+        capabilities:
+          - [gpu]
+    command: nvidia-smi
+  register: container_result
+
+- name: Display Nvidia console output
+  ansible.builtin.debug:
+    msg: "{{ container_result.container.Output.split('\n') }}"

@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: Install and configure the NVIDIA Container Runtime
+    description:
+      - Install and configure NVIDIA Container Toolkit integration
+        with the selected container engine.
+      - Optionally remove the NVIDIA Container Toolkit configuration.
+    author:
+      - Jared Cook
+    options:
+      nvidia_container_engine:
+        type: str
+        default: docker
+        description:
+          - Container engine to configure for NVIDIA GPU access.
+        choices: ['docker', 'podman']
+
+      nvidia_state:
+        type: str
+        default: present
+        description:
+          - Whether the NVIDIA Container Toolkit should be installed or removed.
+        choices: ['present', 'absent', 'teardown']
+
+      nvidia_debug_mode:
+        type: bool
+        default: false
+        description:
+          - Enable additional debug output during role execution.

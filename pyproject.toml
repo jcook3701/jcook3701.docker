@@ -56,6 +56,7 @@ dev = [
   "galaxy-importer>=0.4",
 ]
 tools = [
+  "ansible-navigator>=26.11",
   "antsibull-changelog>=0.34",
   "antsichaut>=0.4",
   "bump-my-version>=1.2",

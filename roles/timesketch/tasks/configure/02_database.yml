@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Timesketch Orchestrator | Execute Transient Database Initialization"
+  block:
+    - name: "Docker | Run Transient Database Init Container"
+      community.docker.docker_container:
+        name: "timesketch-init-transient"
+        image: "{{ timesketch_image }}"
+        command: "timesketch_importer --init_db"
+        state: "started"
+        restart_policy: "no"
+        cleanup: true
+        detach: false
+        network_mode: "{{ timesketch_network_name }}"
+        networks:
+          - name: "{{ timesketch_network_name }}"
+        volumes:
+          - "{{ timesketch_directory.conf }}:/etc/timesketch"
+        env:
+          TIMESKETCH_USER: "{{ timesketch_admin_user }}"
+          TIMESKETCH_PASSWORD: "{{ timesketch_admin_password }}"
+      register: _timesketch_init_docker_result
+      failed_when:
+        - _timesketch_init_docker_result.container.State.ExitCode is defined
+        - _timesketch_init_docker_result.container.State.ExitCode != 0
+      when: timesketch_container_engine == 'docker'
+
+    - name: "Podman | Run Transient Database Init Container"
+      containers.podman.podman_container:
+        name: "timesketch-init-transient"
+        image: "{{ timesketch_image }}"
+        command: "timesketch_importer --init_db"
+        state: "started"
+        restart_policy: "no"
+        rm: true
+        detach: false
+        network: "{{ timesketch_network_name }}"
+        volume:
+          - "{{ timesketch_directory.conf }}:/etc/timesketch"
+        env:
+          TIMESKETCH_USER: "{{ timesketch_admin_user }}"
+          TIMESKETCH_PASSWORD: "{{ timesketch_admin_password }}"
+      register: _timesketch_init_podman_result
+      failed_when:
+        - _timesketch_init_podman_result.exit_code is defined
+        - _timesketch_init_podman_result.exit_code != 0
+      when: timesketch_container_engine == 'podman'

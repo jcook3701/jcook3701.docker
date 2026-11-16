@@ -1,0 +1,500 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure Ollama and its supporting AI services
+    description:
+      - Deploy and manage Ollama using the selected container engine.
+      - Optionally manage Open WebUI, n8n, Docker MCP Gateway, and SearXNG.
+      - Configure networking, persistent storage, NVIDIA GPU access, and application security.
+      - Optionally preload Ollama models after deployment.
+    author:
+      - Jared Cook
+
+    options:
+      # ---------------------------------------------------------------------
+      # Runtime Orchestration Engine and Service State
+      # ---------------------------------------------------------------------
+      ollama_container_engine:
+        type: str
+        default: docker
+        choices:
+          - docker
+          - podman
+        description:
+          - Container engine used to deploy and manage Ollama services.
+
+      ollama_state:
+        type: str
+        default: present
+        choices:
+          - present
+          - absent
+          - teardown
+        description:
+          - Whether the Ollama services should be deployed or removed.
+
+      ollama_debug_mode:
+        type: bool
+        default: false
+        description:
+          - Enable additional debug output during role execution.
+
+      # ---------------------------------------------------------------------
+      # Optional Service Management
+      # ---------------------------------------------------------------------
+      ollama_manage_web_ui:
+        type: bool
+        default: true
+        description:
+          - Enable management and deployment of the Open WebUI frontend.
+
+      ollama_manage_n8n:
+        type: bool
+        default: true
+        description:
+          - Enable management and deployment of n8n workflow automation.
+
+      ollama_manage_mcp:
+        type: bool
+        default: true
+        description:
+          - Enable management and deployment of Docker MCP Gateway.
+
+      ollama_manage_searxng:
+        type: bool
+        default: true
+        description:
+          - Enable management and deployment of SearXNG and supporting services.
+
+      # ---------------------------------------------------------------------
+      # Service Container Images and Engine Versions
+      # ---------------------------------------------------------------------
+      ollama_backend_image:
+        type: str
+        default: docker.io/ollama/ollama:latest
+        description:
+          - Container image used for the Ollama backend.
+
+      ollama_webui_image:
+        type: str
+        default: ghcr.io/open-webui/open-webui:main
+        description:
+          - Container image used for the Open WebUI frontend.
+
+      ollama_n8n_image:
+        type: str
+        default: docker.n8n.io/n8nio/n8n:latest
+        description:
+          - Container image used for n8n workflow automation.
+
+      ollama_mcp_gateway_image:
+        type: str
+        default: docker/mcp-gateway:latest
+        description:
+          - Container image used for Docker MCP Gateway.
+
+      ollama_searxng_image:
+        type: str
+        default: docker.io/searxng/searxng:latest
+        description:
+          - Container image used for the SearXNG search engine.
+
+      ollama_searxng_valkey_image:
+        type: str
+        default: docker.io/valkey/valkey:9-alpine
+        description:
+          - Container image used for the SearXNG Valkey backend.
+
+      # ---------------------------------------------------------------------
+      # Container Names
+      # ---------------------------------------------------------------------
+      ollama_backend_container_name:
+        type: str
+        default: ollama
+        description:
+          - Container name assigned to the Ollama backend.
+
+      ollama_webui_container_name:
+        type: str
+        default: ollama-webui
+        description:
+          - Container name assigned to Open WebUI.
+
+      ollama_n8n_container_name:
+        type: str
+        default: ollama-n8n
+        description:
+          - Container name assigned to n8n.
+
+      ollama_mcp_gateway_container_name:
+        type: str
+        default: ollama-mcp-gateway
+        description:
+          - Container name assigned to Docker MCP Gateway.
+
+      ollama_searxng_container_name:
+        type: str
+        default: searxng
+        description:
+          - Container name assigned to SearXNG.
+
+      ollama_searxng_valkey_container_name:
+        type: str
+        default: searxng-valkey
+        description:
+          - Container name assigned to the SearXNG Valkey backend.
+
+      # ---------------------------------------------------------------------
+      # Infrastructure Storage and Path Routing
+      # ---------------------------------------------------------------------
+      ollama_base_dir:
+        type: path
+        default: /opt/ollama
+        description:
+          - Base directory for Ollama application data and deployment files.
+
+      # ---------------------------------------------------------------------
+      # Telly Terminal Configuration
+      # ---------------------------------------------------------------------
+      ollama_backend_tty:
+        type: bool
+        default: true
+        description:
+          - Allocate a pseudo-TTY for the Ollama backend container.
+
+      # ---------------------------------------------------------------------
+      # Networking Configuration
+      # ---------------------------------------------------------------------
+      ollama_host_bind_ip:
+        type: str
+        default: 0.0.0.0
+        description:
+          - Host IP address used to bind published container ports.
+
+      # External Host Ports
+      ollama_external_port:
+        type: int
+        default: 11434
+        description:
+          - Host port mapped to the Ollama backend container.
+
+      ollama_webui_external_port:
+        type: int
+        default: 3000
+        description:
+          - Host port mapped to the Open WebUI frontend container.
+
+      ollama_n8n_external_port:
+        type: int
+        default: 5678
+        description:
+          - Host port mapped to the n8n container.
+
+      ollama_mcp_gateway_external_port:
+        type: int
+        default: 8811
+        description:
+          - Host port mapped to Docker MCP Gateway.
+
+      ollama_searxng_external_port:
+        type: int
+        default: 8081
+        description:
+          - Host port mapped to the SearXNG container.
+
+      # Internal Listening Configuration
+      ollama_internal_bind_ip:
+        type: str
+        default: 0.0.0.0
+        description:
+          - Network address on which the Ollama backend listens inside its container.
+
+      ollama_internal_port:
+        type: int
+        default: 11434
+        description:
+          - Internal listening port of the Ollama backend.
+
+      ollama_webui_internal_port:
+        type: int
+        default: 8080
+        description:
+          - Internal listening port of Open WebUI.
+
+      ollama_n8n_internal_port:
+        type: int
+        default: 5678
+        description:
+          - Internal listening port of n8n.
+
+      ollama_mcp_gateway_internal_port:
+        type: int
+        default: 8811
+        description:
+          - Internal listening port of Docker MCP Gateway.
+
+      ollama_searxng_internal_port:
+        type: int
+        default: 8080
+        description:
+          - Internal listening port of SearXNG.
+
+      # ---------------------------------------------------------------------
+      # Application Security Credentials
+      # ---------------------------------------------------------------------
+      ollama_webui_url:
+        type: str
+        default: ""
+        description:
+          - Public URL used to access Open WebUI.
+          - Leave empty when no external URL is configured.
+
+      ollama_webui_no_proxy:
+        type: str
+        default: localhost,127.0.0.1,ollama
+        description:
+          - Comma-separated addresses that bypass configured HTTP proxies.
+
+      ollama_webui_secret_key:
+        type: str
+        default: change_this_to_a_secure_random_string_in_production
+        no_log: true
+        description:
+          - Secret key used by Open WebUI for session and application security.
+          - Override with a persistent randomly generated secret.
+
+      ollama_webui_enable_signup:
+        type: bool
+        default: false
+        description:
+          - Allow new users to register accounts in Open WebUI.
+
+      # ---------------------------------------------------------------------
+      # n8n Automation Configuration
+      # ---------------------------------------------------------------------
+      ollama_n8n_host:
+        type: str
+        default: ""
+        description:
+          - Hostname used by n8n when generating application URLs.
+
+      ollama_n8n_protocol:
+        type: str
+        default: http
+        choices:
+          - http
+          - https
+        description:
+          - Protocol used by n8n.
+
+      ollama_n8n_listen_address:
+        type: str
+        default: 0.0.0.0
+        description:
+          - Network address on which n8n listens.
+
+      ollama_n8n_secure_cookie:
+        type: bool
+        default: false
+        description:
+          - Require secure cookies for n8n authentication.
+
+      ollama_n8n_timezone:
+        type: str
+        default: America/Los_Angeles
+        description:
+          - Timezone used by n8n workflows and scheduled operations.
+
+      ollama_n8n_proxy_hops:
+        type: int
+        default: 0
+        description:
+          - Number of trusted reverse proxy hops in front of n8n.
+
+      ollama_n8n_encryption_key:
+        type: str
+        default: ""
+        no_log: true
+        description:
+          - Persistent encryption key used by n8n to protect stored credentials.
+          - Leave empty to allow n8n to generate and persist its own key.
+
+      ollama_n8n_editor_base_url:
+        type: str
+        default: ""
+        description:
+          - Optional externally accessible n8n editor URL.
+
+      ollama_n8n_webhook_url:
+        type: str
+        default: ""
+        description:
+          - Optional externally accessible n8n webhook URL.
+
+      ollama_n8n_mcp_base_url:
+        type: str
+        default: ""
+        description:
+          - Optional externally accessible n8n MCP URL.
+
+      # ---------------------------------------------------------------------
+      # Docker MCP Gateway Configuration
+      # ---------------------------------------------------------------------
+      ollama_mcp_gateway_transport:
+        type: str
+        default: streaming
+        description:
+          - Transport protocol used by Docker MCP Gateway.
+
+      ollama_mcp_gateway_servers:
+        type: list
+        elements: str
+        default:
+          - duckduckgo
+        description:
+          - Docker MCP catalog servers enabled by the gateway.
+
+      ollama_mcp_gateway_auth_token:
+        type: str
+        default: ""
+        no_log: true
+        description:
+          - Optional persistent authentication token for Docker MCP Gateway.
+          - Leave empty to allow the gateway to generate its token.
+
+      # ---------------------------------------------------------------------
+      # SearXNG Search Configuration
+      # ---------------------------------------------------------------------
+      ollama_searxng_secret_key:
+        type: str
+        default: change_this_to_a_secure_random_string_in_production
+        no_log: true
+        description:
+          - Secret key used by SearXNG for application security.
+
+      ollama_searxng_instance_name:
+        type: str
+        default: SearXNG
+        description:
+          - Display name assigned to the SearXNG instance.
+
+      ollama_searxng_safe_search:
+        type: int
+        default: 1
+        choices:
+          - 0
+          - 1
+          - 2
+        description:
+          - Safe search level used by SearXNG.
+
+      ollama_searxng_limiter:
+        type: bool
+        default: true
+        description:
+          - Enable SearXNG request rate limiting.
+
+      ollama_searxng_limiter_pass_ips:
+        type: list
+        elements: str
+        default: []
+        description:
+          - Trusted IP addresses or CIDR networks exempt from SearXNG limiter checks.
+          - Leave empty unless the exact client address or network is trusted.
+
+      ollama_searxng_image_proxy:
+        type: bool
+        default: true
+        description:
+          - Enable image proxying through SearXNG.
+
+      ollama_searxng_valkey_url:
+        type: str
+        default: valkey://searxng-valkey:6379/0
+        description:
+          - Valkey connection URL used by SearXNG.
+
+      # ---------------------------------------------------------------------
+      # Open WebUI Web Search Integration
+      # ---------------------------------------------------------------------
+      ollama_webui_enable_rag_web_search:
+        type: bool
+        default: true
+        description:
+          - Enable web search integration for Open WebUI RAG.
+
+      ollama_webui_rag_web_search_engine:
+        type: str
+        default: searxng
+        description:
+          - Search provider used by Open WebUI RAG web search.
+
+      ollama_webui_searxng_query_url:
+        type: str
+        default: http://searxng:8080/search
+        description:
+          - Internal SearXNG search endpoint used by Open WebUI.
+
+      ollama_webui_searxng_language:
+        type: str
+        default: all
+        description:
+          - Language preference passed to SearXNG for Open WebUI searches.
+
+      # ---------------------------------------------------------------------
+      # Resource and Engine Controls
+      # ---------------------------------------------------------------------
+      ollama_enable_gpu:
+        type: bool
+        default: true
+        description:
+          - Enable NVIDIA GPU access for the Ollama backend.
+
+      ollama_docker_runtime:
+        type: str
+        default: nvidia
+        description:
+          - Container runtime used for NVIDIA GPU access.
+
+      ollama_gpu_device_ids:
+        type: list
+        elements: str
+        default:
+          - all
+        description:
+          - GPU device IDs exposed to the Ollama container.
+
+      ollama_gpu_capabilities:
+        type: list
+        elements: str
+        default:
+          - gpu
+          - compute
+          - utility
+        description:
+          - NVIDIA GPU capabilities requested by the Ollama container.
+
+      # ---------------------------------------------------------------------
+      # Post-Provisioning Model Preloading
+      # ---------------------------------------------------------------------
+      ollama_manage_models:
+        type: bool
+        default: false
+        description:
+          - Enable management of Ollama AI models.
+
+      ollama_preload_models:
+        type: list
+        elements: str
+        default:
+          - deepseek-r1:32b
+          - qwen2.5-coder:32b
+          - qwen2.5-coder:7b
+          - llama3.1:8b
+          - qwen2.5-coder:1.5b-base
+          - nomic-embed-text:latest
+        description:
+          - Ollama models to download after the backend becomes available.
+          - Models already installed are skipped.

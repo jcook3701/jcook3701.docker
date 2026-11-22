@@ -364,3 +364,36 @@ argument_specs:
         default: "headscale"
         description:
           - Kubernetes pod name required by Headplane configuration.
+      # ---------------------------------------------------------------------
+      # Client Pre-Authentication Key Configuration
+      # ---------------------------------------------------------------------
+      headscale_manage_client_preauth_key:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Manage a persistent Headscale client registration key.
+      headscale_client_preauth_user:
+        type: str
+        required: false
+        default: "homelab"
+        description:
+          - Headscale user assigned ownership of registered clients.
+      headscale_client_preauth_key_reusable:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Allow the enrollment key to register multiple client machines.
+      headscale_client_preauth_key_expiration:
+        type: str
+        required: false
+        default: "720h"
+        description:
+          - Validity period of newly generated client pre-authentication keys.
+      headscale_client_preauth_key_replace:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Generate a replacement client key and expire the previously recorded key.

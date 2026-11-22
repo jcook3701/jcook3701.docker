@@ -1,0 +1,175 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Create restricted Headscale client enrollment directory
+  ansible.builtin.file:
+    path: "{{ headscale_directory.preauth | default('/opt/headscale/preauth') }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  become: true
+
+- name: Inspect existing Headscale client pre-authentication key
+  ansible.builtin.stat:
+    path: "{{ headscale_file.client_preauth_key | default('/opt/headscale/preauth/key') }}"
+  register: headscale_client_preauth_key_status
+  become: true
+
+- name: Inspect existing Headscale client pre-authentication key identifier
+  ansible.builtin.stat:
+    path: "{{ headscale_file.client_preauth_key_id | default('/opt/headscale/preauth/key_id') }}"
+  register: headscale_client_preauth_key_id_status
+  become: true
+
+- name: Determine whether Headscale client key generation is required
+  ansible.builtin.set_fact:
+    headscale_client_preauth_generate: >-
+      {{ not (headscale_client_preauth_key_status.stat.exists | default(false) | bool)
+         or (headscale_client_preauth_key_replace | default(false) | bool) }}
+
+- name: Read existing Headscale client key identifier before replacement
+  ansible.builtin.slurp:
+    src: "{{ headscale_file.client_preauth_key_id | default('/opt/headscale/preauth/key_id') }}"
+  register: headscale_client_preauth_previous_id
+  when:
+    - headscale_client_preauth_key_replace | default(false) | bool
+    - headscale_client_preauth_key_status.stat.exists | default(false) | bool
+    - headscale_client_preauth_key_id_status.stat.exists | default(false) | bool
+  become: true
+  no_log: true
+
+- name: Find existing Headscale client registration user
+  ansible.builtin.command:
+    argv:
+      - "{{ headscale_container_engine | default('docker') }}"
+      - "exec"
+      - "{{ headscale_container_name | default('headscale') }}"
+      - "headscale"
+      - "users"
+      - "list"
+      - "--name"
+      - "{{ headscale_client_preauth_user | default('homelab') }}"
+      - "--output"
+      - "json"
+  register: headscale_client_preauth_user_lookup
+  changed_when: false
+  when: headscale_client_preauth_generate | default(false) | bool
+  become: true
+
+- name: Create Headscale client registration user when absent
+  ansible.builtin.command:
+    argv:
+      - "{{ headscale_container_engine | default('docker') }}"
+      - "exec"
+      - "{{ headscale_container_name | default('headscale') }}"
+      - "headscale"
+      - "users"
+      - "create"
+      - "{{ headscale_client_preauth_user | default('homelab') }}"
+  when:
+    - headscale_client_preauth_generate | default(false) | bool
+    - (headscale_client_preauth_user_lookup.stdout | from_json | default([], true) | length) == 0
+  changed_when: true
+  become: true
+
+- name: Retrieve Headscale client registration user identifier
+  ansible.builtin.command:
+    argv:
+      - "{{ headscale_container_engine | default('docker') }}"
+      - "exec"
+      - "{{ headscale_container_name | default('headscale') }}"
+      - "headscale"
+      - "users"
+      - "list"
+      - "--name"
+      - "{{ headscale_client_preauth_user | default('homelab') }}"
+      - "--output"
+      - "json"
+  register: headscale_client_preauth_user_details
+  changed_when: false
+  when: headscale_client_preauth_generate | default(false) | bool
+  become: true
+
+- name: Generate Headscale client pre-authentication key
+  ansible.builtin.command:
+    argv:
+      - "{{ headscale_container_engine | default('docker') }}"
+      - "exec"
+      - "{{ headscale_container_name | default('headscale') }}"
+      - "headscale"
+      - "preauthkeys"
+      - "create"
+      - "--user"
+      - "{{ (headscale_client_preauth_user_details.stdout | from_json | first).id | string }}"
+      - "--reusable={{ headscale_client_preauth_key_reusable | default(true) | bool | lower }}"
+      - "--expiration"
+      - "{{ headscale_client_preauth_key_expiration | default('720h') }}"
+      - "--output"
+      - "json"
+  register: headscale_client_preauth_generated
+  when: headscale_client_preauth_generate | default(false) | bool
+  changed_when: true
+  become: true
+  no_log: true
+
+- name: Store Headscale client pre-authentication key
+  ansible.builtin.copy:
+    content: "{{ (headscale_client_preauth_generated.stdout | from_json).key ~ '\n' }}"
+    dest: "{{ headscale_file.client_preauth_key | default('/opt/headscale/preauth/key') }}"
+    owner: root
+    group: root
+    mode: "0600"
+  when: headscale_client_preauth_generate | default(false) | bool
+  become: true
+  no_log: true
+
+- name: Store Headscale client pre-authentication key identifier
+  ansible.builtin.copy:
+    content: "{{ (headscale_client_preauth_generated.stdout | from_json).id | string ~ '\n' }}"
+    dest: "{{ headscale_file.client_preauth_key_id | default('/opt/headscale/preauth/key_id') }}"
+    owner: root
+    group: root
+    mode: "0600"
+  when: headscale_client_preauth_generate | default(false) | bool
+  become: true
+  no_log: true
+
+- name: Expire previous Headscale client pre-authentication key after replacement
+  ansible.builtin.command:
+    argv:
+      - "{{ headscale_container_engine | default('docker') }}"
+      - "exec"
+      - "{{ headscale_container_name | default('headscale') }}"
+      - "headscale"
+      - "preauthkeys"
+      - "expire"
+      - "--id"
+      - "{{ headscale_client_preauth_previous_id.content | b64decode | trim }}"
+  when:
+    - headscale_client_preauth_generate | default(false) | bool
+    - headscale_client_preauth_key_replace | default(false) | bool
+    - headscale_client_preauth_key_status.stat.exists | default(false) | bool
+    - headscale_client_preauth_key_id_status.stat.exists | default(false) | bool
+  changed_when: true
+  become: true
+  no_log: true
+
+- name: Read stored Headscale client pre-authentication key
+  ansible.builtin.slurp:
+    src: "{{ headscale_file.client_preauth_key | default('/opt/headscale/preauth/key') }}"
+  register: headscale_client_preauth_stored
+  become: true
+  no_log: true
+
+- name: Store ready-to-copy Headscale client registration command
+  ansible.builtin.copy:
+    content: >-
+      {{ 'sudo tailscale up --login-server=' ~ (headscale_server_url | default('https://headscale.example.com'))
+      ~ ' --authkey=' ~ (headscale_client_preauth_stored.content | b64decode | trim) ~ '\n' }}
+    dest: "{{ headscale_file.client_preauth_command | default('/opt/headscale/preauth/client-registration.txt') }}"
+    owner: root
+    group: root
+    mode: "0600"
+  become: true
+  no_log: true

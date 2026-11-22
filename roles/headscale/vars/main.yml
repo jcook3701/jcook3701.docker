@@ -17,6 +17,8 @@ headscale_directory:
                 | default('/opt/headscale/headplane/config') }}"
   headplane_data: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/headplane/data')
                 | default('/opt/headscale/headplane/data') }}"
+  preauth: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/preauth')
+                | default('/opt/headscale/preauth') }}"
 
 # ---------------------------------------------------------------------------
 # Infrastructure File Locations
@@ -32,3 +34,9 @@ headscale_file:
                 ~ '/cookie_secret') | default('/opt/headscale/headplane/config/cookie_secret') }}"
   headplane_api_key: "{{ ((headscale_directory.headplane_config | default('/opt/headscale/headplane/config'))
                 ~ '/api_key') | default('/opt/headscale/headplane/config/api_key') }}"
+  client_preauth_key: "{{ ((headscale_directory.preauth | default('/opt/headscale/preauth'))
+                ~ '/key') | default('/opt/headscale/preauth/key') }}"
+  client_preauth_key_id: "{{ ((headscale_directory.preauth | default('/opt/headscale/preauth'))
+                ~ '/key_id') | default('/opt/headscale/preauth/key_id') }}"
+  client_preauth_command: "{{ ((headscale_directory.preauth | default('/opt/headscale/preauth'))
+                ~ '/client-registration.txt') | default('/opt/headscale/preauth/client-registration.txt') }}"

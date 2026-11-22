@@ -133,6 +133,11 @@ Headplane's advanced settings editor is not enabled: it requires write access to
 | `headscale_headplane_cookie_secure` | bool | Require secure browser cookies. | `false` |
 | `headscale_headplane_api_key_expiration` | str | Duration of initially provisioned API key. | `365d` |
 | `headscale_headplane_kubernetes_pod_name` | str | Kubernetes pod name required by Headplane, even when Kubernetes integration is disabled. | `headscale` |
+| `headscale_manage_client_preauth_key` | bool | Generate and store a client registration key when absent. | `false` |
+| `headscale_client_preauth_user` | str | Headscale user owning enrolled clients; created if absent. | `homelab` |
+| `headscale_client_preauth_key_reusable` | bool | Allow the same key to enroll multiple devices. | `true` |
+| `headscale_client_preauth_key_expiration` | str | Lifetime of newly generated enrollment keys. | `720h` |
+| `headscale_client_preauth_key_replace` | bool | Replace the saved key and expire its previous recorded ID. | `false` |
 
 ## Persistent Storage
 

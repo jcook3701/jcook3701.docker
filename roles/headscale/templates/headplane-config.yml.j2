@@ -54,14 +54,14 @@ headscale:
 # ---------------------------------------------------------------------------
 integration:
   agent:
-    enabled: false
+    enabled: {{ headscale_headplane_agent_enabled | default(false) | bool | lower }}
   docker:
-    enabled: false
+    enabled: {{ headscale_headplane_docker_enabled | default(false) | bool | lower }}
   kubernetes:
-    enabled: false
+    enabled: {{ headscale_headplane_kubernetes_enabled | default(false) | bool | lower }}
     pod_name: {{ headscale_headplane_kubernetes_pod_name | default('headscale') | to_json }}
   proc:
-    enabled: false
+    enabled: {{ headscale_headplane_proc_enabled | default(false) | bool | lower }}
 
 {%- endmacro -%}
 

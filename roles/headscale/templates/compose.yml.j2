@@ -18,7 +18,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #}
 
-{%- macro docker_compose() -%}
+{% macro docker_compose() %}
 # SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -34,6 +34,11 @@ services:
     container_name: {{ headscale_container_name | default('headscale') | to_json }}
     pull_policy: {{ headscale_pull_policy | default('always') | to_json }}
     restart: {{ headscale_restart_policy | default('unless-stopped') | to_json }}
+{% if headscale_manage_headplane | default(false) | bool and
+      headscale_headplane_docker_enabled | default(false) | bool %}
+    labels:
+      me.tale.headplane.target: "headscale"
+{% endif %}
     read_only: true
     tmpfs:
       - "/var/run/headscale"
@@ -82,7 +87,6 @@ services:
       com.jcook3701.docker.role: "headscale"
     pull_policy: {{ headscale_pull_policy | default('always') | to_json }}
     restart: {{ headscale_restart_policy | default('unless-stopped') | to_json }}
-    # Root is required to read the existing 0600 Headscale and Headplane configuration files.
     user: "0:0"
     depends_on:
       headscale:
@@ -96,8 +100,14 @@ services:
           ':/etc/headplane:ro') | to_json }}
       - {{ ((headscale_directory.headplane_data | default('/opt/headscale/headplane/data')) ~
           ':/var/lib/headplane') | to_json }}
+{% if headscale_headplane_docker_enabled | default(false) | bool %}
+      - {{ ((headscale_file.config | default('/opt/headscale/config/config.yaml')) ~
+          ':/etc/headscale/config.yaml') | to_json }}
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+{% else %}
       - {{ ((headscale_file.config | default('/opt/headscale/config/config.yaml')) ~
           ':/etc/headscale/config.yaml:ro') | to_json }}
+{% endif %}
     networks:
       - headscale
 {% endif %}
@@ -109,6 +119,6 @@ networks:
   headscale:
     driver: bridge
 
-{%- endmacro -%}
+{% endmacro %}
 
 {{- docker_compose() -}}

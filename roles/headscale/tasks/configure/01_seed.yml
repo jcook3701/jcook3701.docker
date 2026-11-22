@@ -78,6 +78,9 @@
     owner: root
     group: root
     mode: "0600"
+    force: >-
+      {{ not ((headscale_manage_headplane | default(false) | bool)
+        and (headscale_headplane_docker_enabled | default(false) | bool)) }}
   become: true
 
 - name: Inspect existing Headplane API key

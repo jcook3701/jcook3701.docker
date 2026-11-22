@@ -35,3 +35,7 @@
 - name: Provision Headplane API key and complete dashboard deployment
   ansible.builtin.include_tasks: "post_processing/01_headplane_api_key.yml"
   when: headscale_manage_headplane | default(false) | bool
+
+- name: Provision Headscale client pre-authentication key
+  ansible.builtin.include_tasks: "post_processing/02_client_preauth_key.yml"
+  when: headscale_manage_client_preauth_key | default(false) | bool

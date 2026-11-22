@@ -103,3 +103,12 @@ headscale_headplane_base_url: ""
 headscale_headplane_cookie_secure: false
 headscale_headplane_api_key_expiration: "365d"
 headscale_headplane_kubernetes_pod_name: "headscale"
+
+# ---------------------------------------------------------------------------
+# Client Pre-Authentication Key Configuration
+# ---------------------------------------------------------------------------
+headscale_manage_client_preauth_key: false
+headscale_client_preauth_user: "homelab"
+headscale_client_preauth_key_reusable: true
+headscale_client_preauth_key_expiration: "720h"
+headscale_client_preauth_key_replace: false

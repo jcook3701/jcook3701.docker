@@ -6,5 +6,5 @@
 
 - name: Purge remaining historical data layers and configurations
   ansible.builtin.file:
-    path: "{{ unifi_os_server_base_dir }}"
+    path: "{{ unifi_os_server_base_dir | default('/opt/unifi-os') }}"
     state: absent

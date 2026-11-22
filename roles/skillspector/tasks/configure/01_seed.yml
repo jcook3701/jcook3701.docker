@@ -1,24 +1,35 @@
-
-# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
-- name: "Enforce owner-only permissions on the existing sandbox home"
+- name: Resolve the dedicated SkillSpector sandbox user
+  ansible.builtin.getent:
+    database: "passwd"
+    key: "{{ skillspector_user | default('chat-gpt') }}"
+
+- name: Resolve the dedicated SkillSpector sandbox group
+  ansible.builtin.getent:
+    database: "group"
+    key: "{{ skillspector_group | default('chat-gpt') }}"
+
+- name: Enforce owner-only permissions on the existing sandbox home
   ansible.builtin.file:
     path: "{{ skillspector_user_home | default('/home/chat-gpt') }}"
     state: "directory"
+    owner: "{{ skillspector_user | default('chat-gpt') }}"
+    group: "{{ skillspector_group | default('chat-gpt') }}"
     mode: "0700"
   become: true
 
-- name: "Create root-owned SkillSpector image build directory"
+- name: Create root-owned SkillSpector image build directory
   ansible.builtin.file:
-    path: "{{ skillspector_directory.base | default(skillspector_base_dir | default('/opt/skillspector')) }}"
+    path: "{{ skillspector_directory.base | default('/opt/skillspector') }}"
     state: "directory"
     owner: "root"
     group: "root"
     mode: "0755"
   become: true
 
-- name: "Create dedicated sandbox workbench and scanner directories"
+- name: Create dedicated sandbox workbench and scanner directories
   ansible.builtin.file:
     path: "{{ directory }}"
     state: "directory"
@@ -26,14 +37,19 @@
     group: "{{ skillspector_group | default('chat-gpt') }}"
     mode: "0700"
   loop:
-    - "{{ skillspector_directory.workspace | default(skillspector_workspace_dir |
-            default('/home/chat-gpt/workbench')) }}"
-    - "{{ skillspector_directory.scans | default(skillspector_scan_dir |
-            default('/home/chat-gpt/workbench/skill-scans')) }}"
-    - "{{ skillspector_directory.reports | default(skillspector_reports_dir |
-            default('/home/chat-gpt/workbench/skill-reports')) }}"
+    - "{{ skillspector_directory.workspace | default('/home/chat-gpt/workbench') }}"
+    - "{{ skillspector_directory.scans | default('/home/chat-gpt/workbench/skill-scans') }}"
+    - "{{ skillspector_directory.reports | default('/home/chat-gpt/workbench/skill-reports') }}"
   loop_control:
     loop_var: directory
     label: "Creating directory: {{ directory }}"
   become: true
-...
+
+- name: Deploy SkillSpector Compose configuration
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ skillspector_file.compose | default('/opt/skillspector/compose.yml') }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  become: true

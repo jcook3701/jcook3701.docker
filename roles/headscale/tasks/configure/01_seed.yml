@@ -33,7 +33,7 @@
 
 - name: Deploy Headscale application configuration
   ansible.builtin.template:
-    src: headscale/config.yaml.j2
+    src: config.yml.j2
     dest: "{{ headscale_file.config | default('/opt/headscale/config/config.yaml') }}"
     owner: root
     group: root

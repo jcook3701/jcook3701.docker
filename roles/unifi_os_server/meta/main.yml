@@ -3,7 +3,7 @@
 ---
 galaxy_info:
   author: Jared W. Cook
-  description: "This role executes the Docker unifi_os_server container,
+  description: "This role executes the Docker Unifi OS Server container,
     captures output, and handles image teardown."
   company: "Cook's Code, Inc."
   license: "AGPL-3.0-or-later"

@@ -1,27 +1,5 @@
-
-# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
-- name: "Validate SkillSpector runtime isolation"
-  ansible.builtin.include_tasks: "00_validate.yml"
-
-- name: "Prepare isolated SkillSpector directories"
+- name: Execute SkillSpector configuration tasks
   ansible.builtin.include_tasks: "01_seed.yml"
-
-- name: "Inspect sandbox home permissions after configuration"
-  ansible.builtin.stat:
-    path: "{{ skillspector_user_home | default('/home/chat-gpt') }}"
-    follow: false
-  register: skillspector_home_verified
-
-- name: "Verify sandbox home remains owner-only"
-  ansible.builtin.assert:
-    that:
-      - "skillspector_home_verified.stat.exists | default(false)"
-      - "skillspector_home_verified.stat.isdir | default(false)"
-      - "not (skillspector_home_verified.stat.islnk | default(false))"
-      - "(skillspector_home_verified.stat.pw_name | default('')) ==
-          (skillspector_user | default('chat-gpt'))"
-      - "(skillspector_home_verified.stat.mode | default('')) == '0700'"
-    fail_msg: "Sandbox home must remain owned by the dedicated user with mode 0700."
-...

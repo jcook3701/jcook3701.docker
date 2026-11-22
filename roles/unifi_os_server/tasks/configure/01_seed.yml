@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Create persistent storage base subdirectories
+  ansible.builtin.file:
+    path: "{{ directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ unifi_os_server_base_dir | default('/opt/unifi-os') }}"
+    - "{{ unifi_os_server_data_dir | default('/opt/unifi-os/data') }}"
+    - "{{ unifi_os_server_log_dir | default('/opt/unifi-os/logs') }}"
+    - "{{ unifi_os_server_cert_dir | default('/opt/unifi-os/cert') }}"
+  loop_control:
+    loop_var: directory
+    label: "Creating directory: {{ directory }}"
+
+- name: Deploy the Docker Compose template file
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ unifi_os_server_file.compose | default('/opt/unifi_os_server/compose.yml') }}"
+    owner: root
+    group: root
+    mode: "0644"

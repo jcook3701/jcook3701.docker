@@ -7,7 +7,7 @@ argument_specs:
     description:
       - Deploy and manage a self-hosted Tailscale coordination server.
       - Configure SQLite persistence, DNS, DERP, networking, and client policy.
-      - Optionally deploy the Headplane web administration dashboard.
+      - Optionally deploy the Headplane dashboard with an Ansible-provisioned API key.
     author:
       - Jared W. Cook
     options:
@@ -261,7 +261,7 @@ argument_specs:
         required: false
         default: "3h"
         description:
-          - Frequency for DERP map updates.
+          - Frequency at which DERP maps are refreshed.
       # ---------------------------------------------------------------------
       # Access Policy and Client Features
       # ---------------------------------------------------------------------
@@ -352,3 +352,15 @@ argument_specs:
         default: false
         description:
           - Require HTTPS for Headplane session cookies; enable behind an HTTPS reverse proxy.
+      headscale_headplane_api_key_expiration:
+        type: str
+        required: false
+        default: "365d"
+        description:
+          - Initial validity of the provisioned Headscale API key, using a Headscale duration string.
+      headscale_headplane_kubernetes_pod_name:
+        type: str
+        required: false
+        default: "headscale"
+        description:
+          - Kubernetes pod name required by Headplane configuration.

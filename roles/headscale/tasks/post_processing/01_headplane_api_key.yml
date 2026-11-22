@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Determine whether initial Headplane activation is required
+  ansible.builtin.set_fact:
+    headscale_headplane_initial_activation: >-
+      {{ not (headscale_headplane_api_key_status.stat.exists | default(false) | bool) }}
+
+- name: Generate Headscale API key for Headplane
+  ansible.builtin.command:
+    argv:
+      - "{{ headscale_container_engine | default('docker') }}"
+      - "exec"
+      - "{{ headscale_container_name | default('headscale') }}"
+      - "headscale"
+      - "apikeys"
+      - "create"
+      - "--expiration"
+      - "{{ headscale_headplane_api_key_expiration | default('365d') }}"
+  register: headscale_headplane_generated_api_key
+  when: headscale_headplane_initial_activation | default(false) | bool
+  changed_when: true
+  become: true
+  no_log: true
+
+- name: Store Headplane API key in the restricted deployment directory
+  ansible.builtin.copy:
+    content: "{{ headscale_headplane_generated_api_key.stdout | trim }}"
+    dest: "{{ headscale_file.headplane_api_key | default('/opt/headscale/headplane/config/api_key') }}"
+    owner: root
+    group: root
+    mode: "0600"
+    force: false
+  when: headscale_headplane_initial_activation | default(false) | bool
+  notify: Render Headplane Compose configuration
+  become: true
+  no_log: true
+
+- name: Refresh Headplane API key availability
+  ansible.builtin.stat:
+    path: "{{ headscale_file.headplane_api_key | default('/opt/headscale/headplane/config/api_key') }}"
+  register: headscale_headplane_api_key_status
+  become: true
+
+- name: Flush handlers for initial Headplane activation
+  ansible.builtin.meta: flush_handlers
+  when: headscale_headplane_initial_activation | default(false) | bool
+
+- name: Trigger Headplane container engine stack deployment
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    container_engine_project_src: "{{ headscale_directory.base | default('/opt/headscale') }}"
+    container_engine_platform_type: "{{ headscale_container_engine | default('docker') }}"
+    container_engine_desired_state: present
+    container_engine_trigger_condition: true
+  when: headscale_headplane_initial_activation | default(false) | bool

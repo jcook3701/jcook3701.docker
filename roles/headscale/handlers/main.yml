@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Render Headplane Compose configuration
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: "{{ headscale_file.compose | default('/opt/headscale/compose.yml') }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true

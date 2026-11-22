@@ -18,7 +18,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #}
 
-{% macro config() %}
+{%- macro config() -%}
 # SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -115,6 +115,6 @@ logtail:
 taildrop:
   enabled: {{ headscale_taildrop_enabled | default(true) | bool | lower }}
 
-{% endmacro %}
+{%- endmacro -%}
 
 {{- config() -}}

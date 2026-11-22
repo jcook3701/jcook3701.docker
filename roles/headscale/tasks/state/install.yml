@@ -31,3 +31,7 @@
     container_engine_platform_type: "{{ headscale_container_engine | default('docker') }}"
     container_engine_desired_state: present
     container_engine_trigger_condition: true
+
+- name: Provision Headplane API key and complete dashboard deployment
+  ansible.builtin.include_tasks: "post_processing/01_headplane_api_key.yml"
+  when: headscale_manage_headplane | default(false) | bool

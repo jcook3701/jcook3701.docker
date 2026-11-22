@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Uninstall SkillSpector launcher and image"
+  ansible.builtin.include_tasks: "uninstall.yml"
+
+# Deliberately never remove /home/chat-gpt, its workbench, scans, or reports.
+- name: "Remove only the role-managed upstream source checkout"
+  ansible.builtin.file:
+    path: "{{ skillspector_directory.base }}"
+    state: "absent"
+  become: true
+...

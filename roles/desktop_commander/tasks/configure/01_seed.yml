@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Create root-owned Desktop Commander deployment directory"
+  ansible.builtin.file:
+    path: "{{ desktop_commander_directory.base }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+  become: true
+
+- name: "Render Desktop Commander isolated Compose definition"
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ desktop_commander_file.compose }}"
+    owner: "root"
+    group: "root"
+    mode: "0640"
+  become: true

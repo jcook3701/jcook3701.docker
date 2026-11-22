@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 - name: Create Headscale deployment and configuration directories
@@ -34,7 +34,7 @@
 - name: Deploy Headscale application configuration
   ansible.builtin.template:
     src: headscale/config.yaml.j2
-    dest: "{{ headscale_file.config }}"
+    dest: "{{ headscale_file.config | default('/opt/headscale/config/config.yaml') }}"
     owner: root
     group: root
     mode: "0600"
@@ -43,7 +43,7 @@
 - name: Deploy Headscale Compose configuration
   ansible.builtin.template:
     src: compose.yml.j2
-    dest: "{{ headscale_file.compose }}"
+    dest: "{{ headscale_file.compose | default('/opt/headscale/compose.yml') }}"
     owner: root
     group: root
     mode: "0644"

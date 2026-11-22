@@ -1,0 +1,112 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Install an isolated, on-demand NVIDIA SkillSpector scanner."
+    description:
+      - "Build a pinned NVIDIA SkillSpector Docker image."
+      - "Use only a dedicated sandbox scan input and report output directory."
+    author:
+      - "Jared W. Cook"
+    options:
+      skillspector_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker"]
+        description: "Docker is the supported execution engine."
+      skillspector_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Desired lifecycle state."
+      skillspector_debug_mode:
+        type: "bool"
+        default: false
+        description: "Show non-sensitive diagnostic information."
+      skillspector_repository:
+        type: "str"
+        default: "https://github.com/NVIDIA/SkillSpector.git"
+        description: "Pinned trusted upstream Git URL."
+      skillspector_version:
+        type: "str"
+        default: "2.13.6"
+        description: "Tag assigned to the locally built scanner image."
+      skillspector_revision:
+        type: "str"
+        default: "e2674da339b0bddc6e565d059c0577c6d9cd25da"
+        description: "Pinned upstream commit SHA."
+      skillspector_image:
+        type: "str"
+        default: "skillspector-local"
+        description: "Locally built image repository name."
+      skillspector_rebuild_image:
+        type: "bool"
+        default: false
+        description: "Explicitly rebuild an existing image tag."
+      skillspector_base_dir:
+        type: "path"
+        default: "/opt/skillspector"
+        description: "Root-owned directory for the pinned source checkout."
+      skillspector_wrapper_path:
+        type: "path"
+        default: "/usr/local/bin/skillspector-docker"
+        description: "Path to the on-demand guarded scanner launcher."
+      skillspector_user:
+        type: "str"
+        default: "chat-gpt"
+        description: "Non-root sandbox identity."
+      skillspector_group:
+        type: "str"
+        default: "chat-gpt"
+        description: "Sandbox group identity."
+      skillspector_user_home:
+        type: "path"
+        default: "/home/chat-gpt"
+        description: "Dedicated sandbox account home directory."
+      skillspector_workspace_dir:
+        type: "path"
+        default: "/home/chat-gpt/workbench"
+        description: "Sandbox directory containing scan and report folders."
+      skillspector_scan_dir:
+        type: "path"
+        default: "/home/chat-gpt/workbench/skill-scans"
+        description: "Only read-only host directory mounted as /scan."
+      skillspector_reports_dir:
+        type: "path"
+        default: "/home/chat-gpt/workbench/skill-reports"
+        description: "Only writable host directory mounted as /reports."
+      skillspector_network_mode:
+        type: "str"
+        default: "bridge"
+        choices: ["bridge", "none"]
+        description: "Bridge permits remote URL scans; none restricts to local scans."
+      skillspector_memory_limit:
+        type: "str"
+        default: "2g"
+        description: "Runtime memory limit passed to docker run."
+      skillspector_cpu_limit:
+        type: "str"
+        default: "2.0"
+        description: "Runtime CPU limit passed to docker run."
+      skillspector_pids_limit:
+        type: "int"
+        default: 256
+        description: "Maximum number of runtime processes."
+      skillspector_tmpfs_size:
+        type: "str"
+        default: "512m"
+        description: "Private writable temporary filesystem size."
+      skillspector_enable_llm:
+        type: "bool"
+        default: false
+        description: "Enable Ollama semantic analysis instead of static-only scanning."
+      skillspector_ollama_base_url:
+        type: "str"
+        default: "http://host.docker.internal:11434/v1"
+        description: "Local Ollama endpoint on the Docker host gateway."
+      skillspector_ollama_model:
+        type: "str"
+        default: "qwen2.5-coder:7b"
+        description: "Existing Ollama model for semantic analysis."
+...

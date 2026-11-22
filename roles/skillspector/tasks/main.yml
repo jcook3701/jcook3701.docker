@@ -1,0 +1,22 @@
+
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Debug SkillSpector role configuration
+  ansible.builtin.debug:
+    msg:
+      - "SkillSpector state: {{ skillspector_state | default('present') }}"
+      - "SkillSpector container engine: {{ skillspector_container_engine | default('docker') }}"
+  when: skillspector_debug_mode | default(false) | bool
+
+- name: Ensure SkillSpector is installed and configured
+  ansible.builtin.include_tasks: state/install.yml
+  when: skillspector_state | default('present') == 'present'
+
+- name: Ensure SkillSpector is uninstalled from system
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: skillspector_state | default('present') == 'absent'
+
+- name: Ensure SkillSpector is purged from system
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: skillspector_state | default('present') == 'teardown'

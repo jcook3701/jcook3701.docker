@@ -115,4 +115,4 @@ sudo docker compose -f /opt/px4/compose.yml logs -f px4-sitl
 
 ## Author Information
 
-Maintained by **Jared Cook** as part of the core infrastructure and container management ecosystem.
+Maintained by **Jared W. Cook** as part of the core infrastructure and container management ecosystem.

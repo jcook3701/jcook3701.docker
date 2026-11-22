@@ -13,4 +13,4 @@ Because this image consists of nothing but a single static binary which prints s
 
 ## Author Information
 
-Maintained by **Jared Cook** as part of the core infrastructure and container management ecosystem.
+Maintained by **Jared W. Cook** as part of the core infrastructure and container management ecosystem.

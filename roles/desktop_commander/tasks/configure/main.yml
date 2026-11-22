@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Validate dedicated Desktop Commander account and filesystem mounts"
+  ansible.builtin.include_tasks: "00_validate.yml"
+
+- name: "Seed Desktop Commander deployment configuration"
+  ansible.builtin.include_tasks: "01_seed.yml"

@@ -1,5 +1,5 @@
 
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 argument_specs:
@@ -10,7 +10,7 @@ argument_specs:
       - Optionally deploy PX4 Software-in-the-Loop (SITL) simulation.
       - Configure persistent workspaces, networking, hardware access, and runtime settings.
     author:
-      - Jared Cook
+      - Jared W. Cook
 
     options:
       # ---------------------------------------------------------------------

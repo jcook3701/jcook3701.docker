@@ -1,6 +1,17 @@
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
+- name: Validate Ollama authentication settings
+  ansible.builtin.assert:
+    that:
+      - ollama_webui_secret_key != 'change_this_to_a_secure_random_string_in_production'
+      - ollama_searxng_secret_key != 'change_this_to_a_secure_random_string_in_production'
+      - not (ollama_manage_mcp | bool) or ollama_mcp_gateway_servers | length > 0
+    fail_msg: >-
+      Replace legacy placeholder secret values with real Vault-encrypted
+      secrets, or leave them empty to generate persistent secrets automatically.
+  no_log: true
+
 - name: Create persistent storage base subdirectories
   ansible.builtin.file:
     path: "{{ directory }}"
@@ -9,24 +20,32 @@
     group: root
     mode: "0755"
   loop:
-    - "{{ ollama_directory.base | default('/opt/ollama') }}"
-    - "{{ ollama_directory.backups | default('/opt/ollama/backups') }}"
-    - "{{ ollama_directory.ollama | default('/opt/ollama/ollama') }}"
-    - "{{ ollama_directory.open_webui | default('/opt/ollama/open-webui') }}"
+    - "{{ ollama_directory.base }}"
+    - "{{ ollama_directory.backups }}"
+    - "{{ ollama_directory.ollama }}"
+    - "{{ ollama_directory.open_webui }}"
   loop_control:
     loop_var: directory
     label: "Creating directory: {{ directory }}"
   become: true
 
+- name: Ensure generated service secrets exist and remain persistent
+  ansible.builtin.script: >-
+    {{ role_path }}/files/ensure_secrets.py {{ ollama_file.secrets | quote }}
+  register: ollama_secrets_result
+  changed_when: "'changed' in ollama_secrets_result.stdout"
+  no_log: true
+  become: true
+
 - name: Create n8n persistent storage with container user ownership
   ansible.builtin.file:
-    path: "{{ ollama_directory.n8n | default('/opt/ollama/n8n') }}"
+    path: "{{ ollama_directory.n8n }}"
     state: directory
     owner: "1000"
     group: "1000"
     mode: "0700"
   become: true
-  when: ollama_manage_n8n | default(false) | bool
+  when: ollama_manage_n8n | bool
 
 - name: Create SearXNG persistent storage directories
   ansible.builtin.file:
@@ -34,40 +53,43 @@
     state: directory
     mode: "0755"
   loop:
-    - "{{ ollama_directory.searxng_config | default('/opt/ollama/searxng/config') }}"
-    - "{{ ollama_directory.searxng_cache | default('/opt/ollama/searxng/cache') }}"
+    - "{{ ollama_directory.searxng_config }}"
+    - "{{ ollama_directory.searxng_cache }}"
   loop_control:
     loop_var: directory
     label: "Creating directory: {{ directory }}"
   become: true
-  when: ollama_manage_searxng | default(false) | bool
+  when: ollama_manage_searxng | bool
 
-# Official valkey/valkey:9-alpine runs with UID 999 / GID 1000.
 - name: Create Valkey persistent data directory
   ansible.builtin.file:
-    path: "{{ ollama_directory.searxng_valkey | default('/opt/ollama/searxng/valkey') }}"
+    path: "{{ ollama_directory.searxng_valkey }}"
     state: directory
     owner: "999"
     group: "1000"
     mode: "0750"
   become: true
-  when: ollama_manage_searxng | default(false) | bool
+  when: ollama_manage_searxng | bool
 
 - name: Deploy SearXNG settings configuration
   ansible.builtin.template:
     src: searxng/settings.yml.j2
     dest: "{{ ollama_file.searxng_settings }}"
+    owner: root
+    group: root
     mode: "0644"
   become: true
-  when: ollama_manage_searxng | default(false) | bool
+  when: ollama_manage_searxng | bool
 
 - name: Deploy SearXNG limiter configuration
   ansible.builtin.template:
     src: searxng/limiter.toml.j2
     dest: "{{ ollama_file.searxng_limiter }}"
+    owner: root
+    group: root
     mode: "0644"
   become: true
-  when: ollama_manage_searxng | default(false) | bool
+  when: ollama_manage_searxng | bool
 
 - name: Deploy Ollama Compose configuration
   ansible.builtin.template:
@@ -77,3 +99,4 @@
     group: root
     mode: "0600"
   become: true
+  no_log: true

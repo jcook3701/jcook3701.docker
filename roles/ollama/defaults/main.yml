@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 # ---------------------------------------------------------------------------
@@ -7,6 +7,8 @@
 ollama_container_engine: "docker"
 ollama_state: present
 ollama_debug_mode: false
+ollama_teardown_remove_data: false
+ollama_teardown_remove_images: false
 
 # Optional Service Management
 ollama_manage_web_ui: true
@@ -23,6 +25,9 @@ ollama_n8n_image: "docker.n8n.io/n8nio/n8n:latest"
 ollama_mcp_gateway_image: "docker/mcp-gateway:latest"
 ollama_searxng_image: "docker.io/searxng/searxng:latest"
 ollama_searxng_valkey_image: "docker.io/valkey/valkey:9-alpine"
+ollama_pull_policy: "missing"
+ollama_pull_images: false
+ollama_restart_policy: "unless-stopped"
 
 # ---------------------------------------------------------------------------
 # Container Names
@@ -38,16 +43,23 @@ ollama_searxng_valkey_container_name: "searxng-valkey"
 # Infrastructure Storage and Path Routing
 # ---------------------------------------------------------------------------
 ollama_base_dir: "/opt/ollama"
-
 # ---------------------------------------------------------------------------
 # Telly Terminal Configuration
 # ---------------------------------------------------------------------------
 ollama_backend_tty: true
+ollama_backend_keep_alive: "24h"
 
 # ---------------------------------------------------------------------------
 # Networking Configuration
 # ---------------------------------------------------------------------------
+# Preserve LAN access to Ollama and Open WebUI, but bind auxiliary UIs to
+# loopback unless explicitly exposed through a reverse proxy or a firewall.
 ollama_host_bind_ip: "0.0.0.0"
+ollama_backend_bind_ip: "{{ ollama_host_bind_ip }}"
+ollama_webui_bind_ip: "{{ ollama_host_bind_ip }}"
+ollama_n8n_bind_ip: "127.0.0.1"
+ollama_mcp_gateway_bind_ip: "127.0.0.1"
+ollama_searxng_bind_ip: "127.0.0.1"
 
 ollama_external_port: 11434
 ollama_webui_external_port: 3000
@@ -55,9 +67,7 @@ ollama_n8n_external_port: 5678
 ollama_mcp_gateway_external_port: 8811
 ollama_searxng_external_port: 8081
 
-# Internal Listening Configuration
 ollama_internal_bind_ip: "0.0.0.0"
-
 ollama_internal_port: 11434
 ollama_webui_internal_port: 8080
 ollama_n8n_internal_port: 5678
@@ -67,10 +77,16 @@ ollama_searxng_internal_port: 8080
 # ---------------------------------------------------------------------------
 # Application Security Credentials
 # ---------------------------------------------------------------------------
+# Empty values use strong, persistent generated values in /opt/ollama/.env.
+# Override with Vault-encrypted inventory variables if preferred.
 ollama_webui_url: ""
 ollama_webui_no_proxy: "localhost,127.0.0.1,ollama"
-ollama_webui_secret_key: "change_this_to_a_secure_random_string_in_production"
+ollama_webui_secret_key: ""
+ollama_webui_auth: true
 ollama_webui_enable_signup: false
+ollama_webui_name: "Ollama WebUI"
+ollama_webui_environment: "prod"
+ollama_backend_internal_url: "http://ollama:11434"
 
 # ---------------------------------------------------------------------------
 # n8n Automation Configuration
@@ -78,17 +94,11 @@ ollama_webui_enable_signup: false
 ollama_n8n_host: ""
 ollama_n8n_protocol: "http"
 ollama_n8n_listen_address: "0.0.0.0"
-
-# HTTP deployment; enable secure cookies when HTTPS is configured.
 ollama_n8n_secure_cookie: false
-
 ollama_n8n_timezone: "America/Los_Angeles"
 ollama_n8n_proxy_hops: 0
-
-# Leave empty to let n8n generate and persist its own encryption key.
+# Leave empty to preserve n8n's existing auto-generated, persisted key.
 ollama_n8n_encryption_key: ""
-
-# Optional public URL overrides, particularly useful behind a reverse proxy.
 ollama_n8n_editor_base_url: ""
 ollama_n8n_webhook_url: ""
 ollama_n8n_mcp_base_url: ""
@@ -97,27 +107,20 @@ ollama_n8n_mcp_base_url: ""
 # Docker MCP Gateway Configuration
 # ---------------------------------------------------------------------------
 ollama_mcp_gateway_transport: "streaming"
-
-# Initial MCP server selection. Additional catalog servers can be added later.
 ollama_mcp_gateway_servers:
   - "duckduckgo"
-
-# Supply a persistent secret through Ansible Vault or inventory.
-# When empty, Docker MCP Gateway generates an authentication token at startup.
+# Empty uses a generated persistent token shared in /opt/ollama/.env.
 ollama_mcp_gateway_auth_token: ""
 
 # ---------------------------------------------------------------------------
 # SearXNG Search Configuration
 # ---------------------------------------------------------------------------
-ollama_searxng_secret_key: "change_this_to_a_secure_random_string_in_production"
+ollama_searxng_secret_key: ""
 ollama_searxng_instance_name: "SearXNG"
-
 ollama_searxng_safe_search: 1
 ollama_searxng_limiter: true
-# IPs/CIDRs allowed to bypass SearXNG bot detection; empty by default.
 ollama_searxng_limiter_pass_ips: []
 ollama_searxng_image_proxy: true
-
 ollama_searxng_valkey_url: "valkey://searxng-valkey:6379/0"
 
 # ---------------------------------------------------------------------------
@@ -133,14 +136,16 @@ ollama_webui_searxng_language: "all"
 # ---------------------------------------------------------------------------
 ollama_enable_gpu: true
 ollama_docker_runtime: "nvidia"
+# The special ["all"] value is rendered as count: all for Docker Compose.
 ollama_gpu_device_ids: ["all"]
+ollama_gpu_device_count: "all"
 ollama_gpu_capabilities: ["gpu", "compute", "utility"]
+ollama_nvidia_driver_capabilities: "compute,utility"
 
 # ---------------------------------------------------------------------------
 # Post-Provisioning Model Preloading
 # ---------------------------------------------------------------------------
 ollama_manage_models: false
-
 ollama_preload_models:
   - "deepseek-r1:32b"
   - "qwen2.5-coder:32b"

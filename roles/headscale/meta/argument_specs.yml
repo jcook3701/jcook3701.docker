@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 argument_specs:
@@ -8,7 +8,7 @@ argument_specs:
       - Deploy and manage a self-hosted Tailscale coordination server.
       - Configure SQLite persistence, DNS, DERP, networking, and client policy.
     author:
-      - Jared Cook
+      - Jared W. Cook
     options:
       # ---------------------------------------------------------------------
       # Runtime Orchestration Engine and Service State

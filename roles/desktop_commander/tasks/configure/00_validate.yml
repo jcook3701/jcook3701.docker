@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Assert Docker-only account and directory security policy"
+  ansible.builtin.assert:
+    that:
+      - desktop_commander_container_engine == "docker"
+      - desktop_commander_system_user == "chat-gpt"
+      - desktop_commander_host_home == "/home/chat-gpt"
+      - desktop_commander_base_dir == "/opt/desktop_commander"
+      - desktop_commander_pids_limit | int > 0
+    fail_msg: "Only the dedicated chat-gpt account and home directory are permitted."
+
+- name: "Resolve the dedicated Desktop Commander host account"
+  ansible.builtin.getent:
+    database: "passwd"
+    key: "{{ desktop_commander_system_user }}"
+    fail_key: true
+  become: true
+
+- name: "Inspect the dedicated account home directory"
+  ansible.builtin.stat:
+    path: "{{ desktop_commander_host_home }}"
+    follow: false
+  register: desktop_commander_home_status
+
+- name: "Verify dedicated account ownership, permissions, and path"
+  ansible.builtin.assert:
+    that:
+      - getent_passwd[desktop_commander_system_user][4] == desktop_commander_host_home
+      - (getent_passwd[desktop_commander_system_user][1] | int) > 0
+      - desktop_commander_home_status.stat.exists | default(false)
+      - desktop_commander_home_status.stat.isdir | default(false)
+      - not (desktop_commander_home_status.stat.islnk | default(false))
+      - desktop_commander_home_status.stat.pw_name | default("") == desktop_commander_system_user
+      - desktop_commander_home_status.stat.mode | default("") == "0700"
+    fail_msg: "The dedicated home must exist, belong to chat-gpt, and have mode 0700."
+
+# Docker Compose bind mounts include nested host mounts by default. Reject
+# nested mount points instead of accidentally exposing extra host filesystems.
+- name: "Enumerate host filesystem mount targets"
+  ansible.builtin.command:
+    argv:
+      - "findmnt"
+      - "--list"
+      - "--noheadings"
+      - "--output"
+      - "TARGET"
+  register: desktop_commander_mount_targets
+  changed_when: false
+
+- name: "Reject nested host mounts under the dedicated account home"
+  ansible.builtin.assert:
+    that:
+      - >-
+        (desktop_commander_mount_targets.stdout_lines
+        | select("match", "^" ~ (desktop_commander_host_home | regex_escape) ~ "/")
+        | list | length) == 0
+    fail_msg: "A submount under /home/chat-gpt would be exposed to the container."
+
+- name: "Show non-sensitive identity and mount validation results"
+  ansible.builtin.debug:
+    msg:
+      - "Validated account: {{ desktop_commander_system_user }}"
+      - "Validated sole host bind path: {{ desktop_commander_host_home }}"
+  when: desktop_commander_debug_mode | bool

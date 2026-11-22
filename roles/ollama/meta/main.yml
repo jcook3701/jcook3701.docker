@@ -1,9 +1,11 @@
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 galaxy_info:
-  author: Jared Cook
-  description: "This role executes the Docker Ollama container, captures output, and handles image teardown."
+  author: Jared W. Cook
+  description: >-
+    Deploy Ollama with optional Open WebUI, n8n, Docker MCP Gateway,
+    and SearXNG using a persistent Docker Compose stack.
   company: "Cook's Code, Inc."
   license: "AGPL-3.0-or-later"
   min_ansible_version: ">=2.10"
@@ -11,21 +13,18 @@ galaxy_info:
 
   platforms:
     - name: EL
-      versions:
-        - "8"
-        - "9"
+      versions: ["8", "9"]
     - name: Debian
-      versions:
-        - all
+      versions: [all]
     - name: Ubuntu
-      versions:
-        - all
+      versions: [all]
 
   galaxy_tags:
-    - packages
     - docker
-    - desktop
-    - apps
+    - containers
+    - ollama
+    - automation
+    - ai
 
 dependencies:
   - role: jcook3701.pkgs.docker_ce

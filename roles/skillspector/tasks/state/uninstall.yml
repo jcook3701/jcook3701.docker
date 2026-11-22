@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Remove the SkillSpector on-demand launcher"
+  ansible.builtin.file:
+    path: "{{ skillspector_file.wrapper }}"
+    state: "absent"
+  become: true
+
+- name: "Remove only the role-managed SkillSpector image tag"
+  community.docker.docker_image:
+    name: "{{ skillspector_image }}"
+    tag: "{{ skillspector_version }}"
+    state: "absent"
+    force_absent: false
+  become: true
+...

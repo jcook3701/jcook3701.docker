@@ -38,4 +38,4 @@ This Ansible role deploys and manages a containerized ROS 2 development environm
 
 ## Author Information
 
-Maintained by **Jared Cook** as part of the core infrastructure and container management ecosystem.
+Maintained by **Jared W. Cook** as part of the core infrastructure and container management ecosystem.

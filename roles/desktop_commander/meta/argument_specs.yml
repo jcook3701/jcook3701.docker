@@ -1,0 +1,76 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy an isolated Remote Desktop Commander Docker agent."
+    description:
+      - "Bind-mount only the dedicated chat-gpt account home directory."
+      - "Keep the container root filesystem read-only and use private temporary storage."
+    author:
+      - "Jared W. Cook"
+    options:
+      desktop_commander_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker"]
+        description: "Only Docker is supported by this security profile."
+      desktop_commander_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Present deploys, absent stops, and teardown removes deployment files."
+      desktop_commander_debug_mode:
+        type: "bool"
+        default: false
+        description: "Display additional non-sensitive diagnostics."
+      desktop_commander_image:
+        type: "str"
+        default: "docker.io/library/node:24-bookworm-slim"
+        description: "Node.js image; pin to a trusted digest for stronger reproducibility."
+      desktop_commander_package_version:
+        type: "str"
+        default: "0.3.4"
+        description: "Pinned Desktop Commander npm package version."
+      desktop_commander_container_name:
+        type: "str"
+        default: "desktop-commander"
+        description: "Container name for the remote agent."
+      desktop_commander_pull_policy:
+        type: "str"
+        default: "missing"
+        choices: ["always", "missing", "never"]
+        description: "Docker Compose image pull policy."
+      desktop_commander_pull_images:
+        type: "bool"
+        default: false
+        description: "Whether the shared container engine forces an image pull."
+      desktop_commander_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Restart policy for the remote agent container."
+      desktop_commander_base_dir:
+        type: "path"
+        default: "/opt/desktop_commander"
+        description: "Root-owned deployment directory, never mounted into the agent."
+      desktop_commander_system_user:
+        type: "str"
+        default: "chat-gpt"
+        description: "Dedicated non-root host account; enforced during preflight."
+      desktop_commander_host_home:
+        type: "path"
+        default: "/home/chat-gpt"
+        description: "Only permitted host bind-mount source; enforced during preflight."
+      desktop_commander_tmpfs_size:
+        type: "str"
+        default: "256m"
+        description: "Size of private container /tmp temporary filesystem."
+      desktop_commander_memory_limit:
+        type: "str"
+        default: "1g"
+        description: "Container memory limit."
+      desktop_commander_pids_limit:
+        type: "int"
+        default: 128
+        description: "Maximum number of processes allowed in the container."

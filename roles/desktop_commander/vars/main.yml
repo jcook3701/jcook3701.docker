@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+desktop_commander_directory:
+  base: "{{ desktop_commander_base_dir }}"
+
+desktop_commander_file:
+  compose: "{{ desktop_commander_directory.base }}/compose.yml"

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 # ---------------------------------------------------------------------------
@@ -24,3 +24,5 @@ ollama_file:
                         | default('/opt/ollama/searxng/config/settings.yml') }}"
   searxng_limiter: "{{ ollama_directory.searxng_config ~ '/limiter.toml'
                         | default('/opt/ollama/searxng/config/limiter.toml') }}"
+  secrets: "{{ ollama_directory.base ~ '/.env'
+                        | default('/opt/ollama/.env') }}"

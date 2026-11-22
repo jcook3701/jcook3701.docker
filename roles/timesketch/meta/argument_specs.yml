@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 argument_specs:
@@ -6,7 +6,7 @@ argument_specs:
     short_description: "Deploy and manage a containerized Timesketch orchestration stack."
     description:
       - "Validates, structures, and provisions long-running Timesketch web, worker, and core data storage engines."
-    author: "Jared Cook"
+    author: "Jared W. Cook"
     options:
       timesketch_container_engine:
         type: "str"

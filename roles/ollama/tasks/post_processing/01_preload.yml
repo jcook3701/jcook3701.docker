@@ -1,13 +1,12 @@
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
-# Wait until the Ollama API is available inside the container.
-- name: Wait for Ollama to become ready
+- name: Wait for Ollama API to become available
   ansible.builtin.command:
     argv:
       - "{{ ollama_container_engine }}"
       - exec
-      - "{{ ollama_backend_container_name | default('ollama') }}"
+      - "{{ ollama_backend_container_name }}"
       - ollama
       - list
   register: ollama_model_list
@@ -17,31 +16,27 @@
   until: ollama_model_list.rc == 0
   become: true
 
-# Extract the names of models already installed.
 - name: Identify installed Ollama models
   ansible.builtin.set_fact:
     ollama_installed_models: >-
-      {{
-        ollama_model_list.stdout_lines[1:]
-        | map('regex_replace', '\s+.*$', '')
-        | reject('equalto', '')
-        | list
-      }}
+      {{ ollama_model_list.stdout_lines[1:]
+         | map('regex_replace', '\s+.*$', '')
+         | reject('equalto', '')
+         | list }}
   changed_when: false
 
-# Download models that are not already installed.
 - name: Preload configured Ollama models
   ansible.builtin.command:
     argv:
       - "{{ ollama_container_engine }}"
       - exec
-      - "{{ ollama_backend_container_name | default('ollama') }}"
+      - "{{ ollama_backend_container_name }}"
       - ollama
       - pull
       - "{{ model }}"
   loop: "{{ ollama_preload_models }}"
   loop_control:
-    loop_var: "model"
+    loop_var: model
     label: "Adding Model: {{ model }}"
   when: model not in ollama_installed_models
   become: true

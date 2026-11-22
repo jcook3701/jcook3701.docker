@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+desktop_commander_container_engine: "docker"
+desktop_commander_state: "present"
+desktop_commander_debug_mode: false
+
+# ---------------------------------------------------------------------------
+# Pinned Runtime Image and Remote Agent
+# ---------------------------------------------------------------------------
+desktop_commander_image: "docker.io/library/node:24-bookworm-slim"
+desktop_commander_package_version: "0.3.4"
+desktop_commander_container_name: "desktop-commander"
+desktop_commander_pull_policy: "missing"
+desktop_commander_pull_images: false
+desktop_commander_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Fixed Host Filesystem Security Boundary
+# ---------------------------------------------------------------------------
+# Installation fails closed if these paths or this account are changed.
+# Only the home directory below is bind-mounted into the container.
+desktop_commander_base_dir: "/opt/desktop_commander"
+desktop_commander_system_user: "chat-gpt"
+desktop_commander_host_home: "/home/chat-gpt"
+
+# ---------------------------------------------------------------------------
+# Container Resource Controls
+# ---------------------------------------------------------------------------
+desktop_commander_tmpfs_size: "256m"
+desktop_commander_memory_limit: "1g"
+desktop_commander_pids_limit: 128

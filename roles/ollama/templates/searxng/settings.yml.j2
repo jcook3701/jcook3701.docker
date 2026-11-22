@@ -1,7 +1,7 @@
 {#
 # settings.yml.j2 for jcook3701.docker.ollama
 #
-# SPDX-FileCopyrightText: Jared Cook
+# SPDX-FileCopyrightText: Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
@@ -35,7 +35,7 @@ search:
     - json
 
 server:
-  # SEARXNG_SECRET is supplied via the Compose environment.
+  # SEARXNG_SECRET is passed via Docker Compose environment.
   limiter: {{ ollama_searxng_limiter | bool | lower }}
   image_proxy: {{ ollama_searxng_image_proxy | bool | lower }}
 
@@ -43,4 +43,4 @@ valkey:
   url: {{ ollama_searxng_valkey_url | to_json }}
 {%- endmacro %}
 
-{{- searxng_settings() -}}
+{{- searxng_settings() }}

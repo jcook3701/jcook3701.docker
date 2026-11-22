@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+skillspector_directory:
+  base: "{{ skillspector_base_dir }}"
+  source: "{{ skillspector_base_dir }}/source"
+  workspace: "{{ skillspector_workspace_dir }}"
+  scans: "{{ skillspector_scan_dir }}"
+  reports: "{{ skillspector_reports_dir }}"
+
+skillspector_file:
+  wrapper: "{{ skillspector_wrapper_path }}"
+
+skillspector_image_reference: "{{ skillspector_image }}:{{ skillspector_version }}"
+...

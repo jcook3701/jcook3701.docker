@@ -1,5 +1,5 @@
 galaxy_info:
-  author: Jared Cook
+  author: Jared W. Cook
   description: "This role executes the Docker Openhab container,
     captures output, and handles image teardown."
   company: "Cook's Code, Inc."

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 argument_specs:
@@ -9,7 +9,7 @@ argument_specs:
         with the selected container engine.
       - Optionally remove the NVIDIA Container Toolkit configuration.
     author:
-      - Jared Cook
+      - Jared W. Cook
     options:
       nvidia_container_engine:
         type: str

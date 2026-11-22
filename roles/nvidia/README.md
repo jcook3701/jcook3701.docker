@@ -18,4 +18,4 @@ docker run --rm --runtime=nvidia --gpus all   nvidia/cuda:12.8.1-base-ubuntu24.0
 
 ## Author Information
 
-Maintained by **Jared Cook** as part of the core infrastructure and container management ecosystem.
+Maintained by **Jared W. Cook** as part of the core infrastructure and container management ecosystem.

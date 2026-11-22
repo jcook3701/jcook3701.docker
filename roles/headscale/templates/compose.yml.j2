@@ -1,5 +1,5 @@
 {#
-# docker-compose.j2 for jcook3701.docker.headscale
+# compose.yml.j2 for jcook3701.docker.headscale
 #
 # SPDX-FileCopyrightText: Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -40,14 +40,17 @@ services:
     command:
       - "serve"
     ports:
-      - {{ ((headscale_host_bind_ip | default('127.0.0.1')) ~ ':' ~ (headscale_external_port | default(8080) | string) ~ ':' ~ (headscale_internal_port | default(8080) | string) ~ '/tcp') | to_json }}
+      - {{ ((headscale_host_bind_ip | default('127.0.0.1')) ~ ':' ~
+          (headscale_external_port | default(8080) | string) ~ ':' ~
+          (headscale_internal_port | default(8080) | string) ~ '/tcp') | to_json }}
 {% if headscale_derp_embedded_enabled | default(false) | bool %}
       # Embedded DERP requires publicly reachable UDP/3478 for STUN.
       - "3478:3478/udp"
 {% endif %}
 {% if headscale_metrics_enabled | default(false) | bool %}
       # Metrics are intentionally not exposed on the LAN.
-      - {{ ('127.0.0.1:' ~ (headscale_metrics_external_port | default(9090) | string) ~ ':' ~ (headscale_metrics_internal_port | default(9090) | string) ~ '/tcp') | to_json }}
+      - {{ ('127.0.0.1:' ~ (headscale_metrics_external_port | default(9090) | string) ~ ':' ~
+          (headscale_metrics_internal_port | default(9090) | string) ~ '/tcp') | to_json }}
 {% endif %}
     volumes:
       - {{ ((headscale_directory.config | default('/opt/headscale/config')) ~ ':/etc/headscale:ro') | to_json }}
@@ -67,6 +70,32 @@ services:
     networks:
       - headscale
 
+{% if headscale_manage_headplane | default(false) | bool %}
+  # -------------------------------------------------------------------------
+  # Optional Headplane Web Dashboard
+  # -------------------------------------------------------------------------
+  headplane:
+    image: {{ headscale_headplane_image | default('ghcr.io/tale/headplane:0.8.1') | to_json }}
+    container_name: {{ headscale_headplane_container_name | default('headplane') | to_json }}
+    labels:
+      com.jcook3701.docker.role: "headscale"
+    pull_policy: {{ headscale_pull_policy | default('always') | to_json }}
+    restart: {{ headscale_restart_policy | default('unless-stopped') | to_json }}
+    depends_on:
+      headscale:
+        condition: service_healthy
+    ports:
+      - {{ ((headscale_headplane_host_bind_ip | default('0.0.0.0')) ~ ':' ~
+          (headscale_headplane_external_port | default(3001) | string) ~ ':' ~
+          (headscale_headplane_internal_port | default(3000) | string) ~ '/tcp') | to_json }}
+    volumes:
+      - {{ (headscale_directory.headplane_config ~ ':/etc/headplane:ro') | to_json }}
+      - {{ (headscale_directory.headplane_data ~ ':/var/lib/headplane') | to_json }}
+      - {{ ((headscale_file.config | default('/opt/headscale/config/config.yaml')) ~
+          ':/etc/headscale/config.yaml:ro') | to_json }}
+    networks:
+      - headscale
+{% endif %}
 # ---------------------------------------------------------------------------
 # Container Networking
 # ---------------------------------------------------------------------------

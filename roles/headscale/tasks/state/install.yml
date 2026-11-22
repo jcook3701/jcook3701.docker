@@ -4,6 +4,25 @@
 - name: Execute Headscale configuration tasks
   ansible.builtin.include_tasks: "configure/main.yml"
 
+- name: Inspect disabled Headplane container
+  community.docker.docker_container_info:
+    name: "{{ headscale_headplane_container_name | default('headplane') }}"
+  register: headscale_headplane_existing
+  when: not (headscale_manage_headplane | default(false) | bool)
+  become: true
+
+- name: Remove disabled role-managed Headplane container
+  community.docker.docker_container:
+    name: "{{ headscale_headplane_container_name | default('headplane') }}"
+    state: "absent"
+  when:
+    - not (headscale_manage_headplane | default(false) | bool)
+    - headscale_headplane_existing.exists | default(false)
+    - >-
+      (headscale_headplane_existing.container.Config.Labels | default({})).get(
+      'com.jcook3701.docker.role', '') == 'headscale'
+  become: true
+
 - name: Trigger Headscale container engine stack deployment
   ansible.builtin.import_role:
     name: jcook3701.utils.container_engine
@@ -12,6 +31,3 @@
     container_engine_platform_type: "{{ headscale_container_engine | default('docker') }}"
     container_engine_desired_state: present
     container_engine_trigger_condition: true
-
-# - name: Execute Headscale post-processing configuration tasks
-#  ansible.builtin.include_tasks: "post_processing/main.yml"

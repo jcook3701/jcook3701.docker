@@ -1,3 +1,4 @@
+
 # SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
@@ -31,9 +32,49 @@
     label: "Creating directory: {{ directory }}"
   become: true
 
+- name: Create Headplane deployment directories
+  ansible.builtin.file:
+    path: "{{ directory.path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ directory.mode }}"
+  loop:
+    - path: "{{ headscale_directory.headplane_config | default('/opt/headscale/headplane/config') }}"
+      mode: "0700"
+    - path: "{{ headscale_directory.headplane_data | default('/opt/headscale/headplane/data') }}"
+      mode: "0700"
+  loop_control:
+    loop_var: directory
+    label: "Creating directory: {{ directory.path }}"
+  when: headscale_manage_headplane | default(false) | bool
+  become: true
+
+- name: Create persistent Headplane session secret
+  ansible.builtin.copy:
+    content: "{{ lookup('community.general.random_string', length=32, special=false) }}"
+    dest: "{{ headscale_file.headplane_cookie_secret | default('/opt/headscale/headplane/config/cookie_secret') }}"
+    owner: root
+    group: root
+    mode: "0600"
+    force: false
+  when: headscale_manage_headplane | default(false) | bool
+  become: true
+  no_log: true
+
+- name: Deploy Headplane web dashboard configuration
+  ansible.builtin.template:
+    src: headplane-config.yml.j2
+    dest: "{{ headscale_file.headplane_config | default('/opt/headscale/headplane/config/config.yaml') }}"
+    owner: root
+    group: root
+    mode: "0600"
+  when: headscale_manage_headplane | default(false) | bool
+  become: true
+
 - name: Deploy Headscale application configuration
   ansible.builtin.template:
-    src: config.yml.j2
+    src: headscale-config.yml.j2
     dest: "{{ headscale_file.config | default('/opt/headscale/config/config.yaml') }}"
     owner: root
     group: root

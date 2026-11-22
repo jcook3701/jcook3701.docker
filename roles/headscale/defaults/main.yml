@@ -89,3 +89,15 @@ headscale_logtail_enabled: false
 # Additional Container Configuration
 # ---------------------------------------------------------------------------
 headscale_extra_environment: {}
+
+# ---------------------------------------------------------------------------
+# Optional Headplane Web Dashboard
+# ---------------------------------------------------------------------------
+headscale_manage_headplane: false
+headscale_headplane_image: "ghcr.io/tale/headplane:0.8.1"
+headscale_headplane_container_name: "headplane"
+headscale_headplane_host_bind_ip: "0.0.0.0"
+headscale_headplane_external_port: 3001
+headscale_headplane_internal_port: 3000
+headscale_headplane_base_url: ""
+headscale_headplane_cookie_secure: false

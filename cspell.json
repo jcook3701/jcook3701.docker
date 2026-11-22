@@ -4,7 +4,6 @@
     "useGitignore": true,
     "words": [
         "jcook3701",
-        "headscale",
         "ansibleautodoc",
         "antsibull",
         "antsichaut",
@@ -35,6 +34,8 @@
         "flatpak",
         "gitcliff",
         "githubusercontent",
+        "headscale",
+        "headplane",
         "icla",
         "lineinfile",
         "logtail",

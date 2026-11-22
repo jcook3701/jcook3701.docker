@@ -1,3 +1,4 @@
+
 # SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
@@ -13,6 +14,10 @@ headscale_directory:
                 | default('/opt/headscale/lib') }}"
   backups: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/backups')
                 | default('/opt/headscale/backups') }}"
+  headplane_config: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/headplane/config')
+                | default('/opt/headscale/headplane/config') }}"
+  headplane_data: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/headplane/data')
+                | default('/opt/headscale/headplane/data') }}"
 
 # ---------------------------------------------------------------------------
 # Infrastructure File Locations
@@ -22,3 +27,7 @@ headscale_file:
                 | default('/opt/headscale/compose.yml') }}"
   config: "{{ ((headscale_directory.config | default('/opt/headscale/config')) ~ '/config.yaml')
                 | default('/opt/headscale/config/config.yaml') }}"
+  headplane_config: "{{ ((headscale_directory.headplane_config | default('/opt/headscale/headplane/config'))
+                ~ '/config.yaml') | default('/opt/headscale/headplane/config/config.yaml') }}"
+  headplane_cookie_secret: "{{ ((headscale_directory.headplane_config | default('/opt/headscale/headplane/config'))
+                ~ '/cookie_secret') | default('/opt/headscale/headplane/config/cookie_secret') }}"

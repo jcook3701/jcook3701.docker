@@ -7,6 +7,7 @@ argument_specs:
     description:
       - Deploy and manage a self-hosted Tailscale coordination server.
       - Configure SQLite persistence, DNS, DERP, networking, and client policy.
+      - Optionally deploy the Headplane web administration dashboard.
     author:
       - Jared W. Cook
     options:
@@ -260,7 +261,7 @@ argument_specs:
         required: false
         default: "3h"
         description:
-          - Frequency at which DERP maps are refreshed.
+          - Frequency for DERP map updates.
       # ---------------------------------------------------------------------
       # Access Policy and Client Features
       # ---------------------------------------------------------------------
@@ -300,3 +301,54 @@ argument_specs:
         default: {}
         description:
           - Additional environment variables for the Headscale container.
+      # ---------------------------------------------------------------------
+      # Optional Headplane Web Dashboard
+      # ---------------------------------------------------------------------
+      headscale_manage_headplane:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Deploy the optional Headplane browser administration dashboard.
+      headscale_headplane_image:
+        type: str
+        required: false
+        default: "ghcr.io/tale/headplane:0.8.1"
+        description:
+          - Version-pinned Headplane container image.
+      headscale_headplane_container_name:
+        type: str
+        required: false
+        default: "headplane"
+        description:
+          - Docker container name for Headplane.
+      headscale_headplane_host_bind_ip:
+        type: str
+        required: false
+        default: "0.0.0.0"
+        description:
+          - Host interface binding for the Headplane browser dashboard.
+      headscale_headplane_external_port:
+        type: int
+        required: false
+        default: 3001
+        description:
+          - Host TCP port for the Headplane dashboard.
+      headscale_headplane_internal_port:
+        type: int
+        required: false
+        default: 3000
+        description:
+          - Internal Headplane HTTP listener port.
+      headscale_headplane_base_url:
+        type: str
+        required: false
+        default: ""
+        description:
+          - Browser-facing base URL without /admin; empty derives the host FQDN and configured port.
+      headscale_headplane_cookie_secure:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Require HTTPS for Headplane session cookies; enable behind an HTTPS reverse proxy.

@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Debug Nginx role configuration
+  ansible.builtin.debug:
+    msg:
+      - "Nginx state: {{ nginx_state | default('present') }}"
+      - "Nginx container engine: {{ nginx_container_engine | default('docker') }}"
+      - "HTTP listener: {{ nginx_host_bind_ip | default('0.0.0.0') }}:{{ nginx_http_external_port | default(8080) }}"
+      - "HTTPS listener: {{ nginx_host_bind_ip | default('0.0.0.0') }}:{{ nginx_https_external_port | default(8443) }}"
+      - "Proxy network: {{ nginx_proxy_network_name | default('jcook3701_proxy') }}"
+  when: nginx_debug_mode | default(false) | bool
+
+- name: Ensure Nginx is installed and configured
+  ansible.builtin.include_tasks: state/install.yml
+  when: nginx_state | default('present') == 'present'
+
+- name: Ensure Nginx is uninstalled from system
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: nginx_state | default('present') == 'absent'
+
+- name: Ensure Nginx is purged from system
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: nginx_state | default('present') == 'teardown'

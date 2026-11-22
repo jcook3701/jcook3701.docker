@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Trigger Nginx container engine stack removal
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    container_engine_project_src: "{{ nginx_directory.base | default('/opt/nginx') }}"
+    container_engine_platform_type: "{{ nginx_container_engine | default('docker') }}"
+    container_engine_desired_state: "absent"
+    container_engine_trigger_condition: true

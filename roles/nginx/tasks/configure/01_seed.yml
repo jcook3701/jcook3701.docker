@@ -1,0 +1,103 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Create Nginx deployment and configuration directories
+  ansible.builtin.file:
+    path: "{{ directory }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  loop:
+    - "{{ nginx_directory.base | default('/opt/nginx') }}"
+    - "{{ nginx_directory.config | default('/opt/nginx/config') }}"
+  loop_control:
+    loop_var: directory
+    label: "Creating directory: {{ directory }}"
+  become: true
+
+- name: Create Nginx TLS directory
+  ansible.builtin.file:
+    path: "{{ nginx_directory.certs | default('/opt/nginx/certs') }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0700"
+  become: true
+
+- name: Generate Nginx bootstrap private key when requested
+  ansible.builtin.command:
+    argv:
+      - "openssl"
+      - "genpkey"
+      - "-algorithm"
+      - "RSA"
+      - "-pkeyopt"
+      - "rsa_keygen_bits:3072"
+      - "-out"
+      - "{{ nginx_file.private_key | default('/opt/nginx/certs/server.key') }}"
+    creates: "{{ nginx_file.private_key | default('/opt/nginx/certs/server.key') }}"
+  when: nginx_tls_bootstrap_self_signed | default(true) | bool
+  become: true
+
+- name: Generate Nginx bootstrap certificate when requested
+  ansible.builtin.command:
+    argv:
+      - "openssl"
+      - "req"
+      - "-new"
+      - "-x509"
+      - "-key"
+      - "{{ nginx_file.private_key | default('/opt/nginx/certs/server.key') }}"
+      - "-out"
+      - "{{ nginx_file.certificate | default('/opt/nginx/certs/server.crt') }}"
+      - "-days"
+      - "{{ nginx_tls_bootstrap_days | default(365) | string }}"
+      - "-subj"
+      - "/CN=localhost"
+    creates: "{{ nginx_file.certificate | default('/opt/nginx/certs/server.crt') }}"
+  when: nginx_tls_bootstrap_self_signed | default(true) | bool
+  become: true
+
+- name: Restrict Nginx TLS private key permissions
+  ansible.builtin.file:
+    path: "{{ nginx_file.private_key | default('/opt/nginx/certs/server.key') }}"
+    state: "file"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  become: true
+
+- name: Set Nginx certificate file permissions
+  ansible.builtin.file:
+    path: "{{ nginx_file.certificate | default('/opt/nginx/certs/server.crt') }}"
+    state: "file"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  become: true
+
+- name: Create shared Nginx proxy network
+  community.docker.docker_network:
+    name: "{{ nginx_proxy_network_name | default('jcook3701_proxy') }}"
+    driver: "bridge"
+    state: "present"
+  become: true
+
+- name: Deploy Nginx application configuration
+  ansible.builtin.template:
+    src: "nginx.conf.j2"
+    dest: "{{ nginx_file.config | default('/opt/nginx/config/nginx.conf') }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  become: true
+
+- name: Deploy Nginx Compose configuration
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ nginx_file.compose | default('/opt/nginx/compose.yml') }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  become: true

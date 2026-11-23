@@ -1,14 +1,107 @@
 # SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
+- name: Validate Frigate NVR role options
+  ansible.builtin.assert:
+    that:
+      - frigate_nvr_container_engine in ["docker", "podman"]
+      - frigate_nvr_state in ["present", "absent", "teardown"]
+      - frigate_nvr_config_owner in ["ansible", "frigate"]
+      - frigate_nvr_base_dir is match("^/[^\n]+$")
+      - frigate_nvr_base_dir | length > 4
+      - frigate_nvr_config_dir is match("^/[^\n]+$")
+      - frigate_nvr_storage_dir is match("^/[^\n]+$")
+      - frigate_nvr_bind_ip | length > 0
+      - frigate_nvr_web_port | int >= 1
+      - frigate_nvr_web_port | int <= 65535
+      - frigate_nvr_rtsp_port | int >= 1
+      - frigate_nvr_rtsp_port | int <= 65535
+      - frigate_nvr_webrtc_port | int >= 1
+      - frigate_nvr_webrtc_port | int <= 65535
+      - frigate_nvr_webrtc_udp_port | int >= 1
+      - frigate_nvr_webrtc_udp_port | int <= 65535
+      - frigate_nvr_unauthenticated_port | int >= 1
+      - frigate_nvr_unauthenticated_port | int <= 65535
+      - frigate_nvr_tmpfs_size | int > 0
+      - frigate_nvr_devices is sequence
+      - frigate_nvr_devices is not string
+      - frigate_nvr_detectors is mapping
+      - frigate_nvr_record is mapping
+      - frigate_nvr_snapshots is mapping
+      - frigate_nvr_extra_config is mapping
+      - frigate_nvr_cameras is sequence
+      - frigate_nvr_cameras is not string
+      - >-
+        (frigate_nvr_extra_config.keys() | list
+        | intersect(frigate_nvr_reserved_config_keys) | length) == 0
+    fail_msg: >-
+      Check the Frigate lifecycle, Docker runtime, absolute paths, ports,
+      collection types, and role-owned extra configuration keys.
+
+- name: Validate Frigate NVR camera definitions
+  ansible.builtin.assert:
+    that:
+      - frigate_nvr_camera is mapping
+      - frigate_nvr_camera.name is defined
+      - frigate_nvr_camera.name | string | length > 0
+      - frigate_nvr_camera.inputs | default([]) is sequence
+      - frigate_nvr_camera.inputs | default([]) is not string
+      - frigate_nvr_camera.inputs | default([]) | length > 0
+      - frigate_nvr_camera.extra_config | default({}) is mapping
+      - >-
+        (frigate_nvr_camera.extra_config | default({})).keys() | list
+        | intersect(frigate_nvr_reserved_camera_config_keys) | length == 0
+    fail_msg: >-
+      Each camera requires a nonempty name and at least one input. Camera
+      extra_config cannot replace enabled, ffmpeg, detect, or zones.
+  loop: "{{ frigate_nvr_cameras }}"
+  loop_control:
+    loop_var: "frigate_nvr_camera"
+    label: "{{ frigate_nvr_camera.name | default('unnamed camera') }}"
+
+- name: Require unique Frigate NVR camera names
+  ansible.builtin.assert:
+    that:
+      - >-
+        (frigate_nvr_cameras | map(attribute="name") | list | unique | length)
+        == (frigate_nvr_cameras | length)
+    fail_msg: "Each Frigate camera name must be unique."
+
+- name: Require an MQTT host when MQTT is enabled
+  ansible.builtin.assert:
+    that:
+      - frigate_nvr_mqtt_host | length > 0
+    fail_msg: "Set frigate_nvr_mqtt_host when MQTT is enabled."
+  when: frigate_nvr_mqtt_enabled | bool
+
+- name: Require an MQTT password when a username is configured
+  ansible.builtin.assert:
+    that:
+      - frigate_nvr_mqtt_password | length > 0
+    fail_msg: "Set frigate_nvr_mqtt_password from Ansible Vault before enabling authenticated MQTT."
+  no_log: true
+  when:
+    - frigate_nvr_mqtt_enabled | bool
+    - frigate_nvr_mqtt_user | length > 0
+
+- name: Display non-sensitive Frigate NVR role configuration
+  ansible.builtin.debug:
+    msg:
+      - "Frigate state: {{ frigate_nvr_state }}"
+      - "Frigate image: {{ frigate_nvr_image }}:{{ frigate_nvr_version }}"
+      - "Frigate endpoint: {{ frigate_nvr_bind_ip }}:{{ frigate_nvr_web_port }}"
+      - "Frigate config owner: {{ frigate_nvr_config_owner }}"
+      - "Frigate cameras: {{ frigate_nvr_cameras | length }}"
+  when: frigate_nvr_debug_mode | bool
+
 - name: Ensure Frigate NVR is installed and configured
-  ansible.builtin.include_tasks:  state/install.yml
-  when: frigate_nvr_state | default('present') == 'present'
+  ansible.builtin.include_tasks: "state/install.yml"
+  when: frigate_nvr_state == "present"
 
-- name: Ensure Frigate NVR is uninstalled from system
-  ansible.builtin.include_tasks: state/uninstall.yml
-  when: frigate_nvr_state | default('present') == 'absent'
+- name: Ensure Frigate NVR is stopped and removed
+  ansible.builtin.include_tasks: "state/uninstall.yml"
+  when: frigate_nvr_state == "absent"
 
-- name: Ensure Frigate NVR is purged from system
-  ansible.builtin.include_tasks: state/teardown.yml
-  when: frigate_nvr_state | default('present') == 'teardown'
+- name: Ensure Frigate NVR is torn down
+  ansible.builtin.include_tasks: "state/teardown.yml"
+  when: frigate_nvr_state == "teardown"

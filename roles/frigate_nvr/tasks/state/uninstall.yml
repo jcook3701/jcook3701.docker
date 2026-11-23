@@ -1,11 +1,12 @@
 # SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
-- name: Trigger Frigate NVR container engine stack removal
+- name: Stop Frigate NVR container stack without deleting persistent data
   ansible.builtin.import_role:
-    name: jcook3701.utils.container_engine
+    name: "jcook3701.utils.container_engine"
   vars:
-    container_engine_project_src: "{{ frigate_nvr_directory.base | default('/opt/frigate_nvr') }}"
-    container_engine_platform_type: "{{ frigate_nvr_container_engine | default('docker') }}"
-    container_engine_desired_state: teardown
+    container_engine_project_src: "{{ frigate_nvr_directory.base }}"
+    container_engine_platform_type: "{{ frigate_nvr_container_engine }}"
+    container_engine_desired_state: "absent"
     container_engine_trigger_condition: true
+  become: true

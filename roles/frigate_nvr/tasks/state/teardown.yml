@@ -1,16 +1,38 @@
 # SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
-- name: Debug Teardown of Frigate NVR application
+- name: Display non-sensitive Frigate NVR teardown configuration
   ansible.builtin.debug:
-    msg: "frigate_nvr_directory.base: {{ frigate_nvr_directory.base }}"
-  when: frigate_nvr_debug_mode | default(false) | bool
+    msg:
+      - "Frigate base directory: {{ frigate_nvr_directory.base }}"
+      - "Remove Frigate images: {{ frigate_nvr_teardown_remove_images }}"
+      - "Remove Frigate data: {{ frigate_nvr_teardown_remove_data }}"
+  when: frigate_nvr_debug_mode | bool
 
-- name: Include standard termination routine definitions
-  ansible.builtin.include_tasks: uninstall.yml
+- name: Stop Frigate NVR stack
+  ansible.builtin.include_tasks: "uninstall.yml"
 
-- name: Purge remaining historical data layers and configurations
+- name: Remove Frigate NVR image only when explicitly requested
+  ansible.builtin.import_role:
+    name: "jcook3701.utils.container_engine"
+  vars:
+    container_engine_project_src: "{{ frigate_nvr_directory.base }}"
+    container_engine_platform_type: "{{ frigate_nvr_container_engine }}"
+    container_engine_desired_state: "teardown"
+    container_engine_trigger_condition: true
+  when: frigate_nvr_teardown_remove_images | bool
+  become: true
+
+- name: Remove Frigate NVR Compose file while preserving application data
   ansible.builtin.file:
-    path: "{{ frigate_nvr_directory.base | default('/opt/frigate_nvr') }}"
-    state: absent
+    path: "{{ frigate_nvr_file.compose }}"
+    state: "absent"
+  when: not (frigate_nvr_teardown_remove_data | bool)
+  become: true
+
+- name: Remove persistent Frigate NVR data only when explicitly requested
+  ansible.builtin.file:
+    path: "{{ frigate_nvr_directory.base }}"
+    state: "absent"
+  when: frigate_nvr_teardown_remove_data | bool
   become: true

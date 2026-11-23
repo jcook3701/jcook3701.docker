@@ -2,36 +2,36 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 galaxy_info:
-  author: Jared W. Cook
-  description: "This role executes the Docker Frigate NVR container,
-    captures output, and handles image teardown."
+  author: "Jared W. Cook"
+  description: "Deploy and manage the Frigate network video recorder in Docker."
   company: "Cook's Code, Inc."
   license: "AGPL-3.0-or-later"
   min_ansible_version: ">=2.10"
-  role_name: frigate_nvr
+  role_name: "frigate_nvr"
 
   platforms:
-    - name: EL
+    - name: "EL"
       versions:
         - "8"
         - "9"
-    - name: Debian
+    - name: "Debian"
       versions:
-        - all
-    - name: Ubuntu
+        - "all"
+    - name: "Ubuntu"
       versions:
-        - all
+        - "all"
 
   galaxy_tags:
-    - packages
-    - docker
-    - desktop
-    - apps
+    - "docker"
+    - "frigate"
+    - "nvr"
+    - "security"
+    - "video"
 
 dependencies:
-  - role: jcook3701.pkgs.docker_ce
+  - role: "jcook3701.pkgs.docker_ce"
 
 collections:
-  - jcook3701.utils
-  - community.docker
-  - containers.podman
+  - "jcook3701.utils"
+  - "community.docker"
+  - "containers.podman"

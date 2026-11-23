@@ -194,6 +194,43 @@ services:
       - ollama
 {% endif %}
 
+{% if ollama_manage_mcp_inspector | bool %}
+  # -----------------------------------------------------------------------
+  # MCP Inspector Web Interface
+  # -----------------------------------------------------------------------
+  ollama-mcp-inspector:
+    image: {{ ollama_mcp_inspector_image | to_json }}
+    container_name: {{ ollama_mcp_inspector_container_name | to_json }}
+    pull_policy: {{ ollama_pull_policy | to_json }}
+    restart: {{ ollama_restart_policy | to_json }}
+{% if ollama_manage_mcp | bool %}
+    depends_on:
+      - ollama-mcp-gateway
+{% endif %}
+    ports:
+      - "{{ ollama_mcp_inspector_bind_ip }}:{{ ollama_mcp_inspector_external_port }}:{{ ollama_mcp_inspector_internal_port }}"
+      - "{{ ollama_mcp_inspector_bind_ip }}:{{ ollama_mcp_inspector_sandbox_port }}:{{ ollama_mcp_inspector_sandbox_port }}"
+      - "{{ ollama_mcp_inspector_bind_ip }}:{{ ollama_mcp_inspector_app_origin_port }}:{{ ollama_mcp_inspector_app_origin_port }}"
+    volumes:
+      - "{{ ollama_directory.mcp_inspector }}:/home/node/.mcp-inspector"
+      - "{{ ollama_file.mcp_inspector_secret_key }}:/run/secrets/mcp_inspector_secret_key:ro"
+    environment:
+      HOST: "0.0.0.0"
+      CLIENT_PORT: {{ ollama_mcp_inspector_internal_port | string | to_json }}
+      MCP_SANDBOX_PORT: {{ ollama_mcp_inspector_sandbox_port | string | to_json }}
+      MCP_APP_ORIGIN_PORT: {{ ollama_mcp_inspector_app_origin_port | string | to_json }}
+      MCP_AUTO_OPEN_ENABLED: "false"
+      DANGEROUSLY_BIND_ALL_INTERFACES: "true"
+      MCP_INSPECTOR_SECRET_KEY_FILE: "/run/secrets/mcp_inspector_secret_key"
+{% if ollama_mcp_inspector_allowed_origins | length > 0 %}
+      ALLOWED_ORIGINS: {{ ollama_mcp_inspector_allowed_origins | join(',') | to_json }}
+{% endif %}
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - ollama
+{% endif %}
+
 {% if ollama_manage_searxng | bool %}
   # -----------------------------------------------------------------------
   # SearXNG Valkey Backend

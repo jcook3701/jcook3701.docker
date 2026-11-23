@@ -39,6 +39,7 @@
         "icla",
         "lineinfile",
         "logtail",
+        "mcp",
         "mkdirp",
         "multirotors",
         "nameisok",

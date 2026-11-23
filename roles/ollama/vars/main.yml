@@ -10,6 +10,7 @@ ollama_directory:
   ollama: "{{ ollama_base_dir ~ '/ollama' | default('/opt/ollama/ollama') }}"
   open_webui: "{{ ollama_base_dir ~ '/open-webui' | default('/opt/ollama/open-webui') }}"
   n8n: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/n8n' }}"
+  mcp_inspector: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/mcp-inspector' }}"
   searxng_config: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/searxng/config' }}"
   searxng_cache: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/searxng/cache' }}"
   searxng_valkey: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/searxng/valkey' }}"
@@ -26,3 +27,7 @@ ollama_file:
                         | default('/opt/ollama/searxng/config/limiter.toml') }}"
   secrets: "{{ ollama_directory.base ~ '/.env'
                         | default('/opt/ollama/.env') }}"
+  mcp_inspector_catalog: "{{ ollama_directory.mcp_inspector ~ '/mcp.json'
+                        | default('/opt/ollama/mcp-inspector/mcp.json') }}"
+  mcp_inspector_secret_key: "{{ ollama_directory.base ~ '/mcp-inspector-secret-key'
+                        | default('/opt/ollama/mcp-inspector-secret-key') }}"

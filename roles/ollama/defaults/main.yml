@@ -14,6 +14,7 @@ ollama_teardown_remove_images: false
 ollama_manage_web_ui: true
 ollama_manage_n8n: true
 ollama_manage_mcp: true
+ollama_manage_mcp_inspector: true
 ollama_manage_searxng: true
 
 # ---------------------------------------------------------------------------
@@ -23,6 +24,7 @@ ollama_backend_image: "docker.io/ollama/ollama:latest"
 ollama_webui_image: "ghcr.io/open-webui/open-webui:main"
 ollama_n8n_image: "docker.n8n.io/n8nio/n8n:latest"
 ollama_mcp_gateway_image: "docker/mcp-gateway:latest"
+ollama_mcp_inspector_image: "ghcr.io/modelcontextprotocol/inspector:latest"
 ollama_searxng_image: "docker.io/searxng/searxng:latest"
 ollama_searxng_valkey_image: "docker.io/valkey/valkey:9-alpine"
 ollama_pull_policy: "missing"
@@ -36,6 +38,7 @@ ollama_backend_container_name: "ollama"
 ollama_webui_container_name: "ollama-webui"
 ollama_n8n_container_name: "ollama-n8n"
 ollama_mcp_gateway_container_name: "ollama-mcp-gateway"
+ollama_mcp_inspector_container_name: "ollama-mcp-inspector"
 ollama_searxng_container_name: "searxng"
 ollama_searxng_valkey_container_name: "searxng-valkey"
 
@@ -43,6 +46,7 @@ ollama_searxng_valkey_container_name: "searxng-valkey"
 # Infrastructure Storage and Path Routing
 # ---------------------------------------------------------------------------
 ollama_base_dir: "/opt/ollama"
+
 # ---------------------------------------------------------------------------
 # Telly Terminal Configuration
 # ---------------------------------------------------------------------------
@@ -59,12 +63,14 @@ ollama_backend_bind_ip: "{{ ollama_host_bind_ip }}"
 ollama_webui_bind_ip: "{{ ollama_host_bind_ip }}"
 ollama_n8n_bind_ip: "127.0.0.1"
 ollama_mcp_gateway_bind_ip: "127.0.0.1"
+ollama_mcp_inspector_bind_ip: "127.0.0.1"
 ollama_searxng_bind_ip: "127.0.0.1"
 
 ollama_external_port: 11434
 ollama_webui_external_port: 3000
 ollama_n8n_external_port: 5678
 ollama_mcp_gateway_external_port: 8811
+ollama_mcp_inspector_external_port: 6274
 ollama_searxng_external_port: 8081
 
 ollama_internal_bind_ip: "0.0.0.0"
@@ -72,6 +78,9 @@ ollama_internal_port: 11434
 ollama_webui_internal_port: 8080
 ollama_n8n_internal_port: 5678
 ollama_mcp_gateway_internal_port: 8811
+ollama_mcp_inspector_internal_port: 6274
+ollama_mcp_inspector_sandbox_port: 6275
+ollama_mcp_inspector_app_origin_port: 6278
 ollama_searxng_internal_port: 8080
 
 # ---------------------------------------------------------------------------
@@ -111,6 +120,17 @@ ollama_mcp_gateway_servers:
   - "duckduckgo"
 # Empty uses a generated persistent token shared in /opt/ollama/.env.
 ollama_mcp_gateway_auth_token: ""
+
+# ---------------------------------------------------------------------------
+# MCP Inspector Configuration
+# ---------------------------------------------------------------------------
+# Keep the Inspector UI bound to loopback by default.
+# Empty origins use the Inspector's built-in origin policy.
+ollama_mcp_inspector_allowed_origins: []
+
+# Optional Vault-provided encryption key for Inspector's secret store.
+# Empty generates a persistent key file on first deployment.
+ollama_mcp_inspector_secret_key: ""
 
 # ---------------------------------------------------------------------------
 # SearXNG Search Configuration

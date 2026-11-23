@@ -484,9 +484,9 @@ argument_specs:
 
       ollama_searxng_limiter:
         type: bool
-        default: true
+        default: false
         description:
-        - Enable SearXNG bot detection limiter.
+        - Enable SearXNG bot detection limiter behind a trusted proxy that supplies client IP headers.
 
       ollama_searxng_limiter_pass_ips:
         type: list

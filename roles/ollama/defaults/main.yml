@@ -118,7 +118,8 @@ ollama_mcp_gateway_auth_token: ""
 ollama_searxng_secret_key: ""
 ollama_searxng_instance_name: "SearXNG"
 ollama_searxng_safe_search: 1
-ollama_searxng_limiter: true
+# Enable only when SearXNG is behind a trusted proxy that supplies client IP headers.
+ollama_searxng_limiter: false
 ollama_searxng_limiter_pass_ips: []
 ollama_searxng_image_proxy: true
 ollama_searxng_valkey_url: "valkey://searxng-valkey:6379/0"

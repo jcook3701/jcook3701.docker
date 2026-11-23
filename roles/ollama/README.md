@@ -97,11 +97,15 @@ healthchecks; MCP Gateway uses its own readiness logging and `/health` endpoint.
 ### Web search
 
 Open WebUI is pointed at the internal SearXNG JSON search API. `settings.yml`
-permits the `json` result format and Valkey supports the SearXNG limiter. If an
-existing Open WebUI database already stores web-search settings, the administrator
-may need to align those persisted settings with the new environment values.
-Search availability does not guarantee that an Ollama model will call tools
-correctly; model tool-call capability is separate from search infrastructure.
+permits the `json` result format. The SearXNG limiter is disabled by default
+because direct Compose-network requests do not carry the trusted client-IP
+headers that the limiter requires. Enable it only when SearXNG is behind a
+trusted reverse proxy that supplies `X-Forwarded-For` and `X-Real-IP`, then
+configure `ollama_searxng_limiter_pass_ips` as needed. If an existing Open WebUI
+database already stores web-search settings, the administrator may need to align
+those persisted settings with the new environment values. Search availability
+does not guarantee that an Ollama model will call tools correctly; model
+tool-call capability is separate from search infrastructure.
 
 ## Role Variables
 
@@ -222,7 +226,7 @@ correctly; model tool-call capability is separate from search infrastructure.
 | `ollama_searxng_secret_key` | str | Optional Vault-managed SearXNG secret; empty generates persistent secret. | `` |
 | `ollama_searxng_instance_name` | str | SearXNG instance name displayed in its UI. | `SearXNG` |
 | `ollama_searxng_safe_search` | int | SearXNG safe search level (0=off, 1=moderate, 2=strict). Choices: `0`, `1`, `2`. | `1` |
-| `ollama_searxng_limiter` | bool | Enable SearXNG bot detection limiter. | `true` |
+| `ollama_searxng_limiter` | bool | Enable the limiter only behind a trusted proxy. | `false` |
 | `ollama_searxng_limiter_pass_ips` | list[str] | Explicitly trusted IPs or CIDRs bypassing SearXNG limits. | `[]` |
 | `ollama_searxng_image_proxy` | bool | Enable SearXNG image proxying. | `true` |
 | `ollama_searxng_valkey_url` | str | Internal Valkey URL consumed by SearXNG. | `valkey://searxng-valkey:6379/0` |

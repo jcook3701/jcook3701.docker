@@ -1,0 +1,91 @@
+# dependabot.yml for jcook3701.docker
+#
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+---
+version: 2
+updates:
+  # -------------------------------------------------------------------------
+  # Python project, development, tooling, and documentation dependencies
+  # -------------------------------------------------------------------------
+  - package-ecosystem: "pip"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "America/Los_Angeles"
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # -------------------------------------------------------------------------
+  # Jekyll documentation dependencies
+  # -------------------------------------------------------------------------
+  - package-ecosystem: "bundler"
+    directory: "/docs/jekyll"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:15"
+      timezone: "America/Los_Angeles"
+    groups:
+      jekyll-dependencies:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # -------------------------------------------------------------------------
+  # Pre-commit hook revisions
+  # -------------------------------------------------------------------------
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:30"
+      timezone: "America/Los_Angeles"
+    groups:
+      pre-commit-hooks:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # -------------------------------------------------------------------------
+  # GitHub Actions workflow dependencies
+  # -------------------------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:45"
+      timezone: "America/Los_Angeles"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore(deps)"

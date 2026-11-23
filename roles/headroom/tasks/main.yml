@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Validate Headroom role options
+  ansible.builtin.assert:
+    that:
+      - headroom_container_engine == "docker"
+      - headroom_state in ["present", "absent", "teardown"]
+      - headroom_base_dir is match("^/[^\n]+$")
+      - headroom_base_dir | length > 4
+      - headroom_bind_ip | length > 0
+      - headroom_external_port | int >= 1
+      - headroom_external_port | int <= 65535
+      - headroom_internal_port | int >= 1
+      - headroom_internal_port | int <= 65535
+      - headroom_container_uid | int >= 0
+      - headroom_container_gid | int >= 0
+      - headroom_pids_limit | int > 0
+      - headroom_extra_environment is mapping
+      - >-
+        (headroom_extra_environment.keys() | list
+        | intersect(headroom_reserved_environment) | length) == 0
+    fail_msg: >-
+      Check the Headroom lifecycle, Docker runtime, absolute base path, ports,
+      resource limits, runtime UID/GID, and extra environment variable keys.
+
+- name: Require authentication for non-loopback Headroom publication
+  ansible.builtin.assert:
+    that:
+      - headroom_bind_ip == "127.0.0.1" or headroom_proxy_token | length > 0
+    fail_msg: >-
+      Set headroom_proxy_token from Ansible Vault before publishing Headroom
+      on any host address other than 127.0.0.1.
+  no_log: true
+  when: headroom_state == "present"
+
+- name: Display non-sensitive Headroom role configuration
+  ansible.builtin.debug:
+    msg:
+      - "Headroom state: {{ headroom_state }}"
+      - "Headroom image: {{ headroom_image }}"
+      - "Headroom endpoint: {{ headroom_bind_ip }}:{{ headroom_external_port }}"
+      - "Headroom proxy mode: {{ headroom_proxy_mode }}"
+  when: headroom_debug_mode | bool
+
+- name: Ensure Headroom is installed and configured
+  ansible.builtin.include_tasks: "state/install.yml"
+  when: headroom_state == "present"
+
+- name: Ensure Headroom is stopped and removed
+  ansible.builtin.include_tasks: "state/uninstall.yml"
+  when: headroom_state == "absent"
+
+- name: Ensure Headroom is torn down
+  ansible.builtin.include_tasks: "state/teardown.yml"
+  when: headroom_state == "teardown"

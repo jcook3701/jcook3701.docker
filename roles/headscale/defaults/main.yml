@@ -102,7 +102,15 @@ headscale_headplane_internal_port: 3000
 headscale_headplane_base_url: ""
 headscale_headplane_cookie_secure: false
 headscale_headplane_api_key_expiration: "365d"
+
+# ---------------------------------------------------------------------------
+# Optional Headplane Integration Features
+# ---------------------------------------------------------------------------
+headscale_headplane_agent_enabled: false
+headscale_headplane_docker_enabled: false
+headscale_headplane_kubernetes_enabled: false
 headscale_headplane_kubernetes_pod_name: "headscale"
+headscale_headplane_proc_enabled: false
 
 # ---------------------------------------------------------------------------
 # Client Pre-Authentication Key Configuration

@@ -74,13 +74,66 @@ The generated key is stored on the Docker host at:
 
 Treat this file as a secret. To read the key for a first-time browser login, use your usual authorized secret-handling process. Do not put it into a public Git repository, normal Ansible log, or an unencrypted playbook.
 
+### Headplane Configuration Editing
+
+Headplane can optionally edit the Headscale configuration through its browser interface.
+
+Enable this functionality with:
+
+```yaml
+headscale_manage_headplane: true
+headscale_headplane_docker_enabled: true
+```
+
+When enabled, the role:
+
+1. Mounts the Headscale configuration file into Headplane with read/write access.
+2. Provides Headplane with access to the Docker API.
+3. Labels the Headscale container for Headplane's Docker integration.
+4. Preserves the existing Headscale configuration file on subsequent Ansible deployments.
+
+The Headscale container continues to mount `/etc/headscale` read-only.
+Only Headplane receives the writable configuration file mount.
+
+With Docker integration disabled, Headplane can read the Headscale configuration
+but cannot modify it through its browser interface.
+
+When Docker integration is enabled, Ansible creates the Headscale configuration
+if absent but does not overwrite the file on subsequent runs. Changes to
+Headscale configuration variables in Ansible will therefore not automatically
+replace settings previously written through Headplane.
+
+When changing back to Ansible-managed configuration, review any Headplane edits
+before disabling Docker integration. Disabling it restores the Ansible template
+task's normal overwrite behavior.
+
+### Optional Integration Features
+
+The following variables configure the optional Headplane integrations:
+
+```yaml
+headscale_headplane_agent_enabled: false
+headscale_headplane_docker_enabled: false
+headscale_headplane_kubernetes_enabled: false
+headscale_headplane_kubernetes_pod_name: "headscale"
+headscale_headplane_proc_enabled: false
+```
+
+Docker integration includes the required configuration mount, Docker socket,
+and target-container label.
+
+The agent, Kubernetes, and process integration variables control their
+respective Headplane configuration flags. Enabling them may require additional
+runtime resources, permissions, or deployment configuration not managed
+by this role.
+
 ### HTTPS and Security
 
 By default the dashboard is bound to host port 3001. Use a trusted LAN only during HTTP testing. Expose the dashboard through an authenticated HTTPS proxy before allowing access from untrusted networks. Set `headscale_headplane_cookie_secure: true` when HTTPS is active.
 
-For Headscale and Headplane, the application config files and API key are root-only. The Headplane Compose service explicitly runs as UID/GID 0 to read them, while Docker socket access remains disabled. This is an intentional compatibility choice with the role's existing permissions.
+For Headscale and Headplane, the application config files and API key are root-only. The Headplane Compose service explicitly runs as UID/GID 0 to read them.
 
-Headplane's advanced settings editor is not enabled: it requires write access to Ansible-managed Headscale configuration and Docker integration. Changes to these settings should continue through Ansible.
+Docker integration is disabled by default. Enabling it mounts the Docker socket into Headplane. A `:ro` bind mount of the Docker socket does not restrict Docker API operations to read-only access. Administrators must treat Headplane as a highly privileged service when this integration is enabled.
 
 ## Role Variables
 
@@ -132,7 +185,11 @@ Headplane's advanced settings editor is not enabled: it requires write access to
 | `headscale_headplane_base_url` | str | Dashboard base URL; empty derives the host FQDN and port. | `""` |
 | `headscale_headplane_cookie_secure` | bool | Require secure browser cookies. | `false` |
 | `headscale_headplane_api_key_expiration` | str | Duration of initially provisioned API key. | `365d` |
-| `headscale_headplane_kubernetes_pod_name` | str | Kubernetes pod name required by Headplane, even when Kubernetes integration is disabled. | `headscale` |
+| `headscale_headplane_agent_enabled` | bool | Enable optional Headplane agent integration. | `false` |
+| `headscale_headplane_docker_enabled` | bool | Enable Docker integration and writable Headscale settings. | `false` |
+| `headscale_headplane_kubernetes_enabled` | bool | Enable optional Headplane Kubernetes integration. | `false` |
+| `headscale_headplane_kubernetes_pod_name` | str | Kubernetes pod name required by Headplane. | `headscale` |
+| `headscale_headplane_proc_enabled` | bool | Enable optional Headplane process integration. | `false` |
 | `headscale_manage_client_preauth_key` | bool | Generate and store a client registration key when absent. | `false` |
 | `headscale_client_preauth_user` | str | Headscale user owning enrolled clients; created if absent. | `homelab` |
 | `headscale_client_preauth_key_reusable` | bool | Allow the same key to enroll multiple devices. | `true` |
@@ -150,6 +207,10 @@ Headplane's advanced settings editor is not enabled: it requires write access to
 │   ├── db.sqlite
 │   └── noise_private.key
 ├── backups/
+├── preauth/
+│   ├── key
+│   ├── key_id
+│   └── client-registration.txt
 └── headplane/
     ├── config/
     │   ├── config.yaml
@@ -158,7 +219,13 @@ Headplane's advanced settings editor is not enabled: it requires write access to
     └── data/
 ```
 
-The Headscale config mount is read-only and `/var/lib/headscale` holds the SQLite database and keys. Headplane uses its own persistent directory, and reads Headscale's config read-only. If the policy file is managed externally, create and mount it separately.
+The Headscale container mounts its configuration read-only and stores its SQLite database and keys under `/var/lib/headscale`.
+
+Headplane uses a separate persistent data directory. Its Headscale configuration mount is read-only by default and becomes writable only when `headscale_headplane_docker_enabled` is enabled.
+
+The `preauth` directory is created when client pre-authentication key management is enabled. Its credentials and generated registration command are stored with restricted permissions.
+
+If the policy file is managed externally, create and mount it separately.
 
 ## Container Management
 
@@ -181,7 +248,7 @@ Check Headscale configuration and health:
 sudo docker compose -f /opt/headscale/compose.yml exec headscale headscale configtest
 ```
 
-Create the first Headscale user before registering clients:
+Create the first Headscale user manually if automated registration management is disabled:
 
 ```shell
 sudo docker compose -f /opt/headscale/compose.yml exec headscale headscale users create homelab
@@ -191,6 +258,12 @@ Register a Tailscale client against the configured public control URL:
 
 ```shell
 tailscale up --login-server https://headscale.example.com
+```
+
+When `headscale_manage_client_preauth_key` is enabled, the role generates a stored client registration command that includes the generated key. Retrieve it with:
+
+```shell
+sudo cat /opt/headscale/preauth/client-registration.txt
 ```
 
 This does not import previous registrations from Tailscale's hosted service.

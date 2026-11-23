@@ -358,12 +358,39 @@ argument_specs:
         default: "365d"
         description:
           - Initial validity of the provisioned Headscale API key, using a Headscale duration string.
+      # ---------------------------------------------------------------------
+      # Optional Headplane Integration Features
+      # ---------------------------------------------------------------------
+      headscale_headplane_agent_enabled:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable the optional Headplane agent integration.
+      headscale_headplane_docker_enabled:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable Docker integration, writable Headscale configuration, and Docker API access.
+      headscale_headplane_kubernetes_enabled:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable the optional Headplane Kubernetes integration.
       headscale_headplane_kubernetes_pod_name:
         type: str
         required: false
         default: "headscale"
         description:
           - Kubernetes pod name required by Headplane configuration.
+      headscale_headplane_proc_enabled:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable the optional Headplane process integration.
       # ---------------------------------------------------------------------
       # Client Pre-Authentication Key Configuration
       # ---------------------------------------------------------------------

@@ -102,7 +102,7 @@ services:
           ':/var/lib/headplane') | to_json }}
 {% if headscale_headplane_docker_enabled | default(false) | bool %}
       - {{ ((headscale_file.config | default('/opt/headscale/config/config.yaml')) ~
-          ':/etc/headscale/config.yaml') | to_json }}
+          ':/etc/headscale/config.yaml:rw') | to_json }}
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 {% else %}
       - {{ ((headscale_file.config | default('/opt/headscale/config/config.yaml')) ~

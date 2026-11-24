@@ -104,7 +104,7 @@ argument_specs:
 
       ollama_mcp_gateway_image:
         type: "str"
-        default: "docker/mcp-gateway:latest"
+        default: "docker/mcp-gateway@sha256:f5a679a05fc39022a046167bef92aeeb01bcd59485ad27843ae5227db7950688"
         description:
           - "Docker MCP Gateway container image; pin tag or digest for repeatability."
 

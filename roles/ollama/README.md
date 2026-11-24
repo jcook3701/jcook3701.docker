@@ -71,6 +71,57 @@ Tool registration is an administrator action. This role does not overwrite
 previously saved Open WebUI connections. Continue in VS Code requires its
 own MCP client registration.
 
+### Connect Docker MCP Gateway to Codex
+
+Codex can connect to the loopback-published Gateway using Streamable HTTP.
+Keep the persistent Bearer token out of `~/.codex/config.toml`; use a local
+header helper that obtains the existing token from the running container.
+The user running Codex must already have permission to use Docker.
+
+Create an executable helper such as
+`~/.local/bin/codex-ollama-mcp-headers`:
+
+```bash
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+gateway_token="$(
+  /usr/bin/docker inspect \
+    --format '{{ range .Config.Env }}{{ println . }}{{ end }}' \
+    ollama-mcp-gateway \
+    | /usr/bin/sed -n 's/^MCP_GATEWAY_AUTH_TOKEN=//p' \
+    | /usr/bin/head -n 1
+)"
+
+if [[ -z "${gateway_token}" ]]; then
+  printf '%s\n' "Docker MCP Gateway token is unavailable." >&2
+  exit 1
+fi
+
+exec /usr/bin/jq -cn \
+  --arg token "${gateway_token}" \
+  '{"Authorization": ("Bearer " + $token)}'
+```
+
+Register the Gateway in the user-level Codex configuration:
+
+```toml
+[mcp_servers.ollama_mcp_gateway]
+url = "http://127.0.0.1:8811/mcp"
+http_headers_helper = "/home/USER/.local/bin/codex-ollama-mcp-headers"
+startup_timeout_sec = 30
+tool_timeout_sec = 60
+```
+
+Restart Codex after changing its MCP configuration. Verify registration with
+`codex mcp list`. The default Gateway catalog exposes only the servers listed
+in `ollama_mcp_gateway_servers`; it does not expose the Ollama model API.
+
+For a remote Codex client, keep the Gateway bound to loopback, use an SSH
+tunnel for port 8811, and provide the Bearer token through the client's secret
+environment rather than placing it directly in the TOML file.
+
 **Docker socket warning:** the Gateway mounts the host's writable
 `/var/run/docker.sock`. This grants powerful Docker daemon access.
 
@@ -388,7 +439,7 @@ infrastructure.
 | `ollama_backend_image` | str | Ollama image. | `docker.io/ollama/ollama:latest` |
 | `ollama_webui_image` | str | Open WebUI image. | `ghcr.io/open-webui/open-webui:main` |
 | `ollama_n8n_image` | str | n8n image. | `docker.n8n.io/n8nio/n8n:latest` |
-| `ollama_mcp_gateway_image` | str | Docker MCP Gateway image. | `docker/mcp-gateway:latest` |
+| `ollama_mcp_gateway_image` | str | Docker MCP Gateway image. | `docker/mcp-gateway@sha256:f5a679a05fc39022a046167bef92aeeb01bcd59485ad27843ae5227db7950688` |
 | `ollama_mcp_inspector_image` | str | MCP Inspector image. | `ghcr.io/modelcontextprotocol/inspector:latest` |
 | `ollama_searxng_image` | str | SearXNG image. | `docker.io/searxng/searxng:latest` |
 | `ollama_searxng_valkey_image` | str | Valkey image. | `docker.io/valkey/valkey:9-alpine` |

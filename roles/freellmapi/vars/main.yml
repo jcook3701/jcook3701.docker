@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+freellmapi_directory:
+  base: "{{ freellmapi_base_dir | default('/opt/freellmapi') }}"
+  data: "{{ (freellmapi_base_dir | default('/opt/freellmapi')) ~ '/data' }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+freellmapi_file:
+  compose: "{{ (freellmapi_base_dir | default('/opt/freellmapi')) ~ '/compose.yml' }}"
+  secrets: "{{ (freellmapi_base_dir | default('/opt/freellmapi')) ~ '/.env' }}"
+
+# ---------------------------------------------------------------------------
+# Environment Keys Owned by This Role
+# ---------------------------------------------------------------------------
+freellmapi_reserved_environment:
+  - "ADMIN_RATE_LIMIT_RPM"
+  - "ENCRYPTION_KEY"
+  - "FREEAPI_DB_BACKUP_INTERVAL_MS"
+  - "FREEAPI_DB_BACKUP_KEY"
+  - "FREEAPI_DB_BACKUP_PATH"
+  - "FREEAPI_DB_BACKUP_TOKEN"
+  - "FREEAPI_DB_BACKUP_URL"
+  - "FREEAPI_DB_PATH"
+  - "NODE_ENV"
+  - "PORT"
+  - "PROXY_RATE_LIMIT_RPM"
+  - "REQUEST_ANALYTICS_MAX_ROWS"
+  - "REQUEST_ANALYTICS_RETENTION_DAYS"
+  - "STREAM_KEEPALIVE_MS"

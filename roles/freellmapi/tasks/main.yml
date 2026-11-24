@@ -1,0 +1,82 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Validate FreeLLMAPI role options
+  ansible.builtin.assert:
+    that:
+      - freellmapi_container_engine == "docker"
+      - freellmapi_state in ["present", "absent", "teardown"]
+      - freellmapi_base_dir is match("^/[^\n]+$")
+      - freellmapi_base_dir | length > 4
+      - freellmapi_bind_ip | length > 0
+      - freellmapi_external_port | int >= 1
+      - freellmapi_external_port | int <= 65535
+      - freellmapi_internal_port | int >= 1
+      - freellmapi_internal_port | int <= 65535
+      - freellmapi_container_uid | int >= 0
+      - freellmapi_container_gid | int >= 0
+      - freellmapi_proxy_rate_limit_rpm | int >= 0
+      - freellmapi_admin_rate_limit_rpm | int >= 0
+      - freellmapi_stream_keepalive_ms | int == 0 or freellmapi_stream_keepalive_ms | int >= 1000
+      - freellmapi_request_analytics_retention_days | int >= 0
+      - freellmapi_request_analytics_max_rows | int >= 0
+      - freellmapi_db_backup_interval_ms | int > 0
+      - freellmapi_pids_limit | int > 0
+      - freellmapi_extra_environment is mapping
+      - >-
+        (freellmapi_extra_environment.keys() | list
+        | intersect(freellmapi_reserved_environment) | length) == 0
+      - >-
+        freellmapi_encryption_key | length == 0
+        or freellmapi_encryption_key is match("^[0-9a-fA-F]{64}$")
+      - >-
+        freellmapi_db_backup_key | length == 0
+        or freellmapi_db_backup_key is match("^[0-9a-fA-F]{64}$")
+      - >-
+        freellmapi_db_backup_path | length == 0
+        or freellmapi_db_backup_path is match("^/app/server/data/.+")
+      - >-
+        freellmapi_db_backup_path | length == 0
+        or (
+          "/../" not in freellmapi_db_backup_path
+          and not freellmapi_db_backup_path.endswith("/..")
+        )
+      - >-
+        freellmapi_db_backup_url | length == 0
+        or freellmapi_db_backup_url is match("^https?://.+")
+      - >-
+        freellmapi_db_backup_path | length == 0
+        or freellmapi_db_backup_url | length == 0
+      - >-
+        freellmapi_db_backup_token | length == 0
+        or freellmapi_db_backup_url | length > 0
+      - >-
+        freellmapi_db_backup_key | length == 0
+        or freellmapi_db_backup_path | length > 0
+        or freellmapi_db_backup_url | length > 0
+    fail_msg: >-
+      Check the FreeLLMAPI lifecycle, Docker runtime, absolute base path,
+      ports, encryption and backup keys, backup destination, resource limits,
+      analytics limits, and extra environment variable keys.
+  no_log: true
+
+- name: Display non-sensitive FreeLLMAPI role configuration
+  ansible.builtin.debug:
+    msg:
+      - "FreeLLMAPI state: {{ freellmapi_state }}"
+      - "FreeLLMAPI image: {{ freellmapi_image }}"
+      - "FreeLLMAPI endpoint: {{ freellmapi_bind_ip }}:{{ freellmapi_external_port }}"
+      - "FreeLLMAPI data directory: {{ freellmapi_directory.data }}"
+  when: freellmapi_debug_mode | bool
+
+- name: Ensure FreeLLMAPI is installed and configured
+  ansible.builtin.include_tasks: "state/install.yml"
+  when: freellmapi_state == "present"
+
+- name: Ensure FreeLLMAPI is stopped and removed
+  ansible.builtin.include_tasks: "state/uninstall.yml"
+  when: freellmapi_state == "absent"
+
+- name: Ensure FreeLLMAPI is torn down
+  ansible.builtin.include_tasks: "state/teardown.yml"
+  when: freellmapi_state == "teardown"

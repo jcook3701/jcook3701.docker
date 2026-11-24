@@ -23,7 +23,8 @@ ollama_manage_searxng: true
 ollama_backend_image: "docker.io/ollama/ollama:latest"
 ollama_webui_image: "ghcr.io/open-webui/open-webui:main"
 ollama_n8n_image: "docker.n8n.io/n8nio/n8n:latest"
-ollama_mcp_gateway_image: "docker/mcp-gateway:latest"
+# Docker MCP Gateway 2.0.1, pinned to the tested multi-platform manifest.
+ollama_mcp_gateway_image: "docker/mcp-gateway@sha256:f5a679a05fc39022a046167bef92aeeb01bcd59485ad27843ae5227db7950688"
 ollama_mcp_inspector_image: "ghcr.io/modelcontextprotocol/inspector:latest"
 ollama_searxng_image: "docker.io/searxng/searxng:latest"
 ollama_searxng_valkey_image: "docker.io/valkey/valkey:9-alpine"

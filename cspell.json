@@ -30,6 +30,7 @@
         "endraw",
         "endset",
         "equalto",
+        "freellmapi",
         "fhir",
         "flatpak",
         "gitcliff",

@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Display non-sensitive FreeLLMAPI teardown configuration
+  ansible.builtin.debug:
+    msg:
+      - "FreeLLMAPI base directory: {{ freellmapi_directory.base }}"
+      - "Remove FreeLLMAPI images: {{ freellmapi_teardown_remove_images }}"
+      - "Remove FreeLLMAPI data and encryption key: {{ freellmapi_teardown_remove_data }}"
+  when: freellmapi_debug_mode | bool
+
+- name: Stop FreeLLMAPI stack
+  ansible.builtin.include_tasks: "uninstall.yml"
+
+- name: Remove FreeLLMAPI image only when explicitly requested
+  ansible.builtin.import_role:
+    name: "jcook3701.utils.container_engine"
+  vars:
+    container_engine_project_src: "{{ freellmapi_directory.base }}"
+    container_engine_platform_type: "{{ freellmapi_container_engine }}"
+    container_engine_desired_state: "teardown"
+    container_engine_trigger_condition: true
+  when: freellmapi_teardown_remove_images | bool
+  become: true
+
+- name: Remove FreeLLMAPI Compose configuration while retaining secrets and data
+  ansible.builtin.file:
+    path: "{{ freellmapi_file.compose }}"
+    state: "absent"
+  become: true
+  when: not (freellmapi_teardown_remove_data | bool)
+
+- name: Remove FreeLLMAPI data and encryption key only when explicitly requested
+  ansible.builtin.file:
+    path: "{{ freellmapi_directory.base }}"
+    state: "absent"
+  become: true
+  when: freellmapi_teardown_remove_data | bool

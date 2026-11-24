@@ -190,6 +190,18 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     security_opt:
       - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - "-q"
+        - "-O"
+        - "/dev/null"
+        - "http://127.0.0.1:{{ ollama_mcp_gateway_internal_port }}/health"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
     networks:
       - ollama
 {% endif %}
@@ -205,7 +217,8 @@ services:
     restart: {{ ollama_restart_policy | to_json }}
 {% if ollama_manage_mcp | bool %}
     depends_on:
-      - ollama-mcp-gateway
+      ollama-mcp-gateway:
+        condition: service_healthy
 {% endif %}
     ports:
       - "{{ ollama_mcp_inspector_bind_ip }}:{{ ollama_mcp_inspector_external_port }}:{{ ollama_mcp_inspector_internal_port }}"

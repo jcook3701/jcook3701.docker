@@ -36,3 +36,6 @@ docker_mcp_gateway_auth_token: ""
 docker_mcp_gateway_enable_freellmapi_relay: false
 docker_mcp_gateway_freellmapi_mcp_url: "http://freellmapi:3001/mcp"
 docker_mcp_gateway_freellmapi_api_key: ""
+docker_mcp_gateway_enable_longmemory_relay: false
+docker_mcp_gateway_longmemory_mcp_url: "http://longmemory:7331/mcp"
+docker_mcp_gateway_longmemory_api_key: ""

@@ -34,6 +34,7 @@ inform forwarding are enabled by default.**
 | **TLS Configuration** | | | |
 | `nginx_tls_bootstrap_self_signed` | `bool` | Generate a bootstrap self-signed certificate when absent. | `true` |
 | `nginx_tls_bootstrap_days` | `int` | Validity in days for newly generated bootstrap certificates. | `365` |
+| `nginx_tls_bootstrap_subject_alt_names` | `list[str]` | Optional DNS: and IP: entries for a new bootstrap certificate. | `[]` |
 | **Reverse Proxy Routing** | | | |
 | `nginx_proxy_sites` | `dict` | Mapping of explicitly enabled virtual hosts to upstream targets. | `{}` |
 | `nginx_unifi_inform_enabled` | `bool` | Enable forwarding of UniFi device /inform requests. | `false` |
@@ -120,6 +121,10 @@ nginx_proxy_sites:
 - Route targets must be reachable by Docker DNS over the shared proxy network.
 - `websocket` enables Upgrade and Connection forwarding for applications needing
   WebSocket connections.
+- `allowed_clients` optionally restricts HTTPS requests to a list of IP
+  addresses or CIDRs. Omit the option to use Nginx's default access policy.
+- Set `proxy_buffering: false` for routes that should deliver streamed responses
+  as the backend sends them.
 - `proxy_ssl_verify: false` is useful for self-signed internal HTTPS backends;
   it disables verification of that backend's certificate. Avoid disabling
   verification for untrusted upstream networks.

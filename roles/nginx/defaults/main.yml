@@ -39,13 +39,14 @@ nginx_proxy_network_name: "jcook3701_proxy"
 # For trusted HTTPS, replace the pair and disable bootstrap generation.
 nginx_tls_bootstrap_self_signed: true
 nginx_tls_bootstrap_days: 365
+nginx_tls_bootstrap_subject_alt_names: []
 
 # ---------------------------------------------------------------------------
 # Reverse Proxy Routing
 # ---------------------------------------------------------------------------
 # Sites default to disabled until explicitly listed in this mapping.
 # Each site supports enabled, server_name, upstream_host, upstream_port,
-# upstream_scheme, websocket, and proxy_ssl_verify.
+# upstream_scheme, websocket, proxy_ssl_verify, allowed_clients, and proxy_buffering.
 nginx_proxy_sites: {}
 
 # Separate UniFi device inform traffic from virtual-host proxy settings.

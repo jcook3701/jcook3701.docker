@@ -14,6 +14,13 @@ The gateway launches the relay as a Docker MCP server on its own networks. The r
 exposes `ask_freellmapi`, `list_models`, and `healthcheck` to gateway clients.
 The gateway keeps its default private-URL checks for remote catalog entries.
 
+To expose LongMemory through the same gateway, start LongMemory with
+`longmemory_enable_mcp: true` and join it to `docker_mcp_gateway_shared_network`
+using `longmemory_shared_network`. Set `docker_mcp_gateway_enable_longmemory_relay: true`
+and supply the same existing Vault key to both roles through `longmemory_api_key`
+and `docker_mcp_gateway_longmemory_api_key`. The gateway exposes
+`longmemory_recall`, `longmemory_ingest`, and the other supported LongMemory tools.
+
 When migrating from Ollama, supply the existing gateway token as `docker_mcp_gateway_auth_token`
 to keep client authentication working.
 
@@ -83,6 +90,9 @@ dedicated to this role. Data stored outside it is retained.
 | `docker_mcp_gateway_enable_freellmapi_relay` | bool | Enable the optional FreeLLMAPI relay. | `false` |
 | `docker_mcp_gateway_freellmapi_mcp_url` | str | FreeLLMAPI MCP endpoint reachable from the relay container. | `http://freellmapi:3001/mcp` |
 | `docker_mcp_gateway_freellmapi_api_key` | str | FreeLLMAPI unified bearer key. Required when the relay is enabled. | `""` |
+| `docker_mcp_gateway_enable_longmemory_relay` | bool | Enable the optional LongMemory relay. | `false` |
+| `docker_mcp_gateway_longmemory_mcp_url` | str | LongMemory MCP endpoint reachable from the relay container. | `http://longmemory:7331/mcp` |
+| `docker_mcp_gateway_longmemory_api_key` | str | Existing LongMemory bearer key. Required when the relay is enabled. | `""` |
 
 ## Example
 

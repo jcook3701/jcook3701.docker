@@ -42,7 +42,10 @@
 
 - name: Generate Nginx bootstrap certificate when requested
   ansible.builtin.command:
-    argv:
+    argv: "{{ nginx_tls_certificate_command + nginx_tls_subject_alt_name_args }}"
+    creates: "{{ nginx_file.certificate | default('/opt/nginx/certs/server.crt') }}"
+  vars:
+    nginx_tls_certificate_command:
       - "openssl"
       - "req"
       - "-new"
@@ -55,7 +58,9 @@
       - "{{ nginx_tls_bootstrap_days | default(365) | string }}"
       - "-subj"
       - "/CN=localhost"
-    creates: "{{ nginx_file.certificate | default('/opt/nginx/certs/server.crt') }}"
+    nginx_tls_subject_alt_name_args: >-
+      {{ ['-addext', 'subjectAltName=' ~ (nginx_tls_bootstrap_subject_alt_names | join(','))]
+         if nginx_tls_bootstrap_subject_alt_names | default([]) | length > 0 else [] }}
   when: nginx_tls_bootstrap_self_signed | default(true) | bool
   become: true
 

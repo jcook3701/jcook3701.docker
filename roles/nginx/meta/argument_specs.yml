@@ -142,6 +142,13 @@ argument_specs:
         default: 365
         description:
           - "Validity in days for newly generated bootstrap certificates."
+      nginx_tls_bootstrap_subject_alt_names:
+        type: "list"
+        elements: "str"
+        required: false
+        default: []
+        description:
+          - "Optional DNS: and IP: entries for a newly generated bootstrap certificate."
       # ---------------------------------------------------------------------
       # Reverse Proxy Routing
       # ---------------------------------------------------------------------

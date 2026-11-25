@@ -76,6 +76,14 @@
         freellmapi_state: "present"
         freellmapi_shared_network: "{{ ai_stack_shared_network }}"
 
+    - name: Install LongMemory
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.longmemory"
+      vars:
+        longmemory_state: "present"
+        longmemory_shared_network: "{{ ai_stack_shared_network }}"
+        longmemory_ollama_url: "{{ ai_stack_ollama_url }}"
+
     - name: Install Docker MCP Gateway
       ansible.builtin.include_role:
         name: "jcook3701.docker.docker_mcp_gateway"
@@ -84,6 +92,8 @@
         docker_mcp_gateway_shared_network: "{{ ai_stack_shared_network }}"
         docker_mcp_gateway_freellmapi_mcp_url: >-
           http://freellmapi:{{ freellmapi_internal_port | default(3001) }}/mcp
+        docker_mcp_gateway_longmemory_mcp_url: >-
+          http://longmemory:{{ longmemory_internal_port | default(7331) }}/mcp
 
     - name: Install SearXNG and Valkey for Open WebUI search
       ansible.builtin.include_role:
@@ -101,14 +111,6 @@
         open_webui_ollama_url: "{{ ai_stack_ollama_url }}"
         open_webui_enable_web_search: true
         open_webui_searxng_query_url: "http://searxng:{{ searxng_internal_port | default(8080) }}/search"
-
-    - name: Install LongMemory
-      ansible.builtin.include_role:
-        name: "jcook3701.docker.longmemory"
-      vars:
-        longmemory_state: "present"
-        longmemory_shared_network: "{{ ai_stack_shared_network }}"
-        longmemory_ollama_url: "{{ ai_stack_ollama_url }}"
 
     - name: Install Headroom
       ansible.builtin.include_role:

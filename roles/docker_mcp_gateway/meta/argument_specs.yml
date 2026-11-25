@@ -95,3 +95,16 @@ argument_specs:
         default: ""
         description: "FreeLLMAPI unified bearer key. Required when the relay is enabled."
         no_log: true
+      docker_mcp_gateway_enable_longmemory_relay:
+        type: "bool"
+        default: false
+        description: "Enable the optional LongMemory relay."
+      docker_mcp_gateway_longmemory_mcp_url:
+        type: "str"
+        default: "http://longmemory:7331/mcp"
+        description: "LongMemory MCP endpoint reachable from the relay container."
+      docker_mcp_gateway_longmemory_api_key:
+        type: "str"
+        default: ""
+        description: "Existing LongMemory bearer key. Required when the relay is enabled."
+        no_log: true

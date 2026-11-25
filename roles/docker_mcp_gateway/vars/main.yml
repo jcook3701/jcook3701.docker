@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+docker_mcp_gateway_directory:
+  base: "{{ docker_mcp_gateway_base_dir | default('/opt/docker-mcp-gateway') }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+docker_mcp_gateway_file:
+  compose: "{{ (docker_mcp_gateway_base_dir | default('/opt/docker-mcp-gateway')) ~ '/compose.yml' }}"
+  secrets: "{{ (docker_mcp_gateway_base_dir | default('/opt/docker-mcp-gateway')) ~ '/.env' }}"
+  relay_script: "{{ (docker_mcp_gateway_base_dir | default('/opt/docker-mcp-gateway')) ~ '/freellmapi_relay.py' }}"
+  relay_catalog: "{{ (docker_mcp_gateway_base_dir | default('/opt/docker-mcp-gateway')) ~ '/freellmapi-relay.yaml' }}"
+  relay_secrets: "{{ (docker_mcp_gateway_base_dir | default('/opt/docker-mcp-gateway')) ~ '/relay.env' }}"

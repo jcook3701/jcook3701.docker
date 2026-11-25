@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+mcp_inspector_container_engine: "docker"
+mcp_inspector_state: "present"
+mcp_inspector_teardown_remove_data: false
+mcp_inspector_teardown_remove_images: false
+
+# ---------------------------------------------------------------------------
+# Container Image and Lifecycle
+# ---------------------------------------------------------------------------
+mcp_inspector_image: "ghcr.io/modelcontextprotocol/inspector:latest"
+mcp_inspector_container_name: "mcp-inspector"
+mcp_inspector_pull_policy: "missing"
+mcp_inspector_pull_images: false
+mcp_inspector_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Deployment Paths and Network Publication
+# ---------------------------------------------------------------------------
+mcp_inspector_base_dir: "/opt/mcp-inspector"
+mcp_inspector_bind_ip: "127.0.0.1"
+mcp_inspector_external_port: 6274
+mcp_inspector_internal_port: 6274
+mcp_inspector_shared_network: ""
+
+# ---------------------------------------------------------------------------
+# MCP Inspector Configuration
+# ---------------------------------------------------------------------------
+mcp_inspector_data_dir: "{{ (mcp_inspector_base_dir | default('/opt/mcp-inspector')) ~ '/data' }}"
+mcp_inspector_sandbox_port: 6275
+mcp_inspector_app_origin_port: 6278
+mcp_inspector_allowed_origins: []
+mcp_inspector_secret_key: ""
+mcp_inspector_gateway_url: ""

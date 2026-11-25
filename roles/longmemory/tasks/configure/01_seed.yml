@@ -70,7 +70,7 @@
     state: "present"
   become: true
 
-- name: Retrieve LongMemory dashboard source
+- name: Retrieve LongMemory source for local image builds
   ansible.builtin.git:
     repo: "{{ longmemory_repo_url }}"
     dest: "{{ longmemory_directory.source }}"
@@ -78,7 +78,7 @@
     update: true
     force: false
   become: true
-  when: longmemory_enable_dashboard | bool
+  when: (longmemory_build_from_source | bool) or (longmemory_enable_dashboard | bool)
 
 - name: Deploy LongMemory Compose configuration
   ansible.builtin.template:

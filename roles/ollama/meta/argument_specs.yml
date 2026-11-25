@@ -53,31 +53,31 @@ argument_specs:
 
       ollama_manage_web_ui:
         type: "bool"
-        default: true
+        default: false
         description:
           - "Deploy Open WebUI alongside Ollama."
 
       ollama_manage_n8n:
         type: "bool"
-        default: true
+        default: false
         description:
           - "Deploy the n8n workflow editor and backend."
 
       ollama_manage_mcp:
         type: "bool"
-        default: true
+        default: false
         description:
           - "Deploy Docker MCP Gateway. Requires access to the Docker host socket."
 
       ollama_manage_mcp_inspector:
         type: "bool"
-        default: true
+        default: false
         description:
           - "Deploy MCP Inspector as a browser-based MCP server inspection interface."
 
       ollama_manage_searxng:
         type: "bool"
-        default: true
+        default: false
         description:
           - "Deploy SearXNG plus the supporting Valkey instance."
 

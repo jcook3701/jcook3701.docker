@@ -11,9 +11,10 @@ longmemory_teardown_remove_data: false
 longmemory_teardown_remove_images: false
 
 # ---------------------------------------------------------------------------
-# Pinned FreeLLMAPI Image and Container Lifecycle
+# LongMemory Image and Container Lifecycle
 # ---------------------------------------------------------------------------
-longmemory_image: "ghcr.io/caviraoss/longmemory:latest"
+longmemory_build_from_source: true
+longmemory_image: "longmemory:local"
 longmemory_container_name: "longmemory"
 longmemory_pull_policy: "missing"
 longmemory_pull_images: false
@@ -31,6 +32,7 @@ longmemory_api_key: ""
 longmemory_bind_ip: "127.0.0.1"
 longmemory_external_port: 7331
 longmemory_internal_port: 7331
+longmemory_shared_network: ""
 
 # ---------------------------------------------------------------------------
 # Dashboard Configuration

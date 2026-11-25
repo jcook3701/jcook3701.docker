@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+n8n_container_engine: "docker"
+n8n_state: "present"
+n8n_teardown_remove_data: false
+n8n_teardown_remove_images: false
+
+# ---------------------------------------------------------------------------
+# Container Image and Lifecycle
+# ---------------------------------------------------------------------------
+n8n_image: "docker.n8n.io/n8nio/n8n:latest"
+n8n_container_name: "n8n"
+n8n_pull_policy: "missing"
+n8n_pull_images: false
+n8n_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Deployment Paths and Network Publication
+# ---------------------------------------------------------------------------
+n8n_base_dir: "/opt/n8n"
+n8n_bind_ip: "127.0.0.1"
+n8n_external_port: 5678
+n8n_internal_port: 5678
+
+# ---------------------------------------------------------------------------
+# n8n Configuration
+# ---------------------------------------------------------------------------
+n8n_data_dir: "{{ (n8n_base_dir | default('/opt/n8n')) ~ '/data' }}"
+n8n_host: ""
+n8n_protocol: "http"
+n8n_secure_cookie: false
+n8n_proxy_hops: 0
+n8n_timezone: "UTC"
+n8n_encryption_key: ""
+n8n_editor_base_url: ""
+n8n_webhook_url: ""
+n8n_mcp_base_url: ""

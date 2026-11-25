@@ -31,16 +31,20 @@ argument_specs:
         description: "Remove stack images during teardown."
         type: "bool"
         default: false
+      longmemory_build_from_source:
+        description: "Build the backend locally with the upstream Dockerfile."
+        type: "bool"
+        default: true
       longmemory_image:
-        description: "Official backend image; pin a tested release for production."
+        description: "Backend image tag for local builds, or a reachable image when source builds are disabled."
         type: "str"
-        default: "ghcr.io/caviraoss/longmemory:latest"
+        default: "longmemory:local"
       longmemory_container_name:
         description: "Backend container name."
         type: "str"
         default: "longmemory"
       longmemory_pull_policy:
-        description: "Backend Compose pull policy."
+        description: "Compose pull policy for a prebuilt backend image."
         type: "str"
         default: "missing"
         choices:
@@ -48,7 +52,7 @@ argument_specs:
           - "missing"
           - "never"
       longmemory_pull_images:
-        description: "Request image pulls through the shared engine."
+        description: "Force a pull of the prebuilt backend image."
         type: "bool"
         default: false
       longmemory_restart_policy:
@@ -81,6 +85,10 @@ argument_specs:
         description: "Backend listen port."
         type: "int"
         default: 7331
+      longmemory_shared_network:
+        description: "Optional existing Docker network for private embedding service connections."
+        type: "str"
+        default: ""
       longmemory_enable_dashboard:
         description: "Build and deploy upstream dashboard."
         type: "bool"
@@ -94,11 +102,11 @@ argument_specs:
         type: "str"
         default: "longmemory-dashboard:local"
       longmemory_repo_url:
-        description: "Dashboard source repository."
+        description: "Source repository for backend and dashboard builds."
         type: "str"
         default: "https://github.com/CaviraOSS/LongMemory.git"
       longmemory_repo_version:
-        description: "Dashboard source branch, tag or commit."
+        description: "Source branch, tag or commit for backend and dashboard builds."
         type: "str"
         default: "main"
       longmemory_enable_mcp:

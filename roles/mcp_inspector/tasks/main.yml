@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Deploy MCP Inspector
+  ansible.builtin.include_tasks: "state/install.yml"
+  when: mcp_inspector_state == "present"
+
+- name: Remove the MCP Inspector stack
+  ansible.builtin.include_tasks: "state/uninstall.yml"
+  when: mcp_inspector_state == "absent"
+
+- name: Tear down the MCP Inspector deployment
+  ansible.builtin.include_tasks: "state/teardown.yml"
+  when: mcp_inspector_state == "teardown"

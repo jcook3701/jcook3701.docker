@@ -9,8 +9,14 @@ and store memories; deploying this role does not inject memory into every reques
 ## Requirements
 
 Docker Engine, Compose v2, `community.docker`, `jcook3701.utils.container_engine`,
-Git for the dashboard, and an accessible Ollama instance with `nomic-embed-text`.
+Git for local image builds, and an accessible Ollama instance with `nomic-embed-text`.
 Run `docker exec ollama ollama pull nomic-embed-text` before deployment.
+
+The role builds the backend locally because upstream's documented GHCR image
+is unavailable publicly. It builds the optional dashboard from the same checkout.
+An existing `longmemory_image: "ghcr.io/caviraoss/longmemory:latest"` override is
+used as a local image tag when source builds are enabled. To pull a prebuilt image
+instead, set `longmemory_build_from_source: false` and supply an accessible image.
 
 ## Security and lifecycle
 
@@ -35,21 +41,23 @@ file to still exist. Data removal deletes the external volume and deployment roo
 | `longmemory_debug_mode` | bool | Display non-sensitive diagnostics. | `false` |
 | `longmemory_teardown_remove_data` | bool | Permanently remove memory data and secrets. | `false` |
 | `longmemory_teardown_remove_images` | bool | Remove stack images during teardown. | `false` |
-| `longmemory_image` | str | Official backend image; pin a tested release for production. | `ghcr.io/caviraoss/longmemory:latest` |
+| `longmemory_build_from_source` | bool | Build the backend using the upstream Dockerfile. | `true` |
+| `longmemory_image` | str | Local build tag or prebuilt backend image. | `longmemory:local` |
 | `longmemory_container_name` | str | Backend container name. | `longmemory` |
-| `longmemory_pull_policy` | str | Backend Compose pull policy. Choices: always, missing, never. | `missing` |
-| `longmemory_pull_images` | bool | Request image pulls through the shared engine. | `false` |
+| `longmemory_pull_policy` | str | Prebuilt backend pull policy. Choices: always, missing, never. | `missing` |
+| `longmemory_pull_images` | bool | Force a pull of the prebuilt backend. | `false` |
 | `longmemory_restart_policy` | str | Container restart policy. Choices: no, always, on-failure, unless-stopped. | `unless-stopped` |
 | `longmemory_base_dir` | path | Absolute deployment root ending in longmemory. | `/opt/longmemory` |
 | `longmemory_api_key` | str | Initial 64-character hexadecimal API key; empty generates one. | `` |
 | `longmemory_bind_ip` | str | Published host address. | `127.0.0.1` |
 | `longmemory_external_port` | int | Published API and MCP port. | `7331` |
 | `longmemory_internal_port` | int | Backend listen port. | `7331` |
+| `longmemory_shared_network` | str | Optional existing Docker network for private embedding connections. | `""` |
 | `longmemory_enable_dashboard` | bool | Build and deploy upstream dashboard. | `true` |
 | `longmemory_dashboard_external_port` | int | Published dashboard port. | `7332` |
 | `longmemory_dashboard_image` | str | Local dashboard build image. | `longmemory-dashboard:local` |
-| `longmemory_repo_url` | str | Dashboard source repository. | `https://github.com/CaviraOSS/LongMemory.git` |
-| `longmemory_repo_version` | str | Dashboard source branch, tag or commit. | `main` |
+| `longmemory_repo_url` | str | Source repository for local image builds. | `https://github.com/CaviraOSS/LongMemory.git` |
+| `longmemory_repo_version` | str | Source branch, tag or commit for local image builds. | `main` |
 | `longmemory_enable_mcp` | bool | Enable HTTP MCP. | `true` |
 | `longmemory_allowed_origins` | str | Comma-separated allowed origins. | `http://127.0.0.1:7332` |
 | `longmemory_rate_limit_enabled` | bool | Enable API rate limiting. | `true` |
@@ -87,15 +95,12 @@ file to still exist. Data removal deletes the external volume and deployment roo
 
 Do not change embedding dimensions or models after ingesting memories without a
 migration plan. FreeLLMAPI is not assumed to supply embeddings: Ollama is the
-verified upstream embedding integration. The shared engine must support Compose
-builds for the optional dashboard; disable the dashboard if it does not.
+verified upstream embedding integration.
 
 ## Validation and versioning
 
-Backend `latest` and dashboard `main` are upstream defaults, not a verified
-matching pinned release. Set compatible immutable versions before production.
-YAML parsing and template rendering were checked locally; repository ansible-lint,
-shared engine execution and Docker runtime deployment were not run.
+The backend and dashboard build from the same source revision by default.
+Set `longmemory_repo_version` to an immutable commit for a reproducible checkout.
 
 ## Author Information
 

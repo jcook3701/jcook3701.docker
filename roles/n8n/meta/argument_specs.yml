@@ -1,0 +1,107 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy n8n in Docker."
+    author:
+      - "Jared W. Cook"
+    options:
+      n8n_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker"]
+        description: "Container engine."
+      n8n_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Deployment lifecycle."
+      n8n_teardown_remove_data:
+        type: "bool"
+        default: false
+        description: "Permanently remove role files and data within the deployment directory."
+      n8n_teardown_remove_images:
+        type: "bool"
+        default: false
+        description: "Remove the Compose service images during teardown."
+      n8n_image:
+        type: "str"
+        default: "docker.n8n.io/n8nio/n8n:latest"
+        description: "Container image reference."
+      n8n_container_name:
+        type: "str"
+        default: "n8n"
+        description: "Container name."
+      n8n_pull_policy:
+        type: "str"
+        default: "missing"
+        choices: ["missing", "always", "never"]
+        description: "Compose pull policy."
+      n8n_pull_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to force image pulls."
+      n8n_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Container restart policy."
+      n8n_base_dir:
+        type: "path"
+        default: "/opt/n8n"
+        description: "Deployment directory for Compose files and managed state."
+      n8n_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description: "Published host address."
+      n8n_external_port:
+        type: "int"
+        default: 5678
+        description: "Published host port."
+      n8n_internal_port:
+        type: "int"
+        default: 5678
+        description: "Service port inside the container."
+      n8n_data_dir:
+        type: "path"
+        default: "{{ (n8n_base_dir | default('/opt/n8n')) ~ '/data' }}"
+        description: "Persistent workflow and credential directory."
+      n8n_host:
+        type: "str"
+        default: ""
+        description: "Public hostname. Empty uses the managed host FQDN."
+      n8n_protocol:
+        type: "str"
+        default: "http"
+        choices: ["http", "https"]
+        description: "Public protocol."
+      n8n_secure_cookie:
+        type: "bool"
+        default: false
+        description: "Enable secure cookies when clients connect over HTTPS."
+      n8n_proxy_hops:
+        type: "int"
+        default: 0
+        description: "Number of trusted reverse proxy hops."
+      n8n_timezone:
+        type: "str"
+        default: "UTC"
+        description: "Workflow and container timezone."
+      n8n_encryption_key:
+        type: "str"
+        default: ""
+        description: "Explicit credential key. Empty uses n8n's stored key."
+        no_log: true
+      n8n_editor_base_url:
+        type: "str"
+        default: ""
+        description: "Public editor URL."
+      n8n_webhook_url:
+        type: "str"
+        default: ""
+        description: "Public webhook URL."
+      n8n_mcp_base_url:
+        type: "str"
+        default: ""
+        description: "Public URL for n8n's MCP integration."

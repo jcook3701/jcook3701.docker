@@ -12,5 +12,8 @@
     container_engine_platform_type: "{{ longmemory_container_engine }}"
     container_engine_desired_state: "present"
     container_engine_trigger_condition: true
-    container_engine_pull_images: "{{ longmemory_pull_images }}"
+    container_engine_pull_images: >-
+      {{ (longmemory_pull_images | bool)
+         and not (longmemory_build_from_source | bool)
+         and not (longmemory_enable_dashboard | bool) }}
   become: true

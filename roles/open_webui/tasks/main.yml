@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Deploy Open WebUI
+  ansible.builtin.include_tasks: "state/install.yml"
+  when: open_webui_state == "present"
+
+- name: Remove the Open WebUI stack
+  ansible.builtin.include_tasks: "state/uninstall.yml"
+  when: open_webui_state == "absent"
+
+- name: Tear down the Open WebUI deployment
+  ansible.builtin.include_tasks: "state/teardown.yml"
+  when: open_webui_state == "teardown"

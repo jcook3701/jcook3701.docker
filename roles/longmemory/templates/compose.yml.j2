@@ -1,5 +1,5 @@
 {#
-# docker-compose.j2 for jcook3701.docker.headscale
+# compose.yml.j2 for jcook3701.docker.longmemory
 #
 # SPDX-FileCopyrightText: Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
@@ -29,7 +29,14 @@ services:
   longmemory:
     image: {{ longmemory_image | to_json }}
     container_name: {{ longmemory_container_name | to_json }}
-    pull_policy: {{ longmemory_pull_policy | to_json }}
+{% if longmemory_build_from_source | bool %}
+    build:
+      context: {{ longmemory_directory.source | to_json }}
+      dockerfile: "Dockerfile"
+    pull_policy: "build"
+{% else %}
+    pull_policy: {{ ("always" if longmemory_pull_images | bool else longmemory_pull_policy) | to_json }}
+{% endif %}
     restart: {{ longmemory_restart_policy | to_json }}
     init: true
     command:
@@ -82,6 +89,9 @@ services:
       retries: 3
     networks:
       - "longmemory"
+{% if longmemory_shared_network | length > 0 %}
+      - "shared"
+{% endif %}
     logging:
       driver: "json-file"
       options:
@@ -114,6 +124,11 @@ services:
 networks:
   longmemory:
     driver: "bridge"
+{% if longmemory_shared_network | length > 0 %}
+  shared:
+    name: {{ longmemory_shared_network | to_json }}
+    external: true
+{% endif %}
 
 volumes:
   longmemory_data:

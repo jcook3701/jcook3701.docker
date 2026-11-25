@@ -1,0 +1,100 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy SearXNG in Docker."
+    author:
+      - "Jared W. Cook"
+    options:
+      searxng_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker"]
+        description: "Container engine."
+      searxng_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Deployment lifecycle."
+      searxng_teardown_remove_data:
+        type: "bool"
+        default: false
+        description: "Permanently remove role files and data within the deployment directory."
+      searxng_teardown_remove_images:
+        type: "bool"
+        default: false
+        description: "Remove the Compose service images during teardown."
+      searxng_image:
+        type: "str"
+        default: "docker.io/searxng/searxng:latest"
+        description: "Container image reference."
+      searxng_container_name:
+        type: "str"
+        default: "searxng"
+        description: "Container name."
+      searxng_pull_policy:
+        type: "str"
+        default: "missing"
+        choices: ["missing", "always", "never"]
+        description: "Compose pull policy."
+      searxng_pull_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to force image pulls."
+      searxng_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Container restart policy."
+      searxng_base_dir:
+        type: "path"
+        default: "/opt/searxng"
+        description: "Deployment directory for Compose files and managed state."
+      searxng_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description: "Published host address."
+      searxng_external_port:
+        type: "int"
+        default: 8081
+        description: "Published host port."
+      searxng_internal_port:
+        type: "int"
+        default: 8080
+        description: "Service port inside the container."
+      searxng_shared_network:
+        type: "str"
+        default: ""
+        description: "Optional existing Docker network for private service connections."
+      searxng_valkey_image:
+        type: "str"
+        default: "docker.io/valkey/valkey:9-alpine"
+        description: "Dedicated Valkey image."
+      searxng_instance_name:
+        type: "str"
+        default: "SearXNG"
+        description: "Instance name shown in the UI."
+      searxng_secret_key:
+        type: "str"
+        default: ""
+        description: "Instance secret. Empty generates a persistent secret."
+        no_log: true
+      searxng_safe_search:
+        type: "int"
+        default: 1
+        choices: [0, 1, 2]
+        description: "Safe search level."
+      searxng_limiter:
+        type: "bool"
+        default: false
+        description: "Enable the limiter when behind a trusted proxy."
+      searxng_limiter_pass_ips:
+        type: "list"
+        elements: "str"
+        default: []
+        description: "Addresses or networks accepted by the limiter."
+      searxng_image_proxy:
+        type: "bool"
+        default: true
+        description: "Proxy image results through SearXNG."

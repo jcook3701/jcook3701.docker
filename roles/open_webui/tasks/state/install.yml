@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Configure the Open WebUI deployment
+  ansible.builtin.include_tasks: "configure/01_seed.yml"
+
+- name: Deploy Open WebUI with the shared container engine
+  ansible.builtin.import_role:
+    name: "jcook3701.utils.container_engine"
+  vars:
+    container_engine_project_src: "{{ open_webui_directory.base }}"
+    container_engine_platform_type: "{{ open_webui_container_engine }}"
+    container_engine_desired_state: "present"
+    container_engine_trigger_condition: true
+    container_engine_pull_images: "{{ open_webui_pull_images }}"
+  become: true

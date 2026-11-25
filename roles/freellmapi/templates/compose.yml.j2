@@ -95,6 +95,9 @@ services:
       retries: 3
     networks:
       - "freellmapi"
+{% if freellmapi_shared_network | length > 0 %}
+      - "shared"
+{% endif %}
     logging:
       driver: "json-file"
       options:
@@ -104,5 +107,10 @@ services:
 networks:
   freellmapi:
     driver: "bridge"
+{% if freellmapi_shared_network | length > 0 %}
+  shared:
+    name: {{ freellmapi_shared_network | to_json }}
+    external: true
+{% endif %}
 {%- endmacro %}
 {{- compose() }}

@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+open_webui_container_engine: "docker"
+open_webui_state: "present"
+open_webui_teardown_remove_data: false
+open_webui_teardown_remove_images: false
+
+# ---------------------------------------------------------------------------
+# Container Image and Lifecycle
+# ---------------------------------------------------------------------------
+open_webui_image: "ghcr.io/open-webui/open-webui:main"
+open_webui_container_name: "open-webui"
+open_webui_pull_policy: "missing"
+open_webui_pull_images: false
+open_webui_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Deployment Paths and Network Publication
+# ---------------------------------------------------------------------------
+open_webui_base_dir: "/opt/open-webui"
+open_webui_bind_ip: "127.0.0.1"
+open_webui_external_port: 3000
+open_webui_internal_port: 8080
+open_webui_shared_network: ""
+
+# ---------------------------------------------------------------------------
+# Open WebUI Configuration
+# ---------------------------------------------------------------------------
+open_webui_data_dir: "{{ (open_webui_base_dir | default('/opt/open-webui')) ~ '/data' }}"
+open_webui_name: "Open WebUI"
+open_webui_url: ""
+open_webui_ollama_url: "http://host.docker.internal:11434"
+open_webui_secret_key: ""
+open_webui_enable_signup: false
+open_webui_enable_web_search: false
+open_webui_searxng_query_url: ""
+open_webui_searxng_language: "all"

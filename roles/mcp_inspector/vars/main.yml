@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# Infrastructure Directory Structure
+mcp_inspector_directory:
+  base: "{{ mcp_inspector_base_dir | default('/opt/mcp-inspector') }}"
+  data: "{{ mcp_inspector_data_dir }}"
+
+# Infrastructure File Locations
+mcp_inspector_file:
+  compose: "{{ (mcp_inspector_base_dir | default('/opt/mcp-inspector')) ~ '/compose.yml' }}"
+  secrets: "{{ (mcp_inspector_base_dir | default('/opt/mcp-inspector')) ~ '/secret-key' }}"
+  catalog: "{{ mcp_inspector_data_dir ~ '/mcp.json' }}"

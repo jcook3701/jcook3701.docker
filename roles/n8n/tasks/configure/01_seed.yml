@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Create the private n8n deployment directory
+  ansible.builtin.file:
+    path: "{{ n8n_directory.base }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+  become: true
+
+- name: Create the n8n data directory
+  ansible.builtin.file:
+    path: "{{ n8n_directory.data }}"
+    state: "directory"
+    owner: "1000"
+    group: "1000"
+    mode: "0700"
+  become: true
+
+- name: Render the n8n Compose file
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ n8n_file.compose }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  become: true
+  no_log: true

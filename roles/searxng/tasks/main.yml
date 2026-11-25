@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Deploy SearXNG
+  ansible.builtin.include_tasks: "state/install.yml"
+  when: searxng_state == "present"
+
+- name: Remove the SearXNG stack
+  ansible.builtin.include_tasks: "state/uninstall.yml"
+  when: searxng_state == "absent"
+
+- name: Tear down the SearXNG deployment
+  ansible.builtin.include_tasks: "state/teardown.yml"
+  when: searxng_state == "teardown"

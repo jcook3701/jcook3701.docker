@@ -14,6 +14,17 @@ requires a Docker daemon and socket.
 
 ## Installation and upgrade
 
+The default stack runs the Ollama backend. To run all bundled services in the
+same Compose project, set these inventory variables:
+
+```yaml
+ollama_manage_web_ui: true
+ollama_manage_n8n: true
+ollama_manage_mcp: true
+ollama_manage_mcp_inspector: true
+ollama_manage_searxng: true
+```
+
 1. Keep the existing persistent `/opt/ollama` directory and Compose stack
    until you have backed them up.
 2. Update the Ollama role files in `jcook3701.docker`.
@@ -33,7 +44,7 @@ Changing an existing Open WebUI secret may invalidate existing sessions
 and OAuth integrations. Do not change n8n's existing encryption key if its
 stored credentials depend on it.
 
-### Bindings (default)
+### Default bindings for each enabled service
 
 | Service | Host binding | Host port |
 | :--- | :--- | ---: |
@@ -54,7 +65,7 @@ The Ollama backend API has no built-in user authentication.
 
 ### Connect Docker MCP Gateway to Open WebUI
 
-The Compose stack starts a streaming HTTP MCP Gateway at
+With `ollama_manage_mcp: true`, the Compose stack starts a streaming HTTP MCP Gateway at
 `http://ollama-mcp-gateway:8811/mcp` on the shared Docker network.
 
 It requires a Bearer token, persistent in `.env` unless supplied through Vault.
@@ -137,7 +148,7 @@ discovering tools, examining resources, and testing MCP requests.
 The role deploys the official Inspector container through the same
 Docker Compose stack as Ollama.
 
-MCP Inspector is enabled by default using:
+Enable MCP Inspector with:
 
 ```yaml
 ollama_manage_mcp_inspector: true
@@ -426,11 +437,11 @@ infrastructure.
 
 | Variable | Type | Description / Choices | Default |
 | :--- | :--- | :--- | :--- |
-| `ollama_manage_web_ui` | bool | Deploy Open WebUI. | `true` |
-| `ollama_manage_n8n` | bool | Deploy n8n. | `true` |
-| `ollama_manage_mcp` | bool | Deploy Docker MCP Gateway. | `true` |
-| `ollama_manage_mcp_inspector` | bool | Deploy MCP Inspector. | `true` |
-| `ollama_manage_searxng` | bool | Deploy SearXNG and Valkey. | `true` |
+| `ollama_manage_web_ui` | bool | Deploy Open WebUI. | `false` |
+| `ollama_manage_n8n` | bool | Deploy n8n. | `false` |
+| `ollama_manage_mcp` | bool | Deploy Docker MCP Gateway. | `false` |
+| `ollama_manage_mcp_inspector` | bool | Deploy MCP Inspector. | `false` |
+| `ollama_manage_searxng` | bool | Deploy SearXNG and Valkey. | `false` |
 
 ### Images and restart policy
 

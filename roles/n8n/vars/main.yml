@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# Infrastructure Directory Structure
+n8n_directory:
+  base: "{{ n8n_base_dir | default('/opt/n8n') }}"
+  data: "{{ n8n_data_dir }}"
+
+# Infrastructure File Locations
+n8n_file:
+  compose: "{{ (n8n_base_dir | default('/opt/n8n')) ~ '/compose.yml' }}"

@@ -11,11 +11,11 @@ ollama_teardown_remove_data: false
 ollama_teardown_remove_images: false
 
 # Optional Service Management
-ollama_manage_web_ui: true
-ollama_manage_n8n: true
-ollama_manage_mcp: true
-ollama_manage_mcp_inspector: true
-ollama_manage_searxng: true
+ollama_manage_web_ui: false
+ollama_manage_n8n: false
+ollama_manage_mcp: false
+ollama_manage_mcp_inspector: false
+ollama_manage_searxng: false
 
 # ---------------------------------------------------------------------------
 # Service Container Images and Engine Versions

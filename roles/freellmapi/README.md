@@ -89,6 +89,7 @@ teardown.
 | `freellmapi_bind_ip` | str | Published host address; loopback is strongly recommended. | `127.0.0.1` |
 | `freellmapi_external_port` | int | Published host port. | `3001` |
 | `freellmapi_internal_port` | int | Application port inside the container. | `3001` |
+| `freellmapi_shared_network` | str | Optional existing Docker network for private service connections. | `""` |
 | `freellmapi_proxy_rate_limit_rpm` | int | Per-IP proxy requests per minute; zero disables. | `120` |
 | `freellmapi_admin_rate_limit_rpm` | int | Per-IP dashboard requests per minute; zero disables. | `600` |
 | `freellmapi_stream_keepalive_ms` | int | SSE heartbeat interval; zero disables, otherwise minimum `1000`. | `0` |

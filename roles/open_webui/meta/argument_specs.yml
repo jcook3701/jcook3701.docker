@@ -1,0 +1,106 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy Open WebUI in Docker."
+    author:
+      - "Jared W. Cook"
+    options:
+      open_webui_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker"]
+        description: "Container engine."
+      open_webui_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Deployment lifecycle."
+      open_webui_teardown_remove_data:
+        type: "bool"
+        default: false
+        description: "Permanently remove role files and data within the deployment directory."
+      open_webui_teardown_remove_images:
+        type: "bool"
+        default: false
+        description: "Remove the Compose service images during teardown."
+      open_webui_image:
+        type: "str"
+        default: "ghcr.io/open-webui/open-webui:main"
+        description: "Container image reference."
+      open_webui_container_name:
+        type: "str"
+        default: "open-webui"
+        description: "Container name."
+      open_webui_pull_policy:
+        type: "str"
+        default: "missing"
+        choices: ["missing", "always", "never"]
+        description: "Compose pull policy."
+      open_webui_pull_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to force image pulls."
+      open_webui_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Container restart policy."
+      open_webui_base_dir:
+        type: "path"
+        default: "/opt/open-webui"
+        description: "Deployment directory for Compose files and managed state."
+      open_webui_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description: "Published host address."
+      open_webui_external_port:
+        type: "int"
+        default: 3000
+        description: "Published host port."
+      open_webui_internal_port:
+        type: "int"
+        default: 8080
+        description: "Service port inside the container."
+      open_webui_shared_network:
+        type: "str"
+        default: ""
+        description: "Optional existing Docker network for private service connections."
+      open_webui_data_dir:
+        type: "path"
+        default: "{{ (open_webui_base_dir | default('/opt/open-webui')) ~ '/data' }}"
+        description: "Persistent application data directory."
+      open_webui_name:
+        type: "str"
+        default: "Open WebUI"
+        description: "Display name for the web interface."
+      open_webui_url:
+        type: "str"
+        default: ""
+        description: "Public URL used by Open WebUI integrations."
+      open_webui_ollama_url:
+        type: "str"
+        default: "http://host.docker.internal:11434"
+        description: "Ollama API endpoint reachable from the container."
+      open_webui_secret_key:
+        type: "str"
+        default: ""
+        description: "WebUI secret. Empty generates a persistent secret."
+        no_log: true
+      open_webui_enable_signup:
+        type: "bool"
+        default: false
+        description: "Allow new users to register."
+      open_webui_enable_web_search:
+        type: "bool"
+        default: false
+        description: "Enable web search through SearXNG."
+      open_webui_searxng_query_url:
+        type: "str"
+        default: ""
+        description: "SearXNG query URL reachable from the container. Required for web search."
+      open_webui_searxng_language:
+        type: "str"
+        default: "all"
+        description: "SearXNG search language."

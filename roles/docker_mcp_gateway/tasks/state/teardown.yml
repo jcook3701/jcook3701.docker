@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Validate the Docker MCP Gateway data removal path
+  ansible.builtin.assert:
+    that:
+      - docker_mcp_gateway_directory.base is match("^/.+/[^/]+$")
+      - >-
+        ".." not in docker_mcp_gateway_directory.base.split("/")
+      - docker_mcp_gateway_directory.base.split("/") | last == "docker-mcp-gateway"
+    fail_msg: "For destructive teardown, the deployment path must end in docker-mcp-gateway."
+  when: docker_mcp_gateway_teardown_remove_data | bool
+
+- name: Stop Docker MCP Gateway
+  ansible.builtin.include_tasks: "uninstall.yml"
+  when: not (docker_mcp_gateway_teardown_remove_images | bool)
+
+- name: Stop Docker MCP Gateway and remove its Compose images
+  ansible.builtin.import_role:
+    name: "jcook3701.utils.container_engine"
+  vars:
+    container_engine_project_src: "{{ docker_mcp_gateway_directory.base }}"
+    container_engine_platform_type: "{{ docker_mcp_gateway_container_engine }}"
+    container_engine_desired_state: "teardown"
+    container_engine_trigger_condition: true
+  become: true
+  when: docker_mcp_gateway_teardown_remove_images | bool
+
+- name: Remove the Docker MCP Gateway Compose file
+  ansible.builtin.file:
+    path: "{{ docker_mcp_gateway_file.compose }}"
+    state: "absent"
+  become: true
+  when: not (docker_mcp_gateway_teardown_remove_data | bool)
+
+- name: Remove the Docker MCP Gateway deployment and data
+  ansible.builtin.file:
+    path: "{{ docker_mcp_gateway_directory.base }}"
+    state: "absent"
+  become: true
+  when: docker_mcp_gateway_teardown_remove_data | bool

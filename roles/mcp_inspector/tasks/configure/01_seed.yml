@@ -1,0 +1,62 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Validate the MCP Inspector port assignments
+  ansible.builtin.assert:
+    that:
+      - mcp_inspector_external_port | int == mcp_inspector_internal_port | int
+      - mcp_inspector_internal_port | int != mcp_inspector_sandbox_port | int
+      - mcp_inspector_internal_port | int != mcp_inspector_app_origin_port | int
+      - mcp_inspector_sandbox_port | int != mcp_inspector_app_origin_port | int
+    fail_msg: "Use distinct ports for the UI, sandbox, and Apps origin."
+
+- name: Create the private MCP Inspector deployment directory
+  ansible.builtin.file:
+    path: "{{ mcp_inspector_directory.base }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+  become: true
+
+- name: Create the MCP Inspector data directory
+  ansible.builtin.file:
+    path: "{{ mcp_inspector_directory.data }}"
+    state: "directory"
+    owner: "1000"
+    group: "1000"
+    mode: "0700"
+  become: true
+
+- name: Seed the persistent MCP Inspector encryption key
+  ansible.builtin.copy:
+    content: >-
+      {{ mcp_inspector_secret_key if mcp_inspector_secret_key | length > 0
+         else lookup('ansible.builtin.password', '/dev/null length=64 chars=hexdigits') }}
+    dest: "{{ mcp_inspector_file.secrets }}"
+    owner: "1000"
+    group: "1000"
+    mode: "0600"
+    force: false
+  become: true
+  no_log: true
+
+- name: Render the initial MCP Inspector catalog
+  ansible.builtin.template:
+    src: "catalog.json.j2"
+    dest: "{{ mcp_inspector_file.catalog }}"
+    owner: "1000"
+    group: "1000"
+    mode: "0600"
+    force: false
+  become: true
+
+- name: Render the MCP Inspector Compose file
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ mcp_inspector_file.compose }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  become: true
+  no_log: true

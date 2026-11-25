@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Validate the n8n data removal path
+  ansible.builtin.assert:
+    that:
+      - n8n_directory.base is match("^/.+/[^/]+$")
+      - >-
+        ".." not in n8n_directory.base.split("/")
+      - n8n_directory.base.split("/") | last == "n8n"
+    fail_msg: "For destructive teardown, the deployment path must end in n8n."
+  when: n8n_teardown_remove_data | bool
+
+- name: Stop n8n
+  ansible.builtin.include_tasks: "uninstall.yml"
+  when: not (n8n_teardown_remove_images | bool)
+
+- name: Stop n8n and remove its Compose images
+  ansible.builtin.import_role:
+    name: "jcook3701.utils.container_engine"
+  vars:
+    container_engine_project_src: "{{ n8n_directory.base }}"
+    container_engine_platform_type: "{{ n8n_container_engine }}"
+    container_engine_desired_state: "teardown"
+    container_engine_trigger_condition: true
+  become: true
+  when: n8n_teardown_remove_images | bool
+
+- name: Remove the n8n Compose file
+  ansible.builtin.file:
+    path: "{{ n8n_file.compose }}"
+    state: "absent"
+  become: true
+  when: not (n8n_teardown_remove_data | bool)
+
+- name: Remove the n8n deployment and data
+  ansible.builtin.file:
+    path: "{{ n8n_directory.base }}"
+    state: "absent"
+  become: true
+  when: n8n_teardown_remove_data | bool

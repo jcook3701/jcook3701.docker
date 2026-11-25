@@ -93,7 +93,8 @@ CHANGELOG_RELEASE_DIR := $(CHANGELOG_DIR)/releases
 README_FILE := $(PROJECT_ROOT)/README.md
 AUTODOC_README_FILE := $(JEKYLL_AUTODOC_DIR)/ansible-autodoc.md
 CHANGELOG_FILE := $(CHANGELOG_DIR)/changelog.yml
-TARBALL := $(GALAXY_NAMESPACE)-$(GALAXY_COLLECTION)-*.tar.gz
+TARBALL := $(GALAXY_NAMESPACE)-$(GALAXY_COLLECTION)-$(GALAXY_VERSION).tar.gz
+TARBALL_GLOB := $(GALAXY_NAMESPACE)-$(GALAXY_COLLECTION)-*.tar.gz
 # --------------------------------------------------
 # 🐍 Python / Virtual Environment
 # --------------------------------------------------
@@ -505,7 +506,7 @@ clean-build:
 	$(AT)rm -rf build dist *.egg-info
 	$(AT)find $(SRC_DIR) $(TESTS_DIR) -name "__pycache__" -type d -exec rm -rf {} +
 	$(AT)-[ -d "$(VENV_DIR)" ] && rm -r $(VENV_DIR)
-	$(AT)rm -f $(TARBALL)
+	$(AT)rm -f $(TARBALL_GLOB)
 	$(AT)@echo "✅ Cleaned build artifacts."
 
 clean-tests:

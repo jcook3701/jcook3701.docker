@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Validate LongMemory role options
+  ansible.builtin.assert:
+    that:
+      - longmemory_container_engine == "docker"
+      - longmemory_state in ["present", "absent", "teardown"]
+      - longmemory_base_dir is match("^/([A-Za-z0-9_-]+/)*longmemory$")
+      - longmemory_bind_ip | length > 0
+      - longmemory_external_port | int >= 1
+      - longmemory_external_port | int <= 65535
+      - longmemory_internal_port | int >= 1
+      - longmemory_internal_port | int <= 65535
+      - longmemory_dashboard_external_port | int >= 1
+      - longmemory_dashboard_external_port | int <= 65535
+      - not longmemory_enable_dashboard or longmemory_external_port != longmemory_dashboard_external_port
+      - longmemory_embedding_dimension | int > 0
+      - longmemory_rate_limit_max_requests | int > 0
+      - longmemory_pids_limit | int > 0
+      - longmemory_api_key | length == 0 or longmemory_api_key is match("^[0-9a-fA-F]{64}$")
+      - >-
+        (longmemory_extra_environment.keys() | list
+        | intersect(longmemory_reserved_environment) | length) == 0
+    fail_msg: "Check LongMemory lifecycle, paths, ports, credentials, and environment options."
+  no_log: true
+
+- name: Display non-sensitive LongMemory role configuration
+  ansible.builtin.debug:
+    msg:
+      - "LongMemory state: {{ longmemory_state }}"
+      - "LongMemory image: {{ longmemory_image }}"
+      - "LongMemory endpoint: {{ longmemory_bind_ip }}:{{ longmemory_external_port }}"
+  when: longmemory_debug_mode | bool
+
+- name: Ensure LongMemory is installed and configured
+  ansible.builtin.include_tasks: "state/install.yml"
+  when: longmemory_state == "present"
+
+- name: Ensure LongMemory is stopped and removed
+  ansible.builtin.include_tasks: "state/uninstall.yml"
+  when: longmemory_state == "absent"
+
+- name: Ensure LongMemory is torn down
+  ansible.builtin.include_tasks: "state/teardown.yml"
+  when: longmemory_state == "teardown"

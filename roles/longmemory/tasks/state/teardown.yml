@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Stop LongMemory stack
+  ansible.builtin.include_tasks: "uninstall.yml"
+
+- name: Remove LongMemory images only when explicitly requested
+  ansible.builtin.import_role:
+    name: "jcook3701.utils.container_engine"
+  vars:
+    container_engine_project_src: "{{ longmemory_directory.base }}"
+    container_engine_platform_type: "{{ longmemory_container_engine }}"
+    container_engine_desired_state: "teardown"
+    container_engine_trigger_condition: true
+  become: true
+  when:
+    - longmemory_teardown_remove_images | bool
+    - longmemory_compose_stat.stat.exists
+
+- name: Remove LongMemory Compose configuration
+  ansible.builtin.file:
+    path: "{{ longmemory_file.compose }}"
+    state: "absent"
+  become: true
+
+- name: Remove LongMemory database volume only when explicitly requested
+  community.docker.docker_volume:
+    name: "longmemory_data"
+    state: "absent"
+  become: true
+  when: longmemory_teardown_remove_data | bool
+
+- name: Remove LongMemory deployment directory only when explicitly requested
+  ansible.builtin.file:
+    path: "{{ longmemory_directory.base }}"
+    state: "absent"
+  become: true
+  when: longmemory_teardown_remove_data | bool

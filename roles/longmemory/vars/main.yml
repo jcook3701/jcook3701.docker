@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+longmemory_directory:
+  base: "{{ longmemory_base_dir }}"
+  source: "{{ longmemory_base_dir }}/source"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+longmemory_file:
+  compose: "{{ longmemory_base_dir }}/compose.yml"
+  secrets: "{{ longmemory_base_dir }}/.env"
+
+# ---------------------------------------------------------------------------
+# Environment Keys Owned by This Role
+# ---------------------------------------------------------------------------
+longmemory_reserved_environment:
+  - "LONGMEMORY_ALLOWED_ORIGINS"
+  - "LONGMEMORY_API_KEY"
+  - "LONGMEMORY_DB_PATH"
+  - "LONGMEMORY_EMBEDDING_DIMENSION"
+  - "LONGMEMORY_EMBEDDING_PROVIDER"
+  - "LONGMEMORY_EMBEDDING_TIER"
+  - "LONGMEMORY_HOST"
+  - "LONGMEMORY_MCP_HTTP"
+  - "LONGMEMORY_OLLAMA_EMBEDDING_MODEL"
+  - "LONGMEMORY_OLLAMA_URL"
+  - "LONGMEMORY_PORT"
+  - "LONGMEMORY_RATE_LIMIT_ENABLED"
+  - "LONGMEMORY_RATE_LIMIT_MAX_REQUESTS"

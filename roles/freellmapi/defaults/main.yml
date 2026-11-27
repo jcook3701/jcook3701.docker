@@ -40,7 +40,12 @@ freellmapi_encryption_key: ""
 freellmapi_bind_ip: "127.0.0.1"
 freellmapi_external_port: 3001
 freellmapi_internal_port: 3001
+
+# ---------------------------------------------------------------------------
+# Optional Shared Docker Networking
+# ---------------------------------------------------------------------------
 freellmapi_shared_network: ""
+freellmapi_agent_network: ""
 
 # ---------------------------------------------------------------------------
 # API Limits and Analytics Retention

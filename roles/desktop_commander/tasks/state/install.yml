@@ -12,5 +12,7 @@
     container_engine_platform_type: "{{ desktop_commander_container_engine }}"
     container_engine_desired_state: "present"
     container_engine_trigger_condition: true
-    container_engine_pull_images: "{{ desktop_commander_pull_images }}"
+    container_engine_pull_images: >-
+      {{ (desktop_commander_pull_images | bool)
+         and not (desktop_commander_build_development_image | bool) }}
   become: true

@@ -87,6 +87,10 @@ argument_specs:
         type: "str"
         default: ""
         description: "Optional existing Docker network for private service connections."
+      freellmapi_agent_network:
+        type: "str"
+        default: ""
+        description: "Optional existing dedicated Docker network for trusted AI agents."
       freellmapi_proxy_rate_limit_rpm:
         type: "int"
         default: 120

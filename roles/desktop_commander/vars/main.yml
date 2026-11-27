@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 desktop_commander_directory:
-  base: "{{ desktop_commander_base_dir }}"
+  base: "{{ desktop_commander_base_dir | default('/opt/desktop_commander') }}"
+  build: "{{ desktop_commander_base_dir | default('/opt/desktop_commander') }}/build"
 
 desktop_commander_file:
-  compose: "{{ desktop_commander_directory.base }}/compose.yml"
+  compose: "{{ desktop_commander_directory.base | default('/opt/desktop_commander') }}/compose.yml"
+  dockerfile: "{{ desktop_commander_directory.build | default('/opt/desktop_commander/build') }}/Dockerfile"

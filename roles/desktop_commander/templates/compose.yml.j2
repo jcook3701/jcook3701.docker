@@ -1,7 +1,24 @@
 {#
-# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# compose.yml.j2 for jcook3701.docker.guacamole
+#
+# SPDX-FileCopyrightText: Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #}
+
+{%- macro compose() -%}
 # SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -10,12 +27,25 @@
 ---
 services:
   desktop_commander:
+{% if desktop_commander_build_development_image | bool %}
+    image: {{ desktop_commander_development_image | to_json }}
+    pull_policy: "build"
+    build:
+      context: "./build"
+      dockerfile: "Dockerfile"
+      args:
+        BASE_IMAGE: {{ desktop_commander_image | to_json }}
+        DEVELOPMENT_UID: {{ getent_passwd[desktop_commander_system_user][1] | string | to_json }}
+        DEVELOPMENT_GID: {{ getent_passwd[desktop_commander_system_user][2] | string | to_json }}
+{% else %}
     image: {{ desktop_commander_image | to_json }}
-    container_name: {{ desktop_commander_container_name | to_json }}
     pull_policy: {{ desktop_commander_pull_policy | to_json }}
+{% endif %}
+    container_name: {{ desktop_commander_container_name | to_json }}
     restart: {{ desktop_commander_restart_policy | to_json }}
     init: true
-    user: {{ ((getent_passwd[desktop_commander_system_user][1] | string) ~ ":" ~ (getent_passwd[desktop_commander_system_user][2] | string)) | to_json }}
+    user: {{ ((getent_passwd[desktop_commander_system_user][1] | string)
+      ~ ":" ~ (getent_passwd[desktop_commander_system_user][2] | string)) | to_json }}
     working_dir: "/home/chat-gpt"
     command:
       - "npx"
@@ -28,6 +58,8 @@ services:
       XDG_CACHE_HOME: "/home/chat-gpt/.cache"
       NPM_CONFIG_CACHE: "/home/chat-gpt/.npm"
       NPM_CONFIG_UPDATE_NOTIFIER: "false"
+      GH_NO_UPDATE_NOTIFIER: "1"
+      GH_NO_EXTENSION_UPDATE_NOTIFIER: "1"
       TMPDIR: "/tmp"
       XDG_RUNTIME_DIR: "/tmp"
     read_only: true
@@ -41,7 +73,8 @@ services:
     tty: false
     stdin_open: false
     tmpfs:
-      - {{ ("/tmp:rw,nosuid,nodev,noexec,mode=1777,size=" ~ desktop_commander_tmpfs_size) | to_json }}
+      - {{ ("/tmp:rw,nosuid,nodev,noexec,mode=1777,size="
+        ~ desktop_commander_tmpfs_size) | to_json }}
     volumes:
       - type: "bind"
         source: {{ desktop_commander_host_home | to_json }}
@@ -52,6 +85,9 @@ services:
           propagation: "rprivate"
     networks:
       - "desktop_commander"
+{% if desktop_commander_shared_network | length > 0 %}
+      - "shared"
+{% endif %}
     logging:
       driver: "json-file"
       options:
@@ -61,3 +97,11 @@ services:
 networks:
   desktop_commander:
     driver: "bridge"
+{% if desktop_commander_shared_network | length > 0 %}
+  shared:
+    name: {{ desktop_commander_shared_network | to_json }}
+    external: true
+{% endif %}
+{% endmacro %}
+
+{{- compose() -}}

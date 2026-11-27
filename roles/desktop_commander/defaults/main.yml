@@ -19,6 +19,12 @@ desktop_commander_pull_images: false
 desktop_commander_restart_policy: "unless-stopped"
 
 # ---------------------------------------------------------------------------
+# Development Environment Configuration
+# ---------------------------------------------------------------------------
+desktop_commander_build_development_image: false
+desktop_commander_development_image: "desktop-commander-development:local"
+
+# ---------------------------------------------------------------------------
 # Fixed Host Filesystem Security Boundary
 # ---------------------------------------------------------------------------
 # Installation fails closed if these paths or this account are changed.
@@ -26,6 +32,11 @@ desktop_commander_restart_policy: "unless-stopped"
 desktop_commander_base_dir: "/opt/desktop_commander"
 desktop_commander_system_user: "chat-gpt"
 desktop_commander_host_home: "/home/chat-gpt"
+
+# ---------------------------------------------------------------------------
+# Optional Shared Docker Networking
+# ---------------------------------------------------------------------------
+desktop_commander_shared_network: ""
 
 # ---------------------------------------------------------------------------
 # Container Resource Controls

@@ -68,6 +68,8 @@ Ansible-managed through `freellmapi_image`.
 Back up the persistent data and encryption key before enabling destructive
 teardown.
 
+External shared Docker networks are not owned or removed by this role.
+
 ## Role Variables
 
 | Variable | Type | Description / Choices | Default |
@@ -90,6 +92,7 @@ teardown.
 | `freellmapi_external_port` | int | Published host port. | `3001` |
 | `freellmapi_internal_port` | int | Application port inside the container. | `3001` |
 | `freellmapi_shared_network` | str | Optional existing Docker network for private service connections. | `""` |
+| `freellmapi_agent_network` | str | Optional existing dedicated network for trusted AI agents. | `""` |
 | `freellmapi_proxy_rate_limit_rpm` | int | Per-IP proxy requests per minute; zero disables. | `120` |
 | `freellmapi_admin_rate_limit_rpm` | int | Per-IP dashboard requests per minute; zero disables. | `600` |
 | `freellmapi_stream_keepalive_ms` | int | SSE heartbeat interval; zero disables, otherwise minimum `1000`. | `0` |
@@ -133,6 +136,74 @@ freellmapi_db_backup_path: "/app/server/data/freellmapi.db.backup"
 freellmapi_db_backup_key: "{{ vault_freellmapi_db_backup_key }}"
 ```
 
+## Shared Docker networking
+
+The gateway can optionally join two existing external Docker networks.
+
+Use `freellmapi_shared_network` for reverse proxy or other trusted service
+connections.
+
+Use `freellmapi_agent_network` for a separate network dedicated to trusted
+AI agents.
+
+```yaml
+freellmapi_shared_network: "jcook3701_proxy"
+freellmapi_agent_network: "desktop_commander_ai"
+```
+
+Each configured external network must exist before deployment.
+
+When both network variables reference the same network, the Compose
+template attaches the network only once. Use distinct network names to
+maintain the intended separation between agents and proxy services.
+
+The default private Compose network remains attached for upstream provider
+connectivity.
+
+Joining a shared network does not change the host's published interface or
+port.
+
+## Desktop Commander integration
+
+Configure Desktop Commander to create the dedicated agent network:
+
+```yaml
+desktop_commander_shared_network: "desktop_commander_ai"
+```
+
+Deploy Desktop Commander before FreeLLMAPI.
+
+Configure FreeLLMAPI to join the same network:
+
+```yaml
+freellmapi_agent_network: "desktop_commander_ai"
+```
+
+Desktop Commander can then reach the gateway at:
+
+```text
+http://freellmapi:3001/v1
+```
+
+The internal container port is used instead of the published host port.
+
+Verify connectivity from the Desktop Commander development container:
+
+```bash
+sudo docker exec desktop-commander \
+    curl --fail --silent http://freellmapi:3001/api/ping
+```
+
+The shared network provides connectivity to the application, including its
+dashboard. Application authentication is still required for protected
+endpoints.
+
+Do not grant agents access to the FreeLLMAPI encryption key, database, or
+provider credentials.
+
+Use the unified FreeLLMAPI client key for inference requests. Administrative
+operations require the application's appropriate administrative credentials.
+
 ## Ollama integration
 
 The Compose stack maps `host.docker.internal` to the Docker host gateway on
@@ -172,5 +243,5 @@ and acceptable-use terms still apply when FreeLLMAPI proxies requests.
 
 ## Author Information
 
-Maintained by **Jared W. Cook** as part of the core infrastructure and container
-management ecosystem. Licensed under AGPL-3.0-or-later.
+Maintained as part of the core infrastructure and container management
+ecosystem. Licensed under AGPL-3.0-or-later.

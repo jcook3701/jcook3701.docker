@@ -16,3 +16,15 @@
       {{ (desktop_commander_pull_images | bool)
          and not (desktop_commander_build_development_image | bool) }}
   become: true
+
+- name: "Configure Git inside the Desktop Commander container"
+  ansible.builtin.include_tasks: "configure/02_git.yml"
+  when:
+    - desktop_commander_manage_git | bool
+    - not ansible_check_mode
+
+- name: "Configure GitHub CLI inside the Desktop Commander container"
+  ansible.builtin.include_tasks: "configure/03_gh.yml"
+  when:
+    - desktop_commander_manage_gh | bool
+    - not ansible_check_mode

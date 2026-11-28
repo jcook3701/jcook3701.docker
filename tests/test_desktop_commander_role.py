@@ -26,11 +26,12 @@ def load_defaults(role: Path) -> dict[str, Any]:
     return defaults
 
 
-def render_compose(
+def render_template(
     role: Path,
+    template_name: str,
     context: dict[str, Any],
-) -> dict[str, Any]:
-    """Render a Compose template using the required Ansible-compatible filters."""
+) -> str:
+    """Render a template using the required Ansible-compatible filters."""
     environment = Environment(
         undefined=StrictUndefined,
         autoescape=False,
@@ -41,10 +42,18 @@ def render_compose(
     environment.filters["bool"] = bool
 
     template = environment.from_string(
-        (role / "templates" / "compose.yml.j2").read_text(encoding="utf-8")
+        (role / "templates" / template_name).read_text(encoding="utf-8")
     )
 
-    rendered = yaml.safe_load(template.render(**context))
+    return template.render(**context)
+
+
+def render_compose(
+    role: Path,
+    context: dict[str, Any],
+) -> dict[str, Any]:
+    """Render and parse a Compose template."""
+    rendered = yaml.safe_load(render_template(role, "compose.yml.j2", context))
 
     assert isinstance(rendered, dict)
     return rendered
@@ -74,6 +83,19 @@ def test_development_image_is_opt_in() -> None:
 
     assert defaults["desktop_commander_build_development_image"] is False
     assert defaults["desktop_commander_shared_network"] == ""
+
+
+def test_git_and_gh_management_are_opt_in() -> None:
+    """Avoid configuring Git identity or credentials by default."""
+    defaults = load_defaults(DESKTOP_COMMANDER_ROLE)
+
+    assert defaults["desktop_commander_manage_git"] is False
+    assert defaults["desktop_commander_git_user_name"] == ""
+    assert defaults["desktop_commander_git_user_email"] == ""
+    assert defaults["desktop_commander_git_default_branch"] == "main"
+    assert defaults["desktop_commander_manage_gh"] is False
+    assert defaults["desktop_commander_gh_username"] == ""
+    assert defaults["desktop_commander_gh_token"] == ""
 
 
 @pytest.mark.parametrize("development_enabled", [False, True])
@@ -152,27 +174,105 @@ def test_desktop_commander_package_version_is_pinned() -> None:
 
 
 def test_development_image_contains_required_tools() -> None:
-    """Ensure the development image includes the required toolchain."""
-    dockerfile = (DESKTOP_COMMANDER_ROLE / "templates" / "Dockerfile.j2").read_text(
-        encoding="utf-8"
+    """Ensure the rendered development image includes the required toolchain."""
+    dockerfile = render_template(
+        DESKTOP_COMMANDER_ROLE,
+        "Dockerfile.j2",
+        desktop_commander_context(),
     )
 
     required_tools = {
+        "bash",
+        "bash-completion",
         "build-essential",
+        "ca-certificates",
         "curl",
+        "diffutils",
+        "dnsutils",
+        "file",
         "gh",
         "git",
+        "iproute2",
+        "iputils-ping",
         "jq",
+        "less",
+        "libffi-dev",
+        "libsqlite3-dev",
+        "libssl-dev",
+        "libyaml-dev",
+        "lsof",
+        "nano",
+        "netcat-openbsd",
         "openssh-client",
+        "openssl",
+        "patch",
+        "pipx",
+        "pkg-config",
+        "procps",
         "python3",
+        "python3-dev",
         "python3-pip",
         "python3-venv",
         "ripgrep",
+        "rsync",
+        "shellcheck",
+        "sqlite3",
+        "tree",
+        "unzip",
+        "vim-tiny",
+        "wget",
+        "xz-utils",
+        "yamllint",
+        "zip",
     }
 
     assert required_tools.issubset(set(dockerfile.split()))
     assert "USER chat-gpt" in dockerfile
     assert dockerfile.rstrip().endswith("USER chat-gpt")
+
+
+@pytest.mark.parametrize(
+    "template_name",
+    [
+        "compose.yml.j2",
+        "Dockerfile.j2",
+    ],
+)
+def test_github_credentials_are_not_rendered(
+    template_name: str,
+) -> None:
+    """Keep authentication credentials out of deployment templates."""
+    context = desktop_commander_context()
+    context.update(
+        {
+            "desktop_commander_build_development_image": True,
+            "desktop_commander_manage_git": True,
+            "desktop_commander_manage_gh": True,
+            "desktop_commander_gh_username": "development-agent",
+            "desktop_commander_gh_token": "test-credential-sentinel",
+        }
+    )
+
+    rendered = render_template(
+        DESKTOP_COMMANDER_ROLE,
+        template_name,
+        context,
+    )
+
+    assert context["desktop_commander_gh_token"] not in rendered
+
+
+def test_github_token_argument_suppresses_logging() -> None:
+    """Require the authentication token argument to suppress logging."""
+    specifications = yaml.safe_load(
+        (DESKTOP_COMMANDER_ROLE / "meta" / "argument_specs.yml").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    options = specifications["argument_specs"]["main"]["options"]
+
+    assert options["desktop_commander_gh_token"]["no_log"] is True
 
 
 @pytest.mark.parametrize("shared_network", ["", "desktop_commander_ai"])

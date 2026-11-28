@@ -8,6 +8,7 @@ argument_specs:
       - "Bind-mount only the dedicated chat-gpt account home directory."
       - "Keep the container root filesystem read-only and use private temporary storage."
       - "Optionally build a dedicated development image with Git and Python tooling."
+      - "Optionally configure persistent Git and GitHub CLI authentication."
       - "Optionally connect to a private shared Docker network."
     author:
       - "Jared W. Cook"
@@ -33,7 +34,7 @@ argument_specs:
       desktop_commander_package_version:
         type: "str"
         default: "0.3.4"
-        description: "Pinned Desktop Commander npm package version."
+        description: "Pinned stable Desktop Commander npm package version."
       desktop_commander_container_name:
         type: "str"
         default: "desktop-commander"
@@ -60,6 +61,37 @@ argument_specs:
         type: "str"
         default: "desktop-commander-development:local"
         description: "Local image name and tag used when building the development image."
+      desktop_commander_manage_git:
+        type: "bool"
+        default: false
+        description: "Manage persistent Git configuration inside the development container."
+      desktop_commander_git_user_name:
+        type: "str"
+        default: ""
+        description: "Git commit author name for the dedicated development account."
+      desktop_commander_git_user_email:
+        type: "str"
+        default: ""
+        description: "Git commit author email for the dedicated development account."
+      desktop_commander_git_default_branch:
+        type: "str"
+        default: "main"
+        description: "Default initial branch name for newly created Git repositories."
+      desktop_commander_manage_gh:
+        type: "bool"
+        default: false
+        description: "Manage GitHub CLI authentication and configure the Git credential helper."
+      desktop_commander_gh_username:
+        type: "str"
+        default: ""
+        description: "Expected GitHub username used to validate the authenticated account."
+      desktop_commander_gh_token:
+        type: "str"
+        default: ""
+        description: >-
+          Optional Vault-managed GitHub personal access token.
+          An empty value preserves and validates existing authentication.
+        no_log: true
       desktop_commander_base_dir:
         type: "path"
         default: "/opt/desktop_commander"

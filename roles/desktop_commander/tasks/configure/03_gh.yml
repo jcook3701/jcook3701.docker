@@ -1,0 +1,159 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Authenticate Desktop Commander GitHub CLI using the supplied token"
+  community.docker.docker_container_exec:
+    container: "{{ desktop_commander_container_name }}"
+    user: >-
+      {{ (getent_passwd[desktop_commander_system_user][1] | string)
+         ~ ":"
+         ~ (getent_passwd[desktop_commander_system_user][2] | string) }}
+    env:
+      GH_PROMPT_DISABLED: "1"
+      GIT_TERMINAL_PROMPT: "0"
+    argv:
+      - "/bin/bash"
+      - "-c"
+      - |
+        set -eu
+        umask 077
+
+        unset GH_TOKEN GITHUB_TOKEN
+
+        IFS= read -r supplied_token
+
+        supplied_username="$(
+            GH_TOKEN="$supplied_token" gh api \
+                --hostname github.com user --jq '.login'
+        )"
+
+        if [ "${supplied_username,,}" != "${1,,}" ]; then
+            printf 'GitHub token does not match expected account.\n' >&2
+            exit 1
+        fi
+
+        current_token="$(
+            gh auth token --hostname github.com 2>/dev/null || true
+        )"
+
+        if [ "$current_token" != "$supplied_token" ]; then
+            printf '%s\n' "$supplied_token" | gh auth login \
+                --hostname github.com \
+                --git-protocol https \
+                --with-token
+
+            printf 'changed\n'
+        fi
+      - "gh-auth"
+      - "{{ desktop_commander_gh_username }}"
+    stdin: "{{ desktop_commander_gh_token }}"
+    stdin_add_newline: true
+  register: desktop_commander_gh_authentication
+  changed_when: >-
+    "changed" in (desktop_commander_gh_authentication.stdout_lines | default([]))
+  failed_when: desktop_commander_gh_authentication.rc | default(1) != 0
+  when: desktop_commander_gh_token | length > 0
+  # no_log: true
+  become: true
+
+- name: "Verify the authenticated Desktop Commander GitHub account"
+  community.docker.docker_container_exec:
+    container: "{{ desktop_commander_container_name }}"
+    user: >-
+      {{ (getent_passwd[desktop_commander_system_user][1] | string)
+         ~ ":"
+         ~ (getent_passwd[desktop_commander_system_user][2] | string) }}
+    env:
+      GH_PROMPT_DISABLED: "1"
+      GIT_TERMINAL_PROMPT: "0"
+    argv:
+      - "/bin/bash"
+      - "-c"
+      - |
+        set -eu
+        unset GH_TOKEN GITHUB_TOKEN
+
+        authenticated_username="$(
+            gh api --hostname github.com user --jq '.login'
+        )"
+
+        if [ "${authenticated_username,,}" != "${1,,}" ]; then
+            printf 'Unexpected authenticated GitHub account.\n' >&2
+            exit 1
+        fi
+      - "gh-verify"
+      - "{{ desktop_commander_gh_username }}"
+  register: desktop_commander_gh_verification
+  changed_when: false
+  failed_when: desktop_commander_gh_verification.rc | default(1) != 0
+  no_log: true
+  become: true
+
+- name: "Configure GitHub CLI to use HTTPS"
+  community.docker.docker_container_exec:
+    container: "{{ desktop_commander_container_name }}"
+    user: >-
+      {{ (getent_passwd[desktop_commander_system_user][1] | string)
+         ~ ":"
+         ~ (getent_passwd[desktop_commander_system_user][2] | string) }}
+    argv:
+      - "/bin/bash"
+      - "-c"
+      - |
+        set -eu
+        umask 077
+
+        current_protocol="$(
+            gh config get git_protocol --host github.com || true
+        )"
+
+        if [ "$current_protocol" != "https" ]; then
+            gh config set git_protocol https --host github.com
+            printf 'changed\n'
+        fi
+  register: desktop_commander_gh_protocol
+  changed_when: desktop_commander_gh_protocol.stdout | default("") == "changed"
+  failed_when: desktop_commander_gh_protocol.rc | default(1) != 0
+  become: true
+
+- name: "Configure GitHub CLI as the Git credential helper"
+  community.docker.docker_container_exec:
+    container: "{{ desktop_commander_container_name }}"
+    user: >-
+      {{ (getent_passwd[desktop_commander_system_user][1] | string)
+         ~ ":"
+         ~ (getent_passwd[desktop_commander_system_user][2] | string) }}
+    env:
+      GH_PROMPT_DISABLED: "1"
+      GIT_TERMINAL_PROMPT: "0"
+    argv:
+      - "/bin/bash"
+      - "-c"
+      - |
+        set -eu
+        umask 077
+        unset GH_TOKEN GITHUB_TOKEN
+
+        before="$(git config --global --list 2>/dev/null || true)"
+
+        gh auth setup-git --hostname github.com
+
+        after="$(git config --global --list)"
+
+        if [ "$before" != "$after" ]; then
+            printf 'changed\n'
+        fi
+  register: desktop_commander_gh_git_helper
+  changed_when: >-
+    "changed" in (desktop_commander_gh_git_helper.stdout_lines | default([]))
+  failed_when: desktop_commander_gh_git_helper.rc | default(1) != 0
+  no_log: true
+  become: true
+
+- name: "Display Desktop Commander GitHub configuration status"
+  ansible.builtin.debug:
+    msg:
+      - "GitHub CLI configuration completed inside the container."
+      - "Verified GitHub account: {{ desktop_commander_gh_username }}"
+      - "Git authentication protocol: HTTPS"
+  when: desktop_commander_debug_mode | bool

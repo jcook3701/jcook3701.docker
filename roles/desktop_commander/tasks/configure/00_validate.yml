@@ -11,6 +11,44 @@
       - desktop_commander_pids_limit | int > 0
     fail_msg: "Only the dedicated chat-gpt account and home directory are permitted."
 
+- name: "Assert Desktop Commander development configuration"
+  ansible.builtin.assert:
+    that:
+      - desktop_commander_image | trim | length > 0
+      - desktop_commander_container_name | trim | length > 0
+      - desktop_commander_package_version is match("^[0-9]+\\.[0-9]+\\.[0-9]+$")
+      - desktop_commander_memory_limit | trim | length > 0
+      - desktop_commander_tmpfs_size | trim | length > 0
+      - >-
+        not (desktop_commander_build_development_image | bool)
+        or (desktop_commander_development_image | trim | length > 0)
+      - >-
+        not (desktop_commander_build_development_image | bool)
+        or desktop_commander_development_image != desktop_commander_image
+    fail_msg: "Invalid Desktop Commander image, package version, or resource configuration."
+
+- name: "Assert Desktop Commander Git configuration"
+  ansible.builtin.assert:
+    that:
+      - desktop_commander_build_development_image | bool
+      - desktop_commander_git_user_name | trim | length > 0
+      - desktop_commander_git_user_email | trim | length > 0
+      - desktop_commander_git_default_branch | trim | length > 0
+    fail_msg: >-
+      Git management requires the development image, Git author name,
+      email address, and default branch configuration.
+  when: desktop_commander_manage_git | bool
+
+- name: "Assert Desktop Commander GitHub CLI configuration"
+  ansible.builtin.assert:
+    that:
+      - desktop_commander_build_development_image | bool
+      - desktop_commander_gh_username | trim | length > 0
+    fail_msg: >-
+      GitHub CLI management requires the development image and
+      the expected GitHub account username.
+  when: desktop_commander_manage_gh | bool
+
 - name: "Resolve the dedicated Desktop Commander host account"
   ansible.builtin.getent:
     database: "passwd"
@@ -23,12 +61,14 @@
     path: "{{ desktop_commander_host_home }}"
     follow: false
   register: desktop_commander_home_status
+  become: true
 
 - name: "Verify dedicated account ownership, permissions, and path"
   ansible.builtin.assert:
     that:
       - getent_passwd[desktop_commander_system_user][4] == desktop_commander_host_home
       - (getent_passwd[desktop_commander_system_user][1] | int) > 0
+      - (getent_passwd[desktop_commander_system_user][2] | int) > 0
       - desktop_commander_home_status.stat.exists | default(false)
       - desktop_commander_home_status.stat.isdir | default(false)
       - not (desktop_commander_home_status.stat.islnk | default(false))
@@ -48,6 +88,8 @@
       - "TARGET"
   register: desktop_commander_mount_targets
   changed_when: false
+  check_mode: false
+  become: true
 
 - name: "Reject nested host mounts under the dedicated account home"
   ansible.builtin.assert:
@@ -63,4 +105,7 @@
     msg:
       - "Validated account: {{ desktop_commander_system_user }}"
       - "Validated sole host bind path: {{ desktop_commander_host_home }}"
+      - "Development image enabled: {{ desktop_commander_build_development_image }}"
+      - "Git management enabled: {{ desktop_commander_manage_git }}"
+      - "GitHub CLI management enabled: {{ desktop_commander_manage_gh }}"
   when: desktop_commander_debug_mode | bool

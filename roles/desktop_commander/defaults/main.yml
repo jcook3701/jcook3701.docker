@@ -25,6 +25,21 @@ desktop_commander_build_development_image: false
 desktop_commander_development_image: "desktop-commander-development:local"
 
 # ---------------------------------------------------------------------------
+# Git Configuration
+# ---------------------------------------------------------------------------
+desktop_commander_manage_git: false
+desktop_commander_git_user_name: ""
+desktop_commander_git_user_email: ""
+desktop_commander_git_default_branch: "main"
+
+# ---------------------------------------------------------------------------
+# GitHub CLI Configuration
+# ---------------------------------------------------------------------------
+desktop_commander_manage_gh: false
+desktop_commander_gh_username: ""
+desktop_commander_gh_token: ""
+
+# ---------------------------------------------------------------------------
 # Fixed Host Filesystem Security Boundary
 # ---------------------------------------------------------------------------
 # Installation fails closed if these paths or this account are changed.

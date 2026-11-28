@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Debug Teardown of Headscale application
+  ansible.builtin.debug:
+    msg: "headscale_directory.base: {{ headscale_directory.base | default('/opt/headscale') }}"
+  when: headscale_debug_mode | default(false) | bool
+
+- name: Include standard termination routine definitions
+  ansible.builtin.include_tasks: uninstall.yml
+
+- name: Purge remaining historical data layers and configurations
+  ansible.builtin.file:
+    path: "{{ headscale_directory.base | default('/opt/headscale') }}"
+    state: absent
+  become: true

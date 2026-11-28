@@ -75,16 +75,24 @@ Bug report analysis support is very welcome! (e.g. pre-analysis or proposing sol
 You are welcome to contribute code to docker in order to fix bugs or to implement new features.
 
 There are three important things to know:
-1. You must be aware that you need to submit [CLA](https://jcook3701.github.io/jcook3701.docker/manual/developer-resources/cla) in order for your contribution to be accepted. This is common practice in all major Open Source projects.
+1. You must accept the
+   [CLA](https://github.com/jcook3701/jcook3701.docker/blob/main/docs/jekyll/_manual/developer-resources/cla.md)
+   before your contribution can be merged.
 2. There are **several requirements regarding code style, quality, and product standards** which need to be met (we also have to follow them). The respective section below gives more details on the coding guidelines.
 3. **Not all proposed contributions can be accepted**. Some features may e.g. just fit a third-party add-on better. The code must fit the overall direction of docker and really improve it. The more effort you invest, the better you should clarify in advance whether the contribution fits: the best way would be to just open an issue to discuss the feature you plan to implement (make it clear you intend to contribute).
 
 ## Contributor License Agreement (CLA)
 
-Due to legal reasons, contributors will be asked to accept a [CLA](https://jcook3701.github.io/jcook3701.docker/manual/developer-resources/cla) before they submit the first pull request to this project, this happens in an automated fashion during the submission process.  We use a derivative of the [ASF Contributor Agreements](https://www.apache.org/licenses/contributor-agreements.html) as can be found below.
+Contributors are asked to accept the
+[project CLA](https://github.com/jcook3701/jcook3701.docker/blob/main/docs/jekyll/_manual/developer-resources/cla.md)
+before their first pull request can be merged. The CLA workflow handles this in
+the pull-request conversation. The agreement is adapted from the
+[ASF Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf),
+but it is an agreement with this Project's owner, not with the Apache Software
+Foundation.
 
-* [ICLA](https://www.apache.org/licenses/icla.pdf)
-* [CCLA](https://www.apache.org/licenses/cla-corporate.pdf).
+Organizations that need a corporate contribution agreement should contact the
+project maintainer before submitting work.
 
 ### Contribution Content Guidelines
 

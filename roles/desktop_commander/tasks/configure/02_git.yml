@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Configure persistent Desktop Commander Git settings"
+  community.docker.docker_container_exec:
+    container: "{{ desktop_commander_container_name }}"
+    user: >-
+      {{ (getent_passwd[desktop_commander_system_user][1] | string)
+         ~ ":"
+         ~ (getent_passwd[desktop_commander_system_user][2] | string) }}
+    argv:
+      - "/bin/bash"
+      - "-c"
+      - |
+        set -eu
+        umask 077
+
+        current_value="$(git config --global --get-all "$1" || true)"
+
+        if [ "$current_value" != "$2" ]; then
+            git config --global --replace-all "$1" "$2"
+            printf 'changed\n'
+        fi
+      - "git-config"
+      - "{{ git_setting.key }}"
+      - "{{ git_setting.value }}"
+  loop:
+    - key: "user.name"
+      value: "{{ desktop_commander_git_user_name }}"
+    - key: "user.email"
+      value: "{{ desktop_commander_git_user_email }}"
+    - key: "init.defaultBranch"
+      value: "{{ desktop_commander_git_default_branch }}"
+  loop_control:
+    loop_var: git_setting
+    label: "{{ git_setting.key }}"
+  register: desktop_commander_git_configuration
+  changed_when: desktop_commander_git_configuration.stdout | default("") == "changed"
+  failed_when: desktop_commander_git_configuration.rc | default(1) != 0
+  become: true
+
+- name: "Display Desktop Commander Git configuration status"
+  ansible.builtin.debug:
+    msg:
+      - "Git configuration completed inside the container."
+      - "Git author: {{ desktop_commander_git_user_name }}"
+      - "Git email: {{ desktop_commander_git_user_email }}"
+      - "Git default branch: {{ desktop_commander_git_default_branch }}"
+  when: desktop_commander_debug_mode | bool

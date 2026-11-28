@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Ensure Nvidia Container is installed and configured
+  ansible.builtin.include_tasks:  state/install.yml
+  when: nvidia_state | default('present') == 'present'
+
+- name: Ensure Nvidia Container is uninstalled from system
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: nvidia_state | default('present') == 'absent'
+
+- name: Ensure Nvidia Container is purged from system
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: nvidia_state | default('present') == 'teardown'

@@ -1,0 +1,87 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Create root-owned FreeLLMAPI deployment directory
+  ansible.builtin.file:
+    path: "{{ freellmapi_directory.base }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+  become: true
+
+- name: Create private persistent FreeLLMAPI data directory
+  ansible.builtin.file:
+    path: "{{ freellmapi_directory.data }}"
+    state: "directory"
+    owner: "{{ freellmapi_container_uid }}"
+    group: "{{ freellmapi_container_gid }}"
+    mode: "0700"
+  become: true
+
+- name: Inspect persistent FreeLLMAPI secrets file
+  ansible.builtin.stat:
+    path: "{{ freellmapi_file.secrets }}"
+  register: freellmapi_secrets_stat
+  become: true
+
+- name: Read existing persistent FreeLLMAPI encryption key
+  ansible.builtin.slurp:
+    src: "{{ freellmapi_file.secrets }}"
+  register: freellmapi_existing_secrets
+  become: true
+  no_log: true
+  when: freellmapi_secrets_stat.stat.exists
+
+- name: Validate existing persistent FreeLLMAPI encryption key
+  ansible.builtin.assert:
+    that:
+      - >-
+        (freellmapi_existing_secrets.content | b64decode)
+        is search("(?m)^ENCRYPTION_KEY=[0-9a-fA-F]{64}$")
+      - >-
+        freellmapi_encryption_key | length == 0
+        or ("ENCRYPTION_KEY=" ~ freellmapi_encryption_key)
+        in (freellmapi_existing_secrets.content | b64decode).splitlines()
+    fail_msg: >-
+      The existing FreeLLMAPI secrets file is invalid or does not match the
+      supplied Vault key. Restore the key paired with this database; do not
+      replace it without first using FreeLLMAPI's encryption-key rotation tool.
+  when: freellmapi_secrets_stat.stat.exists
+  no_log: true
+
+- name: Initialize persistent FreeLLMAPI encryption key
+  ansible.builtin.copy:
+    content: >-
+      ENCRYPTION_KEY={{
+        freellmapi_encryption_key
+        if freellmapi_encryption_key | length > 0
+        else lookup('ansible.builtin.password', '/dev/null length=64 chars=hexdigits')
+      }}
+    dest: "{{ freellmapi_file.secrets }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+    force: false
+  become: true
+  no_log: true
+
+- name: Enforce private FreeLLMAPI secrets file permissions
+  ansible.builtin.file:
+    path: "{{ freellmapi_file.secrets }}"
+    state: "file"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  become: true
+  no_log: true
+
+- name: Deploy FreeLLMAPI Compose configuration
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ freellmapi_file.compose }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  become: true
+  no_log: true

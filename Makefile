@@ -1,6 +1,6 @@
 # Makefile for jcook3701.docker
 #
-# SPDX-FileCopyrightText: Jared Cook
+# SPDX-FileCopyrightText: Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
@@ -62,7 +62,7 @@ endef
 GALAXY_NAMESPACE := jcook3701
 GALAXY_COLLECTION := docker
 GALAXY_PACKAGE_NAME = $(GALAXY_NAMESPACE).$(GALAXY_COLLECTION)
-GALAXY_AUTHOR := Jared Cook
+GALAXY_AUTHOR := Jared W. Cook
 GALAXY_VERSION := 1.0.0
 GALAXY_RELEASE := v$(GALAXY_VERSION)
 GALAXY_PATH := $(PROJECT_ROOT)
@@ -93,7 +93,8 @@ CHANGELOG_RELEASE_DIR := $(CHANGELOG_DIR)/releases
 README_FILE := $(PROJECT_ROOT)/README.md
 AUTODOC_README_FILE := $(JEKYLL_AUTODOC_DIR)/ansible-autodoc.md
 CHANGELOG_FILE := $(CHANGELOG_DIR)/changelog.yml
-TARBALL := $(GALAXY_NAMESPACE)-$(GALAXY_COLLECTION)-*.tar.gz
+TARBALL := $(GALAXY_NAMESPACE)-$(GALAXY_COLLECTION)-$(GALAXY_VERSION).tar.gz
+TARBALL_GLOB := $(GALAXY_NAMESPACE)-$(GALAXY_COLLECTION)-*.tar.gz
 # --------------------------------------------------
 # 🐍 Python / Virtual Environment
 # --------------------------------------------------
@@ -135,6 +136,7 @@ YAMLFIXER := yamlfixer
 # 🔍 Linting (ruff, yaml)
 # --------------------------------------------------
 ANSIBLE_LINT := $(ACTIVATE) && pre-commit run ansible-lint --all-files --hook-stage manual
+ACTIONLINT := $(ACTIVATE) && pre-commit run actionlint-docker --all-files --hook-stage manual
 RUFF := $(PYTHON) -m ruff
 TOMLLINT := tomllint
 YAMLLINT := $(PYTHON) -m yamllint
@@ -186,6 +188,7 @@ PRECOMMIT := $(ACTIVATE) && pre-commit
 # 🪐 Ansible Galaxy
 # --------------------------------------------------
 ANSIBLE_GALAXY := $(ACTIVATE) && ansible-galaxy
+ANSIBLE_GALAXY_PUBLISH := $(ACTIVATE) && /etc/ansible/bin/galaxy-publish
 GALAXY_IMPORTER := $(PYTHON) -m galaxy_importer.main
 # --------------------------------------------------
 # 🏃‍♂️ Nutri-Matic Commands
@@ -204,10 +207,10 @@ AUTODOC_FIX := sed -i 's|yaml.load(yaml_file)|yaml.load(yaml_file, Loader=yaml.S
 .PHONY: all list-python-folders autodoc-hack venv python-install pre-commit-init security \
 	dependency-check black-formatter-check black-formatter-fix format-check \
 	format-fix ruff-lint-check ruff-lint-fix toml-lint-check yaml-lint-check \
-	ansible-lint-check lint-check lint-fix spellcheck typecheck test sphinx \
+	ansible-lint-check actionlint-check lint-check lint-fix spellcheck typecheck test sphinx \
 	autodocs-front-matter autodoc jekyll readme build-docs jekyll-serve run-docs \
 	bump-version-patch changelog git-init git-release galaxy-build galaxy-install \
-	galaxy-publish clean version help
+	galaxy-publish galaxy-publish-check clean version help
 # --------------------------------------------------
 # Default: run lint, typecheck, tests, and docs
 # --------------------------------------------------
@@ -299,12 +302,17 @@ black-formatter-fix:
 format-check: black-formatter-check
 format-fix: black-formatter-fix
 # --------------------------------------------------
-# 🔍 Linting (ansible, ruff, toml, yaml)
+# 🔍 Linting (Ansible, GitHub Actions, Ruff, TOML, YAML)
 # --------------------------------------------------
 ansible-lint-check:
 	$(AT)echo "🔍 Running ansible-lint..."
 	$(AT)$(call run_ci_safe, $(ANSIBLE_LINT))
 	$(AT)echo "✅ Finished linting check with ansible-lint!"
+
+actionlint-check:
+	$(AT)echo "🔍 Running actionlint..."
+	$(AT)$(call run_ci_safe, $(ACTIONLINT))
+	$(AT)echo "✅ Finished linting GitHub Actions workflows with actionlint!"
 
 ruff-lint-check:
 	$(AT)echo "🔍 Running ruff linting..."
@@ -338,7 +346,7 @@ yaml-formatter-fix:
 			-print0 | xargs -0 $(YAMLFIXER) --config-file .yamllint --nochange --summary
 	$(AT)echo "✅ Finished linting fix of yaml files with yamllint!"
 
-lint-check: ansible-lint-check ruff-lint-check toml-lint-check yaml-lint-check
+lint-check: ansible-lint-check actionlint-check ruff-lint-check toml-lint-check yaml-lint-check
 lint-fix: ruff-lint-fix
 # --------------------------------------------------
 # 🎓 Spellchecker (codespell)
@@ -465,9 +473,14 @@ galaxy-install:
 	$(AT)$(ANSIBLE_GALAXY) collection install $(TARBALL) --pre --force
 	$(AT)echo "✅ Installed."
 
+galaxy-publish-check:
+	$(AT)echo "🔐 Checking Ansible Galaxy credentials... 🪐"
+	$(AT)$(ANSIBLE_GALAXY_PUBLISH) --check
+	$(AT)echo "✅ Galaxy credentials verified."
+
 galaxy-publish:
 	$(AT)echo "🚀 Publishing collection to Ansible Galaxy... 🪐"
-	$(AT)$(ANSIBLE_GALAXY) collection publish $(TARBALL)
+	$(AT)$(ANSIBLE_GALAXY_PUBLISH) $(TARBALL)
 	$(AT)echo "✅ Published."
 
 galaxy-import:
@@ -493,7 +506,7 @@ clean-build:
 	$(AT)rm -rf build dist *.egg-info
 	$(AT)find $(SRC_DIR) $(TESTS_DIR) -name "__pycache__" -type d -exec rm -rf {} +
 	$(AT)-[ -d "$(VENV_DIR)" ] && rm -r $(VENV_DIR)
-	$(AT)rm -f $(TARBALL)
+	$(AT)rm -f $(TARBALL_GLOB)
 	$(AT)@echo "✅ Cleaned build artifacts."
 
 clean-tests:
@@ -526,7 +539,8 @@ help:
 	$(AT)echo "  make format-fix             Run all project formatter autofixes (black)"
 	$(AT)echo "  make yaml-lint-check        Run YAML linter"
 	$(AT)echo "  make ansible-lint-check     Run Ansible linter"
-	$(AT)echo "  make lint-check             Run all project linters (ruff, yaml, & ansible)"
+	$(AT)echo "  make actionlint-check       Run GitHub Actions workflow linter"
+	$(AT)echo "  make lint-check             Run all project linters"
 	$(AT)echo "  make lint-fix               Run all project linter autofixes (ruff)"
 	$(AT)echo "  make typecheck              Run Mypy type checking"
 	$(AT)echo "  make test                   Run Pytest suite"
@@ -538,6 +552,7 @@ help:
 	$(AT)echo "  make run-docs               Serve Jekyll site locally"
 	$(AT)echo "  make galaxy-build           Build Ansible Galaxy collection"
 	$(AT)echo "  make galaxy-install         Install local Galaxy build"
+	$(AT)echo "  make galaxy-publish-check   Check Ansible Galaxy credentials"
 	$(AT)echo "  make galaxy-publish         Publish collection to Ansible Galaxy"
 	$(AT)echo "  make clean                  Clean build artifacts"
 	$(AT)echo "  make all                    Run lint, typecheck, test, build-docs, & readme"

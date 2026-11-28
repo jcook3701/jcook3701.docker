@@ -4,17 +4,48 @@ title: CLA Privacy Policy
 nav_order: 1
 parent: "Developer Resources"
 ---
-## docker CLA Privacy Policy
+## jcook3701.docker CLA Privacy Policy
 
-## Collection and storage of personal data and the nature and purpose of their use
+This policy applies to the electronic Contributor License Agreement (CLA)
+process for `jcook3701.docker`.
 
-Most Project business is conducted publicly, and privacy of submitted information is not expected.
+## Information collected
 
-Specifically, information is exchanged via public email lists and public code repositories. Public code repositories use patch submission, pull requests, discussions, and bug reports. None of these tools keep submitted information private. They are publicly accessible and archived in multiple locations around the world, by the Project and third parties.
+When You accept the CLA through a pull-request comment, the CLA workflow records
+the following GitHub metadata:
 
-You should never submit personally identifiable information (PII) via any of these mechanisms.
+- GitHub login and numeric account identifier
+- signing-comment identifier and timestamp
+- repository identifier and pull-request number
 
-<!-- TODO: Think about creating a mailing list policy.
+The workflow does not request Your legal name, postal address, telephone number,
+or email address. Do not include additional personal information in the signing
+comment.
 
-For more information on email lists, please see [Mailing List Policy]()
--->
+## Purpose and legal record
+
+This information is collected to document which authenticated GitHub account
+accepted the CLA and to verify CLA coverage for contributions. A GitHub account
+signature is evidence of acceptance by that account; it is not independent
+proof of the legal identity behind the account.
+
+## Public storage and sharing
+
+The signature record is stored in `cla/v1/signatures.json` in the public
+`jcook3701.docker` GitHub repository. The signing comment, pull request, and
+related workflow logs are also processed and hosted by GitHub. These records
+may be publicly accessible, copied, indexed, and archived by GitHub and other
+parties.
+
+GitHub processes this information under the
+[GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).
+No signature database is operated outside GitHub for this workflow.
+
+## Retention and requests
+
+Signature records are retained as part of the Project's contribution and
+licensing history. A request to correct inaccurate metadata or ask a privacy
+question may be sent to
+[the project maintainer](mailto:jcook3701+jcook3701.docker@gmail.com).
+Removing or correcting a public record does not by itself revoke licenses that
+were granted for Contributions already submitted under the CLA.

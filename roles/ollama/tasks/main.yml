@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Validate Ollama role options
+  ansible.builtin.assert:
+    that:
+      - ollama_container_engine in ['docker', 'podman']
+      - ollama_state in ['present', 'absent', 'teardown']
+      - ollama_base_dir is match('^/[^\n]+$')
+      - ollama_base_dir | length > 4
+    fail_msg: >-
+      This role currently supports Docker Compose. Check ollama_state and
+      use a safe absolute ollama_base_dir outside the filesystem root.
+
+- name: Ensure Ollama is installed and configured
+  ansible.builtin.include_tasks: state/install.yml
+  when: ollama_state == 'present'
+
+- name: Ensure Ollama services are stopped and removed
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: ollama_state == 'absent'
+
+- name: Ensure Ollama is torn down
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: ollama_state == 'teardown'

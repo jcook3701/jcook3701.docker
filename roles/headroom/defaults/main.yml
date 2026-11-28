@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+headroom_container_engine: "docker"
+headroom_state: "present"
+headroom_debug_mode: false
+headroom_teardown_remove_data: false
+headroom_teardown_remove_images: false
+
+# ---------------------------------------------------------------------------
+# Pinned Headroom Image and Container Lifecycle
+# ---------------------------------------------------------------------------
+# Pinned to the official non-root Headroom v0.45.0 image (2026-11-21).
+headroom_image: "ghcr.io/headroomlabs-ai/headroom:0.45.0-nonroot"
+headroom_container_name: "headroom"
+headroom_pull_policy: "missing"
+headroom_pull_images: false
+headroom_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Persistent Storage
+# ---------------------------------------------------------------------------
+headroom_base_dir: "/opt/headroom"
+# The official non-root image uses UID/GID 1000. Update both values when using
+# a custom image whose runtime user differs.
+headroom_container_uid: 1000
+headroom_container_gid: 1000
+
+# ---------------------------------------------------------------------------
+# Proxy Networking and Security
+# ---------------------------------------------------------------------------
+# A non-loopback bind requires a nonempty proxy token.
+headroom_bind_ip: "127.0.0.1"
+headroom_external_port: 8787
+headroom_internal_port: 8787
+headroom_proxy_token: ""
+headroom_proxy_mode: "cache"
+# Disable Headroom's opt-out anonymous upload beacon by default.
+headroom_beacon: "off"
+
+# Advanced Headroom/provider environment variables. Managed keys such as
+# HEADROOM_HOST, HEADROOM_PORT, and HEADROOM_PROXY_TOKEN cannot be overridden.
+headroom_extra_environment: {}
+
+# ---------------------------------------------------------------------------
+# Container Resource Controls
+# ---------------------------------------------------------------------------
+headroom_memory_limit: "4g"
+headroom_cpu_limit: "2.0"
+headroom_pids_limit: 256
+headroom_tmpfs_size: "512m"

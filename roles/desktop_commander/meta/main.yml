@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+galaxy_info:
+  author: "Jared W. Cook"
+  description: "Run Desktop Commander Remote inside a restricted Docker container."
+  company: "Cook's Code, Inc."
+  license: "AGPL-3.0-or-later"
+  min_ansible_version: ">=2.10"
+  role_name: "desktop_commander"
+  platforms:
+    - name: "Debian"
+      versions:
+        - "all"
+    - name: "Ubuntu"
+      versions:
+        - "all"
+  galaxy_tags:
+    - "docker"
+    - "security"
+    - "automation"
+    - "mcp"
+
+dependencies: []
+
+collections:
+  - "community.docker"

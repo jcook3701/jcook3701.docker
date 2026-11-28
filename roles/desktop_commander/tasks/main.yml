@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Validate Desktop Commander deployment directory boundary"
+  ansible.builtin.assert:
+    that:
+      - desktop_commander_base_dir == "/opt/desktop_commander"
+    fail_msg: "Refusing to touch a path outside /opt/desktop_commander."
+
+- name: "Ensure Desktop Commander is installed and configured"
+  ansible.builtin.include_tasks: "state/install.yml"
+  when: desktop_commander_state == "present"
+
+- name: "Ensure Desktop Commander is stopped and removed"
+  ansible.builtin.include_tasks: "state/uninstall.yml"
+  when: desktop_commander_state == "absent"
+
+- name: "Ensure Desktop Commander deployment files are removed"
+  ansible.builtin.include_tasks: "state/teardown.yml"
+  when: desktop_commander_state == "teardown"

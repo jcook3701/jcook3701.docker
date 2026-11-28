@@ -1,0 +1,668 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Install and configure Ollama and optional supporting services"
+    description:
+      - "Deploy Ollama, Open WebUI, n8n, Docker MCP Gateway, MCP Inspector, SearXNG and Valkey."
+      - "Manage a persistent Compose stack through jcook3701.utils.container_engine."
+    author:
+      - "Jared W. Cook"
+
+    options:
+      # -------------------------------------------------------------------
+      # Runtime Orchestration Engine and Service State
+      # -------------------------------------------------------------------
+      ollama_container_engine:
+        type: "str"
+        default: "docker"
+        description:
+          - "Container engine for this role. Docker Compose is tested; Podman is experimental."
+        choices:
+          - "docker"
+          - "podman"
+
+      ollama_state:
+        type: "str"
+        default: "present"
+        description:
+          - "Desired deployment lifecycle."
+        choices:
+          - "present"
+          - "absent"
+          - "teardown"
+
+      ollama_debug_mode:
+        type: "bool"
+        default: false
+        description:
+          - "Enable safe, non-secret debugging output."
+
+      ollama_teardown_remove_data:
+        type: "bool"
+        default: false
+        description:
+          - "Explicitly delete the entire persistent data directory during teardown; destructive."
+
+      ollama_teardown_remove_images:
+        type: "bool"
+        default: false
+        description:
+          - "Explicitly remove stack images during teardown."
+
+      ollama_manage_web_ui:
+        type: "bool"
+        default: false
+        description:
+          - "Deploy Open WebUI alongside Ollama."
+
+      ollama_manage_n8n:
+        type: "bool"
+        default: false
+        description:
+          - "Deploy the n8n workflow editor and backend."
+
+      ollama_manage_mcp:
+        type: "bool"
+        default: false
+        description:
+          - "Deploy Docker MCP Gateway. Requires access to the Docker host socket."
+
+      ollama_manage_mcp_inspector:
+        type: "bool"
+        default: false
+        description:
+          - "Deploy MCP Inspector as a browser-based MCP server inspection interface."
+
+      ollama_manage_searxng:
+        type: "bool"
+        default: false
+        description:
+          - "Deploy SearXNG plus the supporting Valkey instance."
+
+      # -------------------------------------------------------------------
+      # Service Container Images and Engine Versions
+      # -------------------------------------------------------------------
+      ollama_backend_image:
+        type: "str"
+        default: "docker.io/ollama/ollama:latest"
+        description:
+          - "Ollama container image; pin tag or digest for repeatability."
+
+      ollama_webui_image:
+        type: "str"
+        default: "ghcr.io/open-webui/open-webui:main"
+        description:
+          - "Open WebUI container image; pin tag or digest for repeatability."
+
+      ollama_n8n_image:
+        type: "str"
+        default: "docker.n8n.io/n8nio/n8n:latest"
+        description:
+          - "n8n container image; pin tag or digest for repeatability."
+
+      ollama_mcp_gateway_image:
+        type: "str"
+        default: "docker/mcp-gateway@sha256:f5a679a05fc39022a046167bef92aeeb01bcd59485ad27843ae5227db7950688"
+        description:
+          - "Docker MCP Gateway container image; pin tag or digest for repeatability."
+
+      ollama_mcp_inspector_image:
+        type: "str"
+        default: "ghcr.io/modelcontextprotocol/inspector:latest"
+        description:
+          - "Official MCP Inspector container image; pin tag or digest for repeatability."
+
+      ollama_searxng_image:
+        type: "str"
+        default: "docker.io/searxng/searxng:latest"
+        description:
+          - "SearXNG container image; pin tag or digest for repeatability."
+
+      ollama_searxng_valkey_image:
+        type: "str"
+        default: "docker.io/valkey/valkey:9-alpine"
+        description:
+          - "Valkey backend container image."
+
+      ollama_pull_policy:
+        type: "str"
+        default: "missing"
+        description:
+          - "Docker Compose service image pull policy; latest tags may still be refreshed."
+        choices:
+          - "missing"
+          - "always"
+          - "never"
+          - "build"
+
+      ollama_pull_images:
+        type: "bool"
+        default: false
+        description:
+          - "Ask the shared container_engine helper to pull images during deployment."
+
+      ollama_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        description:
+          - "Restart policy for the container services."
+        choices:
+          - "no"
+          - "always"
+          - "on-failure"
+          - "unless-stopped"
+
+      # -------------------------------------------------------------------
+      # Container Names
+      # -------------------------------------------------------------------
+      ollama_backend_container_name:
+        type: "str"
+        default: "ollama"
+        description:
+          - "Ollama backend Docker container name."
+
+      ollama_webui_container_name:
+        type: "str"
+        default: "ollama-webui"
+        description:
+          - "Open WebUI Docker container name."
+
+      ollama_n8n_container_name:
+        type: "str"
+        default: "ollama-n8n"
+        description:
+          - "n8n Docker container name."
+
+      ollama_mcp_gateway_container_name:
+        type: "str"
+        default: "ollama-mcp-gateway"
+        description:
+          - "Docker MCP Gateway container name."
+
+      ollama_mcp_inspector_container_name:
+        type: "str"
+        default: "ollama-mcp-inspector"
+        description:
+          - "MCP Inspector container name."
+
+      ollama_searxng_container_name:
+        type: "str"
+        default: "searxng"
+        description:
+          - "SearXNG container name."
+
+      ollama_searxng_valkey_container_name:
+        type: "str"
+        default: "searxng-valkey"
+        description:
+          - "Valkey container name."
+
+      # -------------------------------------------------------------------
+      # Infrastructure Storage and Path Routing
+      # -------------------------------------------------------------------
+      ollama_base_dir:
+        type: "path"
+        default: "/opt/ollama"
+        description:
+          - "Base path for persistent state, Compose file, and generated secrets."
+
+      # -------------------------------------------------------------------
+      # Telly Terminal Configuration
+      # -------------------------------------------------------------------
+      ollama_backend_tty:
+        type: "bool"
+        default: true
+        description:
+          - "Allocate a TTY for the Ollama backend."
+
+      ollama_backend_keep_alive:
+        type: "str"
+        default: "24h"
+        description:
+          - "Ollama model keep-alive setting."
+
+      # -------------------------------------------------------------------
+      # Networking Configuration
+      # -------------------------------------------------------------------
+      ollama_host_bind_ip:
+        type: "str"
+        default: "0.0.0.0"
+        description:
+          - "Legacy default bind IP for Ollama and WebUI, preserved for LAN use."
+
+      ollama_backend_bind_ip:
+        type: "str"
+        default: "{{ ollama_host_bind_ip }}"
+        description:
+          - "Host binding address for the Ollama API."
+
+      ollama_webui_bind_ip:
+        type: "str"
+        default: "{{ ollama_host_bind_ip }}"
+        description:
+          - "Host binding address for Open WebUI."
+
+      ollama_n8n_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description:
+          - "Host binding address for n8n; loopback by default."
+
+      ollama_mcp_gateway_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description:
+          - "Host binding address for Docker MCP Gateway; loopback by default."
+
+      ollama_mcp_inspector_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description:
+          - "Host binding address for MCP Inspector; loopback by default."
+
+      ollama_searxng_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description:
+          - "Host binding address for SearXNG; loopback by default."
+
+      ollama_external_port:
+        type: "int"
+        default: 11434
+        description:
+          - "Host port for Ollama."
+
+      ollama_webui_external_port:
+        type: "int"
+        default: 3000
+        description:
+          - "Host port for Open WebUI."
+
+      ollama_n8n_external_port:
+        type: "int"
+        default: 5678
+        description:
+          - "Host port for n8n."
+
+      ollama_mcp_gateway_external_port:
+        type: "int"
+        default: 8811
+        description:
+          - "Host port for Docker MCP Gateway."
+
+      ollama_mcp_inspector_external_port:
+        type: "int"
+        default: 6274
+        description:
+          - "Published host port for MCP Inspector UI; must match its internal UI port."
+
+      ollama_searxng_external_port:
+        type: "int"
+        default: 8081
+        description:
+          - "Host port for SearXNG."
+
+      ollama_internal_bind_ip:
+        type: "str"
+        default: "0.0.0.0"
+        description:
+          - "Interface Ollama binds to inside the backend container."
+
+      ollama_internal_port:
+        type: "int"
+        default: 11434
+        description:
+          - "Ollama internal service port."
+
+      ollama_webui_internal_port:
+        type: "int"
+        default: 8080
+        description:
+          - "Open WebUI internal service port."
+
+      ollama_n8n_internal_port:
+        type: "int"
+        default: 5678
+        description:
+          - "n8n internal service port."
+
+      ollama_mcp_gateway_internal_port:
+        type: "int"
+        default: 8811
+        description:
+          - "Docker MCP Gateway internal service port."
+
+      ollama_mcp_inspector_internal_port:
+        type: "int"
+        default: 6274
+        description:
+          - "MCP Inspector UI port inside the container."
+
+      ollama_mcp_inspector_sandbox_port:
+        type: "int"
+        default: 6275
+        description:
+          - "MCP Inspector Apps sandbox port, published on the same host port."
+
+      ollama_mcp_inspector_app_origin_port:
+        type: "int"
+        default: 6278
+        description:
+          - "MCP Inspector dedicated app-origin port, published on the same host port."
+
+      ollama_searxng_internal_port:
+        type: "int"
+        default: 8080
+        description:
+          - "SearXNG internal service port."
+
+      # -------------------------------------------------------------------
+      # Application Security Credentials
+      # -------------------------------------------------------------------
+      ollama_webui_url:
+        type: "str"
+        default: ""
+        description:
+          - "Public Open WebUI URL; optionally set behind a reverse proxy."
+
+      ollama_webui_no_proxy:
+        type: "str"
+        default: "localhost,127.0.0.1,ollama"
+        description:
+          - "List of hostnames bypassing HTTP proxies."
+
+      ollama_webui_secret_key:
+        type: "str"
+        default: ""
+        description:
+          - "Optional Vault-provided persistent WebUI secret; empty generates a persistent value."
+        no_log: true
+
+      ollama_webui_auth:
+        type: "bool"
+        default: true
+        description:
+          - "Require authentication in Open WebUI."
+
+      ollama_webui_enable_signup:
+        type: "bool"
+        default: false
+        description:
+          - "Enable Open WebUI account registration; opt in for trusted LAN users."
+
+      ollama_webui_name:
+        type: "str"
+        default: "Ollama WebUI"
+        description:
+          - "Open WebUI display name."
+
+      ollama_webui_environment:
+        type: "str"
+        default: "prod"
+        description:
+          - "Open WebUI runtime environment."
+
+      ollama_backend_internal_url:
+        type: "str"
+        default: "http://ollama:11434"
+        description:
+          - "Internal Ollama service URL used by WebUI."
+
+      # -------------------------------------------------------------------
+      # n8n Automation Configuration
+      # -------------------------------------------------------------------
+      ollama_n8n_host:
+        type: "str"
+        default: ""
+        description:
+          - "Hostname n8n uses when generating links; empty uses ansible_fqdn."
+
+      ollama_n8n_protocol:
+        type: "str"
+        default: "http"
+        description:
+          - "Protocol n8n reports in generated URLs."
+        choices:
+          - "http"
+          - "https"
+
+      ollama_n8n_listen_address:
+        type: "str"
+        default: "0.0.0.0"
+        description:
+          - "n8n container internal bind address."
+
+      ollama_n8n_secure_cookie:
+        type: "bool"
+        default: false
+        description:
+          - "Enable secure n8n cookies behind HTTPS."
+
+      ollama_n8n_timezone:
+        type: "str"
+        default: "America/Los_Angeles"
+        description:
+          - "Timezone for n8n workflows."
+
+      ollama_n8n_proxy_hops:
+        type: "int"
+        default: 0
+        description:
+          - "Trusted reverse proxy hop count for n8n."
+
+      ollama_n8n_encryption_key:
+        type: "str"
+        default: ""
+        description:
+          - "Optional Vault-provided n8n encryption key; empty preserves the n8n-generated key."
+        no_log: true
+
+      ollama_n8n_editor_base_url:
+        type: "str"
+        default: ""
+        description:
+          - "Optional external n8n editor URL."
+
+      ollama_n8n_webhook_url:
+        type: "str"
+        default: ""
+        description:
+          - "Optional external webhook URL."
+
+      ollama_n8n_mcp_base_url:
+        type: "str"
+        default: ""
+        description:
+          - "Optional n8n MCP URL."
+
+      # -------------------------------------------------------------------
+      # Docker MCP Gateway Configuration
+      # -------------------------------------------------------------------
+      ollama_mcp_gateway_transport:
+        type: "str"
+        default: "streaming"
+        description:
+          - "Docker MCP Gateway transport."
+        choices:
+          - "streaming"
+          - "sse"
+
+      ollama_mcp_gateway_servers:
+        type: "list"
+        elements: "str"
+        default:
+          - "duckduckgo"
+        description:
+          - "Names of enabled Docker MCP catalog servers."
+
+      ollama_mcp_gateway_auth_token:
+        type: "str"
+        default: ""
+        description:
+          - "Optional Vault-managed gateway bearer token; empty uses a persistent generated token."
+        no_log: true
+
+      # -------------------------------------------------------------------
+      # MCP Inspector Configuration
+      # -------------------------------------------------------------------
+      ollama_mcp_inspector_allowed_origins:
+        type: "list"
+        elements: "str"
+        default: []
+        description:
+          - "Allowed browser origins for MCP Inspector; empty uses the Inspector defaults."
+
+      ollama_mcp_inspector_secret_key:
+        type: "str"
+        default: ""
+        description:
+          - "Optional Vault-provided Inspector secret-store encryption key."
+          - "An empty value generates a persistent key file on first deployment."
+        no_log: true
+
+      # -------------------------------------------------------------------
+      # SearXNG Search Configuration
+      # -------------------------------------------------------------------
+      ollama_searxng_secret_key:
+        type: "str"
+        default: ""
+        description:
+          - "Optional Vault-managed SearXNG secret; empty generates a persistent secret."
+        no_log: true
+
+      ollama_searxng_instance_name:
+        type: "str"
+        default: "SearXNG"
+        description:
+          - "SearXNG instance name displayed in its UI."
+
+      ollama_searxng_safe_search:
+        type: "int"
+        default: 1
+        description:
+          - "SearXNG safe search level (0=off, 1=moderate, 2=strict)."
+        choices:
+          - 0
+          - 1
+          - 2
+
+      ollama_searxng_limiter:
+        type: "bool"
+        default: false
+        description:
+          - "Enable SearXNG bot detection limiter behind a trusted reverse proxy."
+
+      ollama_searxng_limiter_pass_ips:
+        type: "list"
+        elements: "str"
+        default: []
+        description:
+          - "Explicitly trusted IPs or CIDRs bypassing SearXNG limits."
+
+      ollama_searxng_image_proxy:
+        type: "bool"
+        default: true
+        description:
+          - "Enable SearXNG image proxying."
+
+      ollama_searxng_valkey_url:
+        type: "str"
+        default: "valkey://searxng-valkey:6379/0"
+        description:
+          - "Internal Valkey URL consumed by SearXNG."
+
+      # -------------------------------------------------------------------
+      # Open WebUI Web Search Integration
+      # -------------------------------------------------------------------
+      ollama_webui_enable_rag_web_search:
+        type: "bool"
+        default: true
+        description:
+          - "Enable WebUI web search when the local SearXNG service is enabled."
+
+      ollama_webui_rag_web_search_engine:
+        type: "str"
+        default: "searxng"
+        description:
+          - "Open WebUI web search engine selection."
+
+      ollama_webui_searxng_query_url:
+        type: "str"
+        default: "http://searxng:8080/search"
+        description:
+          - "SearXNG search URL from Open WebUI network."
+
+      ollama_webui_searxng_language:
+        type: "str"
+        default: "all"
+        description:
+          - "Default SearXNG search language."
+
+      # -------------------------------------------------------------------
+      # Resource and Engine Controls
+      # -------------------------------------------------------------------
+      ollama_enable_gpu:
+        type: "bool"
+        default: true
+        description:
+          - "Enable NVIDIA GPU runtime and device reservations for Ollama."
+
+      ollama_docker_runtime:
+        type: "str"
+        default: "nvidia"
+        description:
+          - "Docker runtime used for NVIDIA GPU allocation."
+
+      ollama_gpu_device_ids:
+        type: "list"
+        elements: "str"
+        default:
+          - "all"
+        description:
+          - "NVIDIA device identifiers; the special value all reserves every GPU via Compose count."
+
+      ollama_gpu_device_count:
+        type: "raw"
+        default: "all"
+        description:
+          - "GPU reservation count, or all when device_ids is empty."
+
+      ollama_gpu_capabilities:
+        type: "list"
+        elements: "str"
+        default:
+          - "gpu"
+          - "compute"
+          - "utility"
+        description:
+          - "Required GPU device reservation capabilities."
+
+      ollama_nvidia_driver_capabilities:
+        type: "str"
+        default: "compute,utility"
+        description:
+          - "NVIDIA_DRIVER_CAPABILITIES for Ollama."
+
+      # -------------------------------------------------------------------
+      # Post-Provisioning Model Preloading
+      # -------------------------------------------------------------------
+      ollama_manage_models:
+        type: "bool"
+        default: false
+        description:
+          - "Enable post-deployment model downloads."
+
+      ollama_preload_models:
+        type: "list"
+        elements: "str"
+        default:
+          - "deepseek-r1:32b"
+          - "qwen2.5-coder:32b"
+          - "qwen2.5-coder:7b"
+          - "llama3.1:8b"
+          - "qwen2.5-coder:1.5b-base"
+          - "nomic-embed-text:latest"
+        description:
+          - "List of Ollama model names to preload when management is enabled."

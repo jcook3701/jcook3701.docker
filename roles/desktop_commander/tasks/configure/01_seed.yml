@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Create root-owned Desktop Commander deployment directory"
+  ansible.builtin.file:
+    path: "{{ desktop_commander_directory.base }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+  become: true
+
+- name: "Create Desktop Commander development image build directory"
+  ansible.builtin.file:
+    path: "{{ desktop_commander_directory.build }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+  when: desktop_commander_build_development_image | bool
+  become: true
+
+- name: "Render Desktop Commander development image Dockerfile"
+  ansible.builtin.template:
+    src: "Dockerfile.j2"
+    dest: "{{ desktop_commander_file.dockerfile }}"
+    owner: "root"
+    group: "root"
+    mode: "0640"
+  when: desktop_commander_build_development_image | bool
+  become: true
+
+- name: "Create optional Desktop Commander shared Docker network"
+  community.docker.docker_network:
+    name: "{{ desktop_commander_shared_network }}"
+    driver: "bridge"
+    internal: true
+    appends: true
+    state: "present"
+  when: desktop_commander_shared_network | length > 0
+  become: true
+
+- name: "Render Desktop Commander isolated Compose definition"
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ desktop_commander_file.compose }}"
+    owner: "root"
+    group: "root"
+    mode: "0640"
+  become: true

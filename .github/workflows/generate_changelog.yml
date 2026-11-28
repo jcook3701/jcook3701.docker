@@ -1,6 +1,6 @@
 # generate_changelog.yml for jcook3701.docker
 #
-# SPDX-FileCopyrightText: Jared Cook
+# SPDX-FileCopyrightText: Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
@@ -56,8 +56,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPO: ${{ github.repository }}
         run: >-
-          antsichaut --github_token $GITHUB_TOKEN \
-                     --repository $GITHUB_REPO
+          antsichaut --github_token "$GITHUB_TOKEN" \
+                     --repository "$GITHUB_REPO"
       - name: Lint changelog fragments
         run: antsibull-changelog lint
 

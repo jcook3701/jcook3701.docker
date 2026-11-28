@@ -1,0 +1,115 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy the Headroom optimization proxy in Docker."
+    description:
+      - "Deploy a persistent Headroom proxy through jcook3701.utils.container_engine."
+      - "Preserve application state and require authentication for non-loopback publication."
+    author:
+      - "Jared W. Cook"
+    options:
+      headroom_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker"]
+        description: "Container engine supported by this role."
+      headroom_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Present deploys, absent stops, and teardown removes deployment configuration."
+      headroom_debug_mode:
+        type: "bool"
+        default: false
+        description: "Display additional non-sensitive role diagnostics."
+      headroom_teardown_remove_data:
+        type: "bool"
+        default: false
+        description: "Delete all persistent Headroom state during teardown; destructive."
+      headroom_teardown_remove_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to remove the Headroom image during teardown."
+      headroom_image:
+        type: "str"
+        default: "ghcr.io/headroomlabs-ai/headroom:0.45.0-nonroot"
+        description: "Official version-pinned non-root Headroom image."
+      headroom_container_name:
+        type: "str"
+        default: "headroom"
+        description: "Headroom proxy container name."
+      headroom_pull_policy:
+        type: "str"
+        default: "missing"
+        choices: ["always", "missing", "never"]
+        description: "Docker Compose image pull policy."
+      headroom_pull_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to pull images during deployment."
+      headroom_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Container restart policy for the persistent proxy."
+      headroom_base_dir:
+        type: "path"
+        default: "/opt/headroom"
+        description: "Base directory for Compose configuration and persistent state."
+      headroom_container_uid:
+        type: "int"
+        default: 1000
+        description: "UID that owns persistent data for the official non-root image."
+      headroom_container_gid:
+        type: "int"
+        default: 1000
+        description: "GID that owns persistent data for the official non-root image."
+      headroom_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description: "Host interface publishing the proxy; non-loopback values require a token."
+      headroom_external_port:
+        type: "int"
+        default: 8787
+        description: "Host port publishing the Headroom proxy."
+      headroom_internal_port:
+        type: "int"
+        default: 8787
+        description: "Port used by the proxy inside the container."
+      headroom_proxy_token:
+        type: "str"
+        default: ""
+        description: "Inbound proxy token required for non-loopback publication."
+        no_log: true
+      headroom_proxy_mode:
+        type: "str"
+        default: "cache"
+        choices: ["cache", "token"]
+        description: "Cache preserves provider prefix stability; token maximizes immediate compression."
+      headroom_beacon:
+        type: "str"
+        default: "off"
+        choices: ["on", "off"]
+        description: "Enable or disable Headroom's anonymous upload beacon."
+      headroom_extra_environment:
+        type: "dict"
+        default: {}
+        description: "Additional Headroom or provider environment variables; quote values as strings."
+      headroom_memory_limit:
+        type: "str"
+        default: "4g"
+        description: "Container memory limit."
+      headroom_cpu_limit:
+        type: "str"
+        default: "2.0"
+        description: "Container CPU limit."
+      headroom_pids_limit:
+        type: "int"
+        default: 256
+        description: "Maximum number of processes allowed in the container."
+      headroom_tmpfs_size:
+        type: "str"
+        default: "512m"
+        description: "Size of the private container temporary filesystem."

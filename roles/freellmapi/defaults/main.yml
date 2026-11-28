@@ -1,0 +1,82 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+freellmapi_container_engine: "docker"
+freellmapi_state: "present"
+freellmapi_debug_mode: false
+freellmapi_teardown_remove_data: false
+freellmapi_teardown_remove_images: false
+
+# ---------------------------------------------------------------------------
+# Pinned FreeLLMAPI Image and Container Lifecycle
+# ---------------------------------------------------------------------------
+# Pinned to the official v0.16.42 image verified in GHCR for amd64 and arm64.
+freellmapi_image: "ghcr.io/tashfeenahmed/freellmapi:v0.16.42"
+freellmapi_container_name: "freellmapi"
+freellmapi_pull_policy: "missing"
+freellmapi_pull_images: false
+freellmapi_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Persistent Storage and Encryption
+# ---------------------------------------------------------------------------
+freellmapi_base_dir: "/opt/freellmapi"
+freellmapi_container_uid: 1000
+freellmapi_container_gid: 1000
+
+# Leave empty to generate a persistent 64-character hexadecimal key on the
+# first run. A supplied Vault value is used only when the secrets file is first
+# created; the role refuses a later mismatch instead of rotating the key.
+freellmapi_encryption_key: ""
+
+# ---------------------------------------------------------------------------
+# Network Publication
+# ---------------------------------------------------------------------------
+# FreeLLMAPI is a single-user service. Keep its dashboard and API on loopback
+# unless a trusted reverse proxy or private network protects remote access.
+freellmapi_bind_ip: "127.0.0.1"
+freellmapi_external_port: 3001
+freellmapi_internal_port: 3001
+
+# ---------------------------------------------------------------------------
+# Optional Shared Docker Networking
+# ---------------------------------------------------------------------------
+freellmapi_shared_network: ""
+freellmapi_agent_network: ""
+
+# ---------------------------------------------------------------------------
+# API Limits and Analytics Retention
+# ---------------------------------------------------------------------------
+freellmapi_proxy_rate_limit_rpm: 120
+freellmapi_admin_rate_limit_rpm: 600
+# Zero preserves silent failover. Values from 1000 upward enable SSE heartbeats.
+freellmapi_stream_keepalive_ms: 0
+freellmapi_request_analytics_retention_days: 90
+freellmapi_request_analytics_max_rows: 100000
+
+# ---------------------------------------------------------------------------
+# Optional Encrypted Database Backup
+# ---------------------------------------------------------------------------
+# Configure either a persistent in-container path below /app/server/data or an
+# HTTP(S) URL. When the separate backup key is empty, ENCRYPTION_KEY is used.
+freellmapi_db_backup_path: ""
+freellmapi_db_backup_url: ""
+freellmapi_db_backup_token: ""
+freellmapi_db_backup_key: ""
+freellmapi_db_backup_interval_ms: 300000
+
+# Advanced application environment variables. Quote values as strings. Keys
+# managed directly by this role, including encryption, database, port, backup,
+# and rate-limit settings, cannot be overridden here.
+freellmapi_extra_environment: {}
+
+# ---------------------------------------------------------------------------
+# Container Resource Controls
+# ---------------------------------------------------------------------------
+freellmapi_memory_limit: "2g"
+freellmapi_cpu_limit: "2.0"
+freellmapi_pids_limit: 256
+freellmapi_stop_grace_period: "30s"

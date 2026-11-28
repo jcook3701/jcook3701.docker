@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Validate the MCP Inspector data removal path
+  ansible.builtin.assert:
+    that:
+      - mcp_inspector_directory.base is match("^/.+/[^/]+$")
+      - >-
+        ".." not in mcp_inspector_directory.base.split("/")
+      - mcp_inspector_directory.base.split("/") | last == "mcp-inspector"
+    fail_msg: "For destructive teardown, the deployment path must end in mcp-inspector."
+  when: mcp_inspector_teardown_remove_data | bool
+
+- name: Stop MCP Inspector
+  ansible.builtin.include_tasks: "uninstall.yml"
+  when: not (mcp_inspector_teardown_remove_images | bool)
+
+- name: Stop MCP Inspector and remove its Compose images
+  ansible.builtin.import_role:
+    name: "jcook3701.utils.container_engine"
+  vars:
+    container_engine_project_src: "{{ mcp_inspector_directory.base }}"
+    container_engine_platform_type: "{{ mcp_inspector_container_engine }}"
+    container_engine_desired_state: "teardown"
+    container_engine_trigger_condition: true
+  become: true
+  when: mcp_inspector_teardown_remove_images | bool
+
+- name: Remove the MCP Inspector Compose file
+  ansible.builtin.file:
+    path: "{{ mcp_inspector_file.compose }}"
+    state: "absent"
+  become: true
+  when: not (mcp_inspector_teardown_remove_data | bool)
+
+- name: Remove the MCP Inspector deployment and data
+  ansible.builtin.file:
+    path: "{{ mcp_inspector_directory.base }}"
+    state: "absent"
+  become: true
+  when: mcp_inspector_teardown_remove_data | bool

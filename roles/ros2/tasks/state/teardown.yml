@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Debug Teardown of ROS2 application
+  ansible.builtin.debug:
+    msg: "ros2_directory.base: {{ ros2_directory.base | default('/opt/ros2') }}"
+  when: ros2_debug_mode | default(false) | bool
+
+- name: Include standard termination routine definitions
+  ansible.builtin.include_tasks: uninstall.yml
+
+- name: Purge remaining historical data layers and configurations
+  ansible.builtin.file:
+    path: "{{ ros2_directory.base | default('/opt/ros2') }}"
+    state: absent
+  become: true

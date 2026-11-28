@@ -1,0 +1,238 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy Frigate NVR in Docker."
+    description:
+      - "Deploy Frigate through jcook3701.utils.container_engine."
+      - "Manage persistent configuration and recordings with safe lifecycle controls."
+    author:
+      - "Jared W. Cook"
+    options:
+      frigate_nvr_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker", "podman"]
+        description: "Container engine; Docker Compose is tested and Podman support is experimental."
+      frigate_nvr_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Present deploys, absent stops, and teardown removes deployment files."
+      frigate_nvr_debug_mode:
+        type: "bool"
+        default: false
+        description: "Display additional non-sensitive role diagnostics."
+      frigate_nvr_teardown_remove_data:
+        type: "bool"
+        default: false
+        description: "Delete all Frigate configuration and recordings during teardown; destructive."
+      frigate_nvr_teardown_remove_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to remove the Frigate image during teardown."
+      frigate_nvr_image:
+        type: "str"
+        default: "ghcr.io/blakeblackshear/frigate"
+        description: "Official Frigate image repository."
+      frigate_nvr_version:
+        type: "str"
+        default: "stable"
+        description: "Frigate image tag."
+      frigate_nvr_container_name:
+        type: "str"
+        default: "frigate"
+        description: "Frigate container name."
+      frigate_nvr_pull_policy:
+        type: "str"
+        default: "missing"
+        choices: ["always", "missing", "never"]
+        description: "Docker Compose image pull policy."
+      frigate_nvr_pull_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to pull images during deployment."
+      frigate_nvr_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Container restart policy."
+      frigate_nvr_base_dir:
+        type: "path"
+        default: "/opt/frigate_nvr"
+        description: "Base directory for deployment and persistent data."
+      frigate_nvr_config_dir:
+        type: "path"
+        default: "/opt/frigate_nvr/config"
+        description: "Host directory for Frigate configuration and runtime metadata."
+      frigate_nvr_logs_dir:
+        type: "path"
+        default: "/opt/frigate_nvr/logs"
+        description: "Reserved host directory for deployment-specific logs."
+      frigate_nvr_storage_dir:
+        type: "path"
+        default: "/opt/frigate_nvr/storage"
+        description: "Host directory for recordings, clips, and the Frigate database."
+      frigate_nvr_config_owner:
+        type: "str"
+        default: "ansible"
+        choices: ["ansible", "frigate"]
+        description: "Ansible overwrites a read-only config, while Frigate receives a one-time writable seed."
+      frigate_nvr_bind_ip:
+        type: "str"
+        default: "0.0.0.0"
+        description: "Host address for the authenticated UI, RTSP, and WebRTC ports."
+      frigate_nvr_web_port:
+        type: "int"
+        default: 8971
+        description: "Host port for the authenticated Frigate UI and API."
+      frigate_nvr_rtsp_port:
+        type: "int"
+        default: 8554
+        description: "Host port for unauthenticated RTSP restreams by default."
+      frigate_nvr_webrtc_port:
+        type: "int"
+        default: 8555
+        description: "Host TCP port for WebRTC."
+      frigate_nvr_webrtc_udp_port:
+        type: "int"
+        default: 8555
+        description: "Host UDP port for WebRTC."
+      frigate_nvr_publish_unauthenticated_port:
+        type: "bool"
+        default: false
+        description: "Publish Frigate's unauthenticated internal UI and API port."
+      frigate_nvr_unauthenticated_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description: "Host address for the optional unauthenticated port."
+      frigate_nvr_unauthenticated_port:
+        type: "int"
+        default: 5000
+        description: "Host port mapped to Frigate's unauthenticated internal port."
+      frigate_nvr_privileged:
+        type: "bool"
+        default: false
+        description: "Run the container with broad privileged access; enable only when required."
+      frigate_nvr_shm_size:
+        type: "str"
+        default: "512mb"
+        description: "Shared memory allocation for decoded camera frames."
+      frigate_nvr_tmpfs_size:
+        type: "int"
+        default: 1000000000
+        description: "Byte size of the in-memory recording segment cache."
+      frigate_nvr_stop_grace_period:
+        type: "str"
+        default: "30s"
+        description: "Time allowed for Frigate to stop cleanly."
+      frigate_nvr_timezone:
+        type: "str"
+        default: "UTC"
+        description: "Timezone passed to the Frigate container."
+      frigate_nvr_devices:
+        type: "list"
+        elements: "str"
+        default: []
+        description: "Host-to-container device mappings for accelerators."
+      frigate_nvr_mqtt_enabled:
+        type: "bool"
+        default: false
+        description: "Enable Frigate's optional MQTT integration."
+      frigate_nvr_mqtt_host:
+        type: "str"
+        default: "localhost"
+        description: "MQTT broker hostname when MQTT is enabled."
+      frigate_nvr_mqtt_user:
+        type: "str"
+        default: ""
+        description: "Optional MQTT username."
+      frigate_nvr_mqtt_password:
+        type: "str"
+        default: ""
+        description: "Optional MQTT password; store it in Ansible Vault."
+        no_log: true
+      frigate_nvr_detectors:
+        type: "dict"
+        default: {}
+        description: "Frigate detector configuration; empty uses Frigate's CPU default."
+      frigate_nvr_record:
+        type: "dict"
+        default:
+          enabled: true
+          continuous:
+            days: 7
+          alerts:
+            retain:
+              days: 30
+              mode: "motion"
+          detections:
+            retain:
+              days: 30
+              mode: "motion"
+        description: "Global Frigate recording configuration."
+      frigate_nvr_snapshots:
+        type: "dict"
+        default:
+          enabled: true
+          retain:
+            default: 14
+        description: "Global Frigate snapshot configuration."
+      frigate_nvr_extra_config:
+        type: "dict"
+        default: {}
+        description: "Additional top-level Frigate configuration excluding role-owned keys."
+      frigate_nvr_cameras:
+        type: "list"
+        elements: "dict"
+        default: []
+        description: "Camera definitions rendered into Frigate configuration."
+        options:
+          name:
+            type: "str"
+            required: true
+            description: "Unique Frigate camera name."
+          enabled:
+            type: "bool"
+            default: true
+            description: "Enable the camera."
+          detect_enabled:
+            type: "bool"
+            default: true
+            description: "Enable object detection for the camera."
+          width:
+            type: "int"
+            default: 1920
+            description: "Detection frame width."
+          height:
+            type: "int"
+            default: 1080
+            description: "Detection frame height."
+          fps:
+            type: "int"
+            default: 5
+            description: "Detection frame rate."
+          inputs:
+            type: "list"
+            elements: "dict"
+            default: []
+            description: "FFmpeg inputs and their Frigate roles."
+            options:
+              path:
+                type: "str"
+                required: true
+                description: "Camera stream URL or go2rtc source."
+              roles:
+                type: "list"
+                elements: "str"
+                default: []
+                description: "Frigate roles assigned to this input."
+          zones:
+            type: "dict"
+            default: {}
+            description: "Camera zone configuration."
+          extra_config:
+            type: "dict"
+            default: {}
+            description: "Additional per-camera configuration excluding role-owned keys."

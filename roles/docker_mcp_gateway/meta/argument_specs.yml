@@ -1,0 +1,110 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy Docker MCP Gateway in Docker."
+    author:
+      - "Jared W. Cook"
+    options:
+      docker_mcp_gateway_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker"]
+        description: "Container engine."
+      docker_mcp_gateway_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Deployment lifecycle."
+      docker_mcp_gateway_teardown_remove_data:
+        type: "bool"
+        default: false
+        description: "Permanently remove role files and data within the deployment directory."
+      docker_mcp_gateway_teardown_remove_images:
+        type: "bool"
+        default: false
+        description: "Remove the Compose service images during teardown."
+      docker_mcp_gateway_image:
+        type: "str"
+        default: "docker/mcp-gateway@sha256:f5a679a05fc39022a046167bef92aeeb01bcd59485ad27843ae5227db7950688"
+        description: "Container image reference."
+      docker_mcp_gateway_container_name:
+        type: "str"
+        default: "docker-mcp-gateway"
+        description: "Container name."
+      docker_mcp_gateway_pull_policy:
+        type: "str"
+        default: "missing"
+        choices: ["missing", "always", "never"]
+        description: "Compose pull policy."
+      docker_mcp_gateway_pull_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to force image pulls."
+      docker_mcp_gateway_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Container restart policy."
+      docker_mcp_gateway_base_dir:
+        type: "path"
+        default: "/opt/docker-mcp-gateway"
+        description: "Deployment directory for Compose files and managed state."
+      docker_mcp_gateway_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description: "Published host address."
+      docker_mcp_gateway_external_port:
+        type: "int"
+        default: 8811
+        description: "Published host port."
+      docker_mcp_gateway_internal_port:
+        type: "int"
+        default: 8811
+        description: "Service port inside the container."
+      docker_mcp_gateway_shared_network:
+        type: "str"
+        default: ""
+        description: "Optional existing Docker network for private service connections."
+      docker_mcp_gateway_transport:
+        type: "str"
+        default: "streaming"
+        choices: ["streaming", "sse"]
+        description: "Gateway HTTP transport."
+      docker_mcp_gateway_servers:
+        type: "list"
+        elements: "str"
+        default: ["duckduckgo"]
+        description: "Docker catalog servers to enable."
+      docker_mcp_gateway_auth_token:
+        type: "str"
+        default: ""
+        description: "Inbound bearer token. Empty generates a persistent token."
+        no_log: true
+      docker_mcp_gateway_enable_freellmapi_relay:
+        type: "bool"
+        default: false
+        description: "Enable the optional FreeLLMAPI relay."
+      docker_mcp_gateway_freellmapi_mcp_url:
+        type: "str"
+        default: "http://freellmapi:3001/mcp"
+        description: "FreeLLMAPI MCP endpoint reachable from the relay container."
+      docker_mcp_gateway_freellmapi_api_key:
+        type: "str"
+        default: ""
+        description: "FreeLLMAPI unified bearer key. Required when the relay is enabled."
+        no_log: true
+      docker_mcp_gateway_enable_longmemory_relay:
+        type: "bool"
+        default: false
+        description: "Enable the optional LongMemory relay."
+      docker_mcp_gateway_longmemory_mcp_url:
+        type: "str"
+        default: "http://longmemory:7331/mcp"
+        description: "LongMemory MCP endpoint reachable from the relay container."
+      docker_mcp_gateway_longmemory_api_key:
+        type: "str"
+        default: ""
+        description: "Existing LongMemory bearer key. Required when the relay is enabled."
+        no_log: true

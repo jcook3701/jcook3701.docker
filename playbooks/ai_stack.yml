@@ -1,0 +1,134 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Install the standalone AI stack on a Docker host
+  hosts: "ai_stack_hosts"
+  gather_facts: true
+  become: true
+  vars:
+    ai_stack_shared_network: "{{ ai_stack_network | default('ai-stack') }}"
+    ai_stack_ollama_container: "{{ ollama_backend_container_name | default('ollama') }}"
+    ai_stack_ollama_url: "http://{{ ai_stack_ollama_container }}:{{ ollama_internal_port | default(11434) }}"
+    ai_stack_embedding_model: "{{ longmemory_ollama_embedding_model | default('nomic-embed-text') }}"
+
+  pre_tasks:
+    - name: Find containers owned by the bundled Ollama stack
+      community.docker.docker_host_info:
+        containers: true
+        containers_all: true
+        verbose_output: true
+        containers_filters:
+          label: "com.docker.compose.project.working_dir={{ ollama_base_dir | default('/opt/ollama') }}"
+      register: ai_stack_legacy_ollama
+
+    - name: Require the bundled services to be removed before their standalone cutover
+      ansible.builtin.assert:
+        that:
+          - ai_stack_legacy_container.Labels.get("com.docker.compose.service", "") not in ai_stack_bundled_services
+        fail_msg: >-
+          The old Ollama Compose project still owns one or more bundled services.
+          Back up their data and remove the old service containers before installing the standalone roles.
+      loop: "{{ ai_stack_legacy_ollama.containers }}"
+      loop_control:
+        loop_var: ai_stack_legacy_container
+        label: "{{ ai_stack_legacy_container.Labels.get('com.docker.compose.service', 'unknown') }}"
+      vars:
+        ai_stack_bundled_services:
+          - "ollama-webui"
+          - "n8n"
+          - "ollama-mcp-gateway"
+          - "ollama-mcp-inspector"
+          - "searxng"
+          - "searxng-valkey"
+
+    - name: Create the shared Docker network for AI services
+      community.docker.docker_network:
+        name: "{{ ai_stack_shared_network }}"
+        driver: "bridge"
+        appends: true
+
+  tasks:
+    - name: Install the Ollama backend and the LongMemory embedding model
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.ollama"
+      vars:
+        ollama_state: "present"
+        ollama_manage_web_ui: false
+        ollama_manage_n8n: false
+        ollama_manage_mcp: false
+        ollama_manage_mcp_inspector: false
+        ollama_manage_searxng: false
+        ollama_manage_models: true
+        ollama_preload_models: "{{ (ai_stack_ollama_models | default([]) + [ai_stack_embedding_model]) | unique }}"
+
+    - name: Connect Ollama to the shared Docker network
+      community.docker.docker_network:
+        name: "{{ ai_stack_shared_network }}"
+        connected:
+          - "{{ ai_stack_ollama_container }}"
+        appends: true
+      when: not ansible_check_mode
+
+    - name: Install FreeLLMAPI
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.freellmapi"
+      vars:
+        freellmapi_state: "present"
+        freellmapi_shared_network: "{{ ai_stack_shared_network }}"
+
+    - name: Install LongMemory
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.longmemory"
+      vars:
+        longmemory_state: "present"
+        longmemory_shared_network: "{{ ai_stack_shared_network }}"
+        longmemory_ollama_url: "{{ ai_stack_ollama_url }}"
+
+    - name: Install Docker MCP Gateway
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.docker_mcp_gateway"
+      vars:
+        docker_mcp_gateway_state: "present"
+        docker_mcp_gateway_shared_network: "{{ ai_stack_shared_network }}"
+        docker_mcp_gateway_freellmapi_mcp_url: >-
+          http://freellmapi:{{ freellmapi_internal_port | default(3001) }}/mcp
+        docker_mcp_gateway_longmemory_mcp_url: >-
+          http://longmemory:{{ longmemory_internal_port | default(7331) }}/mcp
+
+    - name: Install SearXNG and Valkey for Open WebUI search
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.searxng"
+      vars:
+        searxng_state: "present"
+        searxng_shared_network: "{{ ai_stack_shared_network }}"
+
+    - name: Install Open WebUI
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.open_webui"
+      vars:
+        open_webui_state: "present"
+        open_webui_shared_network: "{{ ai_stack_shared_network }}"
+        open_webui_ollama_url: "{{ ai_stack_ollama_url }}"
+        open_webui_enable_web_search: true
+        open_webui_searxng_query_url: "http://searxng:{{ searxng_internal_port | default(8080) }}/search"
+
+    - name: Install Headroom
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.headroom"
+      vars:
+        headroom_state: "present"
+
+    - name: Install n8n
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.n8n"
+      vars:
+        n8n_state: "present"
+
+    - name: Install MCP Inspector with the gateway catalog entry
+      ansible.builtin.include_role:
+        name: "jcook3701.docker.mcp_inspector"
+      vars:
+        mcp_inspector_state: "present"
+        mcp_inspector_shared_network: "{{ ai_stack_shared_network }}"
+        mcp_inspector_gateway_url: >-
+          http://docker-mcp-gateway:{{ docker_mcp_gateway_internal_port | default(8811) }}/mcp

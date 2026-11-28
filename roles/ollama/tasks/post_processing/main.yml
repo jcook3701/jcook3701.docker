@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Preload Ollama AI models
+  ansible.builtin.include_tasks: 01_preload.yml
+  when:
+    - ollama_manage_models | bool
+    - ollama_preload_models | length > 0

@@ -35,7 +35,7 @@ endef
 # ⚙️ Build Settings
 # --------------------------------------------------
 PACKAGE_NAME = "docker"
-AUTHOR = "Jared Cook"
+AUTHOR = "Jared W. Cook"
 VERSION = "1.0.0"
 PUBLISHDIR ?=
 # --------------------------------------------------

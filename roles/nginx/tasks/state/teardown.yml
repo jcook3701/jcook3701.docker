@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Debug Teardown of Nginx application
+  ansible.builtin.debug:
+    msg: "nginx_directory.base: {{ nginx_directory.base | default('/opt/nginx') }}"
+  when: nginx_debug_mode | default(false) | bool
+
+- name: Include standard termination routine definitions
+  ansible.builtin.include_tasks: "uninstall.yml"
+
+- name: Purge remaining Nginx configuration and bootstrap TLS material
+  ansible.builtin.file:
+    path: "{{ nginx_directory.base | default('/opt/nginx') }}"
+    state: "absent"
+  become: true

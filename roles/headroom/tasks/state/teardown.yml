@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Display non-sensitive Headroom teardown configuration
+  ansible.builtin.debug:
+    msg:
+      - "Headroom base directory: {{ headroom_directory.base }}"
+      - "Remove Headroom images: {{ headroom_teardown_remove_images }}"
+      - "Remove Headroom data: {{ headroom_teardown_remove_data }}"
+  when: headroom_debug_mode | bool
+
+- name: Stop Headroom stack
+  ansible.builtin.include_tasks: "uninstall.yml"
+
+- name: Remove Headroom image only when explicitly requested
+  ansible.builtin.import_role:
+    name: "jcook3701.utils.container_engine"
+  vars:
+    container_engine_project_src: "{{ headroom_directory.base }}"
+    container_engine_platform_type: "{{ headroom_container_engine }}"
+    container_engine_desired_state: "teardown"
+    container_engine_trigger_condition: true
+  when: headroom_teardown_remove_images | bool
+  become: true
+
+- name: Remove Headroom Compose configuration while retaining application data
+  ansible.builtin.file:
+    path: "{{ headroom_file.compose }}"
+    state: "absent"
+  become: true
+  when: not (headroom_teardown_remove_data | bool)
+
+- name: Remove persistent Headroom data only when explicitly requested
+  ansible.builtin.file:
+    path: "{{ headroom_directory.base }}"
+    state: "absent"
+  become: true
+  when: headroom_teardown_remove_data | bool

@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+px4_directory:
+  base: "{{ px4_base_dir | default('/opt/px4') }}"
+  workspace: "{{ (px4_base_dir | default('/opt/px4')) ~ '/workspace' }}"
+  ccache: "{{ (px4_base_dir | default('/opt/px4')) ~ '/ccache' }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+px4_file:
+  compose: "{{ ((px4_directory.base | default('/opt/px4')) ~ '/compose.yml') | default('/opt/px4/compose.yml') }}"

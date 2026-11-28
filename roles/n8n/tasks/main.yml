@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Deploy n8n
+  ansible.builtin.include_tasks: "state/install.yml"
+  when: n8n_state == "present"
+
+- name: Remove the n8n stack
+  ansible.builtin.include_tasks: "state/uninstall.yml"
+  when: n8n_state == "absent"
+
+- name: Tear down the n8n deployment
+  ansible.builtin.include_tasks: "state/teardown.yml"
+  when: n8n_state == "teardown"

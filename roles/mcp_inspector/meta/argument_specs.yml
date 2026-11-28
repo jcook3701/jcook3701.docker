@@ -1,0 +1,95 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy MCP Inspector in Docker."
+    author:
+      - "Jared W. Cook"
+    options:
+      mcp_inspector_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker"]
+        description: "Container engine."
+      mcp_inspector_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Deployment lifecycle."
+      mcp_inspector_teardown_remove_data:
+        type: "bool"
+        default: false
+        description: "Permanently remove role files and data within the deployment directory."
+      mcp_inspector_teardown_remove_images:
+        type: "bool"
+        default: false
+        description: "Remove the Compose service images during teardown."
+      mcp_inspector_image:
+        type: "str"
+        default: "ghcr.io/modelcontextprotocol/inspector:latest"
+        description: "Container image reference."
+      mcp_inspector_container_name:
+        type: "str"
+        default: "mcp-inspector"
+        description: "Container name."
+      mcp_inspector_pull_policy:
+        type: "str"
+        default: "missing"
+        choices: ["missing", "always", "never"]
+        description: "Compose pull policy."
+      mcp_inspector_pull_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to force image pulls."
+      mcp_inspector_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Container restart policy."
+      mcp_inspector_base_dir:
+        type: "path"
+        default: "/opt/mcp-inspector"
+        description: "Deployment directory for Compose files and managed state."
+      mcp_inspector_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description: "Published host address."
+      mcp_inspector_external_port:
+        type: "int"
+        default: 6274
+        description: "Published host port."
+      mcp_inspector_internal_port:
+        type: "int"
+        default: 6274
+        description: "Service port inside the container."
+      mcp_inspector_shared_network:
+        type: "str"
+        default: ""
+        description: "Optional existing Docker network for private service connections."
+      mcp_inspector_data_dir:
+        type: "path"
+        default: "{{ (mcp_inspector_base_dir | default('/opt/mcp-inspector')) ~ '/data' }}"
+        description: "Persistent server catalog and session data directory."
+      mcp_inspector_sandbox_port:
+        type: "int"
+        default: 6275
+        description: "Client and container port for the Apps sandbox."
+      mcp_inspector_app_origin_port:
+        type: "int"
+        default: 6278
+        description: "Client and container port for the Apps origin."
+      mcp_inspector_allowed_origins:
+        type: "list"
+        elements: "str"
+        default: []
+        description: "Explicit allowed browser origins."
+      mcp_inspector_secret_key:
+        type: "str"
+        default: ""
+        description: "Initial encryption key. Empty generates a persistent key."
+        no_log: true
+      mcp_inspector_gateway_url:
+        type: "str"
+        default: ""
+        description: "Optional initial gateway catalog entry. Clients supply its bearer token."

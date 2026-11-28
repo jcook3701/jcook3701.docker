@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Debug teardown configuration without exposing credentials
+  ansible.builtin.debug:
+    msg:
+      - "ollama_directory.base: {{ ollama_directory.base }}"
+      - "ollama_teardown_remove_images: {{ ollama_teardown_remove_images }}"
+      - "ollama_teardown_remove_data: {{ ollama_teardown_remove_data }}"
+  when: ollama_debug_mode | bool
+
+- name: Stop Ollama stack
+  ansible.builtin.include_tasks: uninstall.yml
+
+- name: Remove Ollama images only when explicitly requested
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    container_engine_project_src: "{{ ollama_directory.base }}"
+    container_engine_platform_type: "{{ ollama_container_engine }}"
+    container_engine_desired_state: teardown
+    container_engine_trigger_condition: true
+  when: ollama_teardown_remove_images | bool
+
+- name: Remove persistent Ollama data only when explicitly requested
+  ansible.builtin.file:
+    path: "{{ ollama_directory.base }}"
+    state: absent
+  become: true
+  when: ollama_teardown_remove_data | bool

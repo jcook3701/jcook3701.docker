@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Validate Open WebUI web search settings
+  ansible.builtin.assert:
+    that:
+      - not (open_webui_enable_web_search | bool) or open_webui_searxng_query_url | length > 0
+    fail_msg: "Set open_webui_searxng_query_url when enabling web search."
+
+- name: Create the private Open WebUI deployment directory
+  ansible.builtin.file:
+    path: "{{ open_webui_directory.base }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+  become: true
+
+- name: Create the Open WebUI data directory
+  ansible.builtin.file:
+    path: "{{ open_webui_directory.data }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+  become: true
+
+- name: Seed the persistent Open WebUI secret
+  ansible.builtin.copy:
+    content: >-
+      WEBUI_SECRET_KEY={{ lookup('ansible.builtin.password', '/dev/null length=64 chars=hexdigits') }}
+    dest: "{{ open_webui_file.secrets }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+    force: false
+  become: true
+  no_log: true
+
+- name: Render the Open WebUI Compose file
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ open_webui_file.compose }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  become: true
+  no_log: true

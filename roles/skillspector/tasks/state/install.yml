@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Execute SkillSpector configuration tasks
+  ansible.builtin.include_tasks: "configure/main.yml"
+
+- name: Check out pinned NVIDIA SkillSpector source
+  ansible.builtin.git:
+    repo: "{{ skillspector_repository | default('https://github.com/NVIDIA/SkillSpector.git') }}"
+    dest: "{{ skillspector_directory.source | default('/opt/skillspector/source') }}"
+    version: "{{ skillspector_revision | default('e2674da339b0bddc6e565d059c0577c6d9cd25da') }}"
+    update: true
+    force: false
+  become: true
+
+- name: Build version-pinned SkillSpector image
+  community.docker.docker_image:
+    name: "{{ skillspector_image | default('skillspector-local') }}"
+    tag: "{{ skillspector_version | default('2.13.6') }}"
+    source: "build"
+    build:
+      path: "{{ skillspector_directory.source | default('/opt/skillspector/source') }}"
+      dockerfile: "Dockerfile"
+      pull: true
+    force_source: "{{ skillspector_rebuild_image | default(false) | bool }}"
+    state: "present"
+  become: true
+
+- name: Remove superseded SkillSpector Docker launcher
+  ansible.builtin.file:
+    path: "{{ skillspector_file.wrapper | default('/usr/local/bin/skillspector-docker') }}"
+    state: "absent"
+  become: true

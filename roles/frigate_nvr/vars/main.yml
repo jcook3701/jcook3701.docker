@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+frigate_nvr_directory:
+  base: "{{ frigate_nvr_base_dir | default('/opt/frigate_nvr') }}"
+  conf: "{{ frigate_nvr_config_dir | default('/opt/frigate_nvr/config') }}"
+  log: "{{ frigate_nvr_logs_dir | default('/opt/frigate_nvr/logs') }}"
+  storage: "{{ frigate_nvr_storage_dir | default('/opt/frigate_nvr/storage') }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+frigate_nvr_file:
+  compose: "{{ (frigate_nvr_base_dir | default('/opt/frigate_nvr')) ~ '/compose.yml' }}"
+  config: "{{ (frigate_nvr_config_dir | default('/opt/frigate_nvr/config')) ~ '/config.yml' }}"
+
+# ---------------------------------------------------------------------------
+# Frigate Configuration Keys Owned by This Role
+# ---------------------------------------------------------------------------
+frigate_nvr_reserved_config_keys:
+  - "cameras"
+  - "database"
+  - "detectors"
+  - "mqtt"
+  - "record"
+  - "snapshots"
+
+frigate_nvr_reserved_camera_config_keys:
+  - "detect"
+  - "enabled"
+  - "ffmpeg"
+  - "zones"

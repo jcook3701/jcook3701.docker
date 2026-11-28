@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+unifi_os_server_directory:
+  base: "{{ unifi_os_server_base_dir | default('/opt/unifi_os_server') }}"
+  data: "{{ unifi_os_server_data_dir | default('/opt/unifi_os_server/data') }}"
+  log: "{{ unifi_os_server_log_dir | default('/opt/unifi_os_server/logs') }}"
+  cert: "{{ unifi_os_server_cert_dir | default('/opt/unifi_os_server/cert') }}"
+
+unifi_os_server_file:
+  compose: "{{ unifi_os_server_directory.base ~ '/compose.yml'
+              | default('/opt/unifi_os_server/compose.yml') }}"

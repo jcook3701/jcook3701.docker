@@ -1,0 +1,194 @@
+
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: Deploy and configure ROS 2 using Docker
+    description:
+      - Deploy and manage a ROS 2 development environment using a container engine.
+      - Configure persistent workspaces, networking, DDS discovery, and runtime settings.
+      - Optionally configure robotics hardware devices and environment overrides.
+    author:
+      - Jared W. Cook
+
+    options:
+      # ---------------------------------------------------------------------
+      # Runtime Orchestration Engine and Service State
+      # ---------------------------------------------------------------------
+      ros2_container_engine:
+        type: str
+        required: false
+        default: docker
+        choices:
+          - docker
+          - podman
+        description:
+          - Container engine used to deploy and manage ROS 2.
+
+      ros2_state:
+        type: str
+        required: false
+        default: present
+        choices:
+          - present
+          - absent
+          - teardown
+        description:
+          - Desired lifecycle state of the ROS 2 container and configuration.
+
+      ros2_debug_mode:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable additional debugging output during role execution.
+
+      # ---------------------------------------------------------------------
+      # ROS 2 Container Image and Identity
+      # ---------------------------------------------------------------------
+      ros2_image:
+        type: str
+        required: false
+        default: docker.io/library/ros:jazzy-ros-base
+        description:
+          - Container image and version used for the ROS 2 environment.
+
+      ros2_container_name:
+        type: str
+        required: false
+        default: ros2
+        description:
+          - Name assigned to the ROS 2 container.
+
+      ros2_pull_policy:
+        type: str
+        required: false
+        default: always
+        description:
+          - Container image pull policy used during deployment.
+
+      ros2_restart_policy:
+        type: str
+        required: false
+        default: unless-stopped
+        description:
+          - Container restart policy controlling automatic startup and recovery.
+
+      # ---------------------------------------------------------------------
+      # Infrastructure Storage and Path Routing
+      # ---------------------------------------------------------------------
+      ros2_base_dir:
+        type: path
+        required: false
+        default: /opt/ros2
+        description:
+          - Base directory for persistent ROS 2 workspaces and configuration.
+
+      # ---------------------------------------------------------------------
+      # Interactive Container Configuration
+      # ---------------------------------------------------------------------
+      ros2_tty:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Allocate a pseudo-TTY for interactive ROS 2 development.
+
+      ros2_stdin_open:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Keep standard input open for interactive container sessions.
+
+      ros2_command:
+        type: list
+        elements: str
+        required: false
+        default:
+          - sleep
+          - infinity
+        description:
+          - Command executed when the ROS 2 container starts.
+          - Defaults to keeping the development container running.
+
+      # ---------------------------------------------------------------------
+      # ROS 2 Networking and DDS Discovery
+      # ---------------------------------------------------------------------
+      ros2_network_mode:
+        type: str
+        required: false
+        default: host
+        description:
+          - Container networking mode used for ROS 2 communication.
+          - Host networking supports DDS discovery across the local network.
+
+      ros2_ipc_mode:
+        type: str
+        required: false
+        default: host
+        description:
+          - Container IPC namespace mode for shared-memory communication.
+
+      ros2_domain_id:
+        type: int
+        required: false
+        default: 0
+        description:
+          - ROS_DOMAIN_ID used to isolate ROS 2 DDS communication domains.
+
+      ros2_automatic_discovery_range:
+        type: str
+        required: false
+        default: "SUBNET"
+        choices:
+          - "SUBNET"
+          - "LOCALHOST"
+          - "OFF"
+          - "SYSTEM_DEFAULT"
+        description:
+          - Automatic ROS 2 DDS discovery scope.
+
+      ros2_rmw_implementation:
+        type: str
+        required: false
+        default: ""
+        description:
+          - Optional ROS middleware implementation identifier.
+          - Empty uses the container image's default middleware.
+
+      ros2_static_peers:
+        type: str
+        required: false
+        default: ""
+        description:
+          - Semicolon-separated addresses used for static ROS 2 discovery peers.
+          - Empty disables explicit static peer configuration.
+
+      # ---------------------------------------------------------------------
+      # Optional Hardware and Environment Overrides
+      # ---------------------------------------------------------------------
+      ros2_devices:
+        type: list
+        elements: str
+        required: false
+        default: []
+        description:
+          - Host devices mapped into the ROS 2 container.
+          - Supports robotics hardware such as serial controllers and USB devices.
+
+      ros2_extra_volumes:
+        type: list
+        elements: str
+        required: false
+        default: []
+        description:
+          - Additional host directories or volumes mounted into the container.
+
+      ros2_extra_environment:
+        type: dict
+        required: false
+        default: {}
+        description:
+          - Additional environment variables passed to the ROS 2 container.

@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+skillspector_directory:
+  base: "{{ skillspector_base_dir | default('/opt/skillspector') }}"
+  source: "{{ (skillspector_base_dir | default('/opt/skillspector')) ~ '/source' }}"
+  workspace: "{{ skillspector_workspace_dir | default('/home/chat-gpt/workbench') }}"
+  scans: "{{ skillspector_scan_dir | default('/home/chat-gpt/workbench/skill-scans') }}"
+  reports: "{{ skillspector_reports_dir | default('/home/chat-gpt/workbench/skill-reports') }}"
+
+skillspector_file:
+  compose: "{{ (skillspector_base_dir | default('/opt/skillspector')) ~ '/compose.yml' }}"
+  wrapper: "{{ skillspector_wrapper_path | default('/usr/local/bin/skillspector-docker') }}"
+
+skillspector_image_reference: >-
+  {{ (skillspector_image | default('skillspector-local')) ~ ':' ~
+     (skillspector_version | default('2.13.6')) }}

@@ -1,0 +1,78 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Create the private SearXNG deployment directory
+  ansible.builtin.file:
+    path: "{{ searxng_directory.base }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0750"
+  become: true
+
+- name: Create the SearXNG settings directory
+  ansible.builtin.file:
+    path: "{{ searxng_directory.config }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  become: true
+
+- name: Create the SearXNG cache directory
+  ansible.builtin.file:
+    path: "{{ searxng_directory.cache }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  become: true
+
+- name: Create the SearXNG Valkey data directory
+  ansible.builtin.file:
+    path: "{{ searxng_directory.valkey }}"
+    state: "directory"
+    owner: "999"
+    group: "1000"
+    mode: "0750"
+  become: true
+
+- name: Seed the persistent SearXNG secret
+  ansible.builtin.copy:
+    content: >-
+      SEARXNG_SECRET={{ lookup('ansible.builtin.password', '/dev/null length=64 chars=hexdigits') }}
+    dest: "{{ searxng_file.secrets }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+    force: false
+  become: true
+  no_log: true
+
+- name: Render the SearXNG settings
+  ansible.builtin.template:
+    src: "settings.yml.j2"
+    dest: "{{ searxng_file.settings }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  become: true
+
+- name: Render the SearXNG limiter settings
+  ansible.builtin.template:
+    src: "limiter.toml.j2"
+    dest: "{{ searxng_file.limiter }}"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  become: true
+
+- name: Render the SearXNG Compose file
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ searxng_file.compose }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  become: true
+  no_log: true

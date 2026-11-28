@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Debug Headscale role configuration
+  ansible.builtin.debug:
+    msg:
+      - "Headscale state: {{ headscale_state | default('present') }}"
+      - "Headscale container engine: {{ headscale_container_engine | default('docker') }}"
+      - "Headplane dashboard enabled: {{ headscale_manage_headplane | default(false) | bool }}"
+  when: headscale_debug_mode | default(false) | bool
+
+- name: Ensure Headscale is installed and configured
+  ansible.builtin.include_tasks: state/install.yml
+  when: headscale_state | default('present') == 'present'
+
+- name: Ensure Headscale is uninstalled from system
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: headscale_state | default('present') == 'absent'
+
+- name: Ensure Headscale is purged from system
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: headscale_state | default('present') == 'teardown'

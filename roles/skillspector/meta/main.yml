@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+galaxy_info:
+  author: "Jared W. Cook"
+  description: "Build an on-demand, restricted NVIDIA SkillSpector scanner image and launcher."
+  company: "Cook's Code, Inc."
+  license: "AGPL-3.0-or-later"
+  min_ansible_version: ">=2.16"
+  role_name: "skillspector"
+  platforms:
+    - name: "Debian"
+      versions:
+        - "all"
+    - name: "Ubuntu"
+      versions:
+        - "all"
+  galaxy_tags:
+    - "docker"
+    - "security"
+    - "scanner"
+    - "development"
+
+dependencies: []
+...

@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+headscale_directory:
+  base: "{{ headscale_base_dir
+                | default('/opt/headscale') }}"
+  config: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/config')
+                | default('/opt/headscale/config') }}"
+  lib: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/lib')
+                | default('/opt/headscale/lib') }}"
+  backups: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/backups')
+                | default('/opt/headscale/backups') }}"
+  headplane_config: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/headplane/config')
+                | default('/opt/headscale/headplane/config') }}"
+  headplane_data: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/headplane/data')
+                | default('/opt/headscale/headplane/data') }}"
+  preauth: "{{ ((headscale_base_dir | default('/opt/headscale')) ~ '/preauth')
+                | default('/opt/headscale/preauth') }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+headscale_file:
+  compose: "{{ ((headscale_directory.base | default('/opt/headscale')) ~ '/compose.yml')
+                | default('/opt/headscale/compose.yml') }}"
+  config: "{{ ((headscale_directory.config | default('/opt/headscale/config')) ~ '/config.yaml')
+                | default('/opt/headscale/config/config.yaml') }}"
+  headplane_config: "{{ ((headscale_directory.headplane_config | default('/opt/headscale/headplane/config'))
+                ~ '/config.yaml') | default('/opt/headscale/headplane/config/config.yaml') }}"
+  headplane_cookie_secret: "{{ ((headscale_directory.headplane_config | default('/opt/headscale/headplane/config'))
+                ~ '/cookie_secret') | default('/opt/headscale/headplane/config/cookie_secret') }}"
+  headplane_api_key: "{{ ((headscale_directory.headplane_config | default('/opt/headscale/headplane/config'))
+                ~ '/api_key') | default('/opt/headscale/headplane/config/api_key') }}"
+  client_preauth_key: "{{ ((headscale_directory.preauth | default('/opt/headscale/preauth'))
+                ~ '/key') | default('/opt/headscale/preauth/key') }}"
+  client_preauth_key_id: "{{ ((headscale_directory.preauth | default('/opt/headscale/preauth'))
+                ~ '/key_id') | default('/opt/headscale/preauth/key_id') }}"
+  client_preauth_command: "{{ ((headscale_directory.preauth | default('/opt/headscale/preauth'))
+                ~ '/client-registration.txt') | default('/opt/headscale/preauth/client-registration.txt') }}"

@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+galaxy_info:
+  author: Jared W. Cook
+  description: >-
+    Deploy Ollama with optional Open WebUI, n8n, Docker MCP Gateway,
+    and SearXNG using a persistent Docker Compose stack.
+  company: "Cook's Code, Inc."
+  license: "AGPL-3.0-or-later"
+  min_ansible_version: ">=2.10"
+  role_name: ollama
+
+  platforms:
+    - name: EL
+      versions: ["8", "9"]
+    - name: Debian
+      versions: [all]
+    - name: Ubuntu
+      versions: [all]
+
+  galaxy_tags:
+    - docker
+    - containers
+    - ollama
+    - automation
+    - ai
+
+dependencies:
+  - role: jcook3701.pkgs.docker_ce
+
+collections:
+  - jcook3701.utils
+  - community.docker
+  - containers.podman

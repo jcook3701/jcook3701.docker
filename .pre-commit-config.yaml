@@ -1,6 +1,6 @@
 # pre-commit-config.yaml for jcook3701.docker
 #
-# SPDX-FileCopyrightText: Jared Cook
+# SPDX-FileCopyrightText: Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
@@ -51,6 +51,12 @@ repos:
       - id: check-case-conflict
       - id: check-added-large-files
       - id: check-symlinks
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint-docker
+        stages: [manual]
 
   - repo: https://github.com/psf/black
     rev: 25.11.0

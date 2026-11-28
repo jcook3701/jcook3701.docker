@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+headroom_directory:
+  base: "{{ headroom_base_dir | default('/opt/headroom') }}"
+  data: "{{ (headroom_base_dir | default('/opt/headroom')) ~ '/data' }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+headroom_file:
+  compose: "{{ (headroom_base_dir | default('/opt/headroom')) ~ '/compose.yml' }}"
+
+# ---------------------------------------------------------------------------
+# Environment Keys Owned by This Role
+# ---------------------------------------------------------------------------
+headroom_reserved_environment:
+  - "HEADROOM_ALLOW_UNAUTHENTICATED_BIND"
+  - "HEADROOM_BEACON"
+  - "HEADROOM_CONFIG_DIR"
+  - "HEADROOM_HOST"
+  - "HEADROOM_MODE"
+  - "HEADROOM_PORT"
+  - "HEADROOM_PROXY_TOKEN"
+  - "HEADROOM_WORKSPACE_DIR"
+  - "HF_HOME"
+  - "HOME"
+  - "TMPDIR"
+  - "XDG_CACHE_HOME"

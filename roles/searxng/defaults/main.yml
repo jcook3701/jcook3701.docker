@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+searxng_container_engine: "docker"
+searxng_state: "present"
+searxng_teardown_remove_data: false
+searxng_teardown_remove_images: false
+
+# ---------------------------------------------------------------------------
+# Container Image and Lifecycle
+# ---------------------------------------------------------------------------
+searxng_image: "docker.io/searxng/searxng:latest"
+searxng_container_name: "searxng"
+searxng_pull_policy: "missing"
+searxng_pull_images: false
+searxng_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Deployment Paths and Network Publication
+# ---------------------------------------------------------------------------
+searxng_base_dir: "/opt/searxng"
+searxng_bind_ip: "127.0.0.1"
+searxng_external_port: 8081
+searxng_internal_port: 8080
+searxng_shared_network: ""
+
+# ---------------------------------------------------------------------------
+# SearXNG Configuration
+# ---------------------------------------------------------------------------
+searxng_valkey_image: "docker.io/valkey/valkey:9-alpine"
+searxng_instance_name: "SearXNG"
+searxng_secret_key: ""
+searxng_safe_search: 1
+searxng_limiter: false
+searxng_limiter_pass_ips: []
+searxng_image_proxy: true

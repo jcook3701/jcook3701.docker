@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+galaxy_info:
+  author: "Jared W. Cook"
+  description: "Deploy Open WebUI in Docker."
+  company: "Cook's Code, Inc."
+  license: "AGPL-3.0-or-later"
+  min_ansible_version: "2.15"
+  role_name: "open_webui"
+  platforms:
+    - name: "Debian"
+      versions: ["all"]
+    - name: "Ubuntu"
+      versions: ["all"]
+  galaxy_tags: ["docker", "automation"]
+
+dependencies: []
+
+collections:
+  - "community.docker"

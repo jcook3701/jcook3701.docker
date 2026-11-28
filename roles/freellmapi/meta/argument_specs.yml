@@ -1,0 +1,156 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy the FreeLLMAPI single-user AI gateway in Docker."
+    description:
+      - "Deploy FreeLLMAPI through jcook3701.utils.container_engine."
+      - "Preserve the SQLite database and stable encryption key across normal lifecycle operations."
+    author:
+      - "Jared W. Cook"
+    options:
+      freellmapi_container_engine:
+        type: "str"
+        default: "docker"
+        choices: ["docker"]
+        description: "Container engine supported by this role."
+      freellmapi_state:
+        type: "str"
+        default: "present"
+        choices: ["present", "absent", "teardown"]
+        description: "Present deploys, absent stops, and teardown removes deployment configuration."
+      freellmapi_debug_mode:
+        type: "bool"
+        default: false
+        description: "Display additional non-sensitive role diagnostics."
+      freellmapi_teardown_remove_data:
+        type: "bool"
+        default: false
+        description: "Delete the database, encryption key, and all application state during teardown; destructive."
+      freellmapi_teardown_remove_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to remove the FreeLLMAPI image during teardown."
+      freellmapi_image:
+        type: "str"
+        default: "ghcr.io/tashfeenahmed/freellmapi:v0.16.42"
+        description: "Official version-pinned FreeLLMAPI image."
+      freellmapi_container_name:
+        type: "str"
+        default: "freellmapi"
+        description: "FreeLLMAPI container name."
+      freellmapi_pull_policy:
+        type: "str"
+        default: "missing"
+        choices: ["always", "missing", "never"]
+        description: "Docker Compose image pull policy."
+      freellmapi_pull_images:
+        type: "bool"
+        default: false
+        description: "Ask the shared container engine to pull images during deployment."
+      freellmapi_restart_policy:
+        type: "str"
+        default: "unless-stopped"
+        choices: ["no", "always", "on-failure", "unless-stopped"]
+        description: "Container restart policy."
+      freellmapi_base_dir:
+        type: "path"
+        default: "/opt/freellmapi"
+        description: "Base directory for Compose configuration, the encryption key, and persistent state."
+      freellmapi_container_uid:
+        type: "int"
+        default: 1000
+        description: "UID that owns persistent data for the official Node-based image."
+      freellmapi_container_gid:
+        type: "int"
+        default: 1000
+        description: "GID that owns persistent data for the official Node-based image."
+      freellmapi_encryption_key:
+        type: "str"
+        default: ""
+        description: "Initial 64-character hexadecimal key; empty generates and persists one on first deployment."
+        no_log: true
+      freellmapi_bind_ip:
+        type: "str"
+        default: "127.0.0.1"
+        description: "Host interface publishing the single-user dashboard and API."
+      freellmapi_external_port:
+        type: "int"
+        default: 3001
+        description: "Host port publishing FreeLLMAPI."
+      freellmapi_internal_port:
+        type: "int"
+        default: 3001
+        description: "Port used by FreeLLMAPI inside the container."
+      freellmapi_shared_network:
+        type: "str"
+        default: ""
+        description: "Optional existing Docker network for private service connections."
+      freellmapi_agent_network:
+        type: "str"
+        default: ""
+        description: "Optional existing dedicated Docker network for trusted AI agents."
+      freellmapi_proxy_rate_limit_rpm:
+        type: "int"
+        default: 120
+        description: "Per-client-IP requests per minute allowed on proxy endpoints; zero disables."
+      freellmapi_admin_rate_limit_rpm:
+        type: "int"
+        default: 600
+        description: "Per-client-IP requests per minute allowed on dashboard endpoints; zero disables."
+      freellmapi_stream_keepalive_ms:
+        type: "int"
+        default: 0
+        description: "SSE heartbeat interval; zero disables and enabled values must be at least 1000 milliseconds."
+      freellmapi_request_analytics_retention_days:
+        type: "int"
+        default: 90
+        description: "Request analytics retention in days; zero removes the age limit."
+      freellmapi_request_analytics_max_rows:
+        type: "int"
+        default: 100000
+        description: "Maximum request analytics rows; zero removes the row limit."
+      freellmapi_db_backup_path:
+        type: "str"
+        default: ""
+        description: "Optional encrypted backup path below /app/server/data; mutually exclusive with backup URL."
+      freellmapi_db_backup_url:
+        type: "str"
+        default: ""
+        description: "Optional HTTP(S) encrypted backup endpoint; mutually exclusive with backup path."
+      freellmapi_db_backup_token:
+        type: "str"
+        default: ""
+        description: "Optional bearer token for the encrypted backup URL."
+        no_log: true
+      freellmapi_db_backup_key:
+        type: "str"
+        default: ""
+        description: "Optional separate 64-character hexadecimal backup encryption key."
+        no_log: true
+      freellmapi_db_backup_interval_ms:
+        type: "int"
+        default: 300000
+        description: "Interval in milliseconds between encrypted database backups."
+      freellmapi_extra_environment:
+        type: "dict"
+        default: {}
+        description: "Additional string environment values; role-managed keys are rejected."
+        no_log: true
+      freellmapi_memory_limit:
+        type: "str"
+        default: "2g"
+        description: "Container memory limit."
+      freellmapi_cpu_limit:
+        type: "str"
+        default: "2.0"
+        description: "Container CPU limit."
+      freellmapi_pids_limit:
+        type: "int"
+        default: 256
+        description: "Maximum number of processes allowed in the container."
+      freellmapi_stop_grace_period:
+        type: "str"
+        default: "30s"
+        description: "Grace period allowed for shutdown before the container is killed."

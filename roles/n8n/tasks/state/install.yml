@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Configure the n8n deployment
+  ansible.builtin.include_tasks: "configure/01_seed.yml"
+
+- name: Deploy n8n with the shared container engine
+  ansible.builtin.import_role:
+    name: "jcook3701.utils.container_engine"
+  vars:
+    container_engine_project_src: "{{ n8n_directory.base }}"
+    container_engine_platform_type: "{{ n8n_container_engine }}"
+    container_engine_desired_state: "present"
+    container_engine_trigger_condition: true
+    container_engine_pull_images: "{{ n8n_pull_images }}"
+  become: true

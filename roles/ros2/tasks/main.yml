@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Ensure ROS2 is installed and configured
+  ansible.builtin.include_tasks: state/install.yml
+  when: ros2_state | default('present') == 'present'
+
+- name: Ensure ROS2 is uninstalled from system
+  ansible.builtin.include_tasks: state/uninstall.yml
+  when: ros2_state | default('present') == 'absent'
+
+- name: Ensure ROS2 is purged from system
+  ansible.builtin.include_tasks: state/teardown.yml
+  when: ros2_state | default('present') == 'teardown'

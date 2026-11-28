@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Execute Ollama configuration tasks
+  ansible.builtin.include_tasks: configure/main.yml
+
+- name: Trigger Ollama container engine stack deployment
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    container_engine_project_src: "{{ ollama_directory.base }}"
+    container_engine_platform_type: "{{ ollama_container_engine }}"
+    container_engine_desired_state: present
+    container_engine_pull_images: "{{ ollama_pull_images }}"
+    container_engine_trigger_condition: true
+
+- name: Execute Ollama post-processing configuration tasks
+  ansible.builtin.include_tasks: post_processing/main.yml

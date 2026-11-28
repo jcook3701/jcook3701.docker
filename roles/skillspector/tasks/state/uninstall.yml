@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Trigger SkillSpector container engine stack removal
+  ansible.builtin.import_role:
+    name: jcook3701.utils.container_engine
+  vars:
+    container_engine_project_src: "{{ skillspector_directory.base | default('/opt/skillspector') }}"
+    container_engine_platform_type: "{{ skillspector_container_engine | default('docker') }}"
+    container_engine_desired_state: "absent"
+    container_engine_trigger_condition: true
+
+- name: Remove superseded SkillSpector Docker launcher
+  ansible.builtin.file:
+    path: "{{ skillspector_file.wrapper | default('/usr/local/bin/skillspector-docker') }}"
+    state: "absent"
+  become: true
+
+- name: Remove role-managed SkillSpector image tag
+  community.docker.docker_image:
+    name: "{{ skillspector_image | default('skillspector-local') }}"
+    tag: "{{ skillspector_version | default('2.13.6') }}"
+    state: "absent"
+    force_absent: false
+  become: true

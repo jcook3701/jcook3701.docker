@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Create Frigate NVR application directories
+  ansible.builtin.file:
+    path: "{{ frigate_nvr_directory_item.path }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "{{ frigate_nvr_directory_item.mode }}"
+  loop:
+    - path: "{{ frigate_nvr_directory.base }}"
+      mode: "0750"
+    - path: "{{ frigate_nvr_directory.conf }}"
+      mode: "0700"
+    - path: "{{ frigate_nvr_directory.log }}"
+      mode: "0750"
+    - path: "{{ frigate_nvr_directory.storage }}"
+      mode: "0750"
+  loop_control:
+    loop_var: "frigate_nvr_directory_item"
+    label: "{{ frigate_nvr_directory_item.path }}"
+  become: true
+
+- name: Render Ansible-owned Frigate NVR configuration
+  ansible.builtin.template:
+    src: "config.yml.j2"
+    dest: "{{ frigate_nvr_file.config }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+    force: true
+  no_log: true
+  become: true
+  when: frigate_nvr_config_owner == "ansible"
+
+- name: Seed Frigate-owned configuration only when absent
+  ansible.builtin.template:
+    src: "config.yml.j2"
+    dest: "{{ frigate_nvr_file.config }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+    force: false
+  no_log: true
+  become: true
+  when: frigate_nvr_config_owner == "frigate"
+
+- name: Render Frigate NVR Docker Compose configuration
+  ansible.builtin.template:
+    src: "compose.yml.j2"
+    dest: "{{ frigate_nvr_file.compose }}"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  no_log: true
+  become: true

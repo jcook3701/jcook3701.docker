@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# Infrastructure Directory Structure
+searxng_directory:
+  base: "{{ searxng_base_dir | default('/opt/searxng') }}"
+  config: "{{ (searxng_base_dir | default('/opt/searxng')) ~ '/config' }}"
+  cache: "{{ (searxng_base_dir | default('/opt/searxng')) ~ '/cache' }}"
+  valkey: "{{ (searxng_base_dir | default('/opt/searxng')) ~ '/valkey' }}"
+
+# Infrastructure File Locations
+searxng_file:
+  compose: "{{ (searxng_base_dir | default('/opt/searxng')) ~ '/compose.yml' }}"
+  secrets: "{{ (searxng_base_dir | default('/opt/searxng')) ~ '/.env' }}"
+  settings: "{{ (searxng_base_dir | default('/opt/searxng')) ~ '/config/settings.yml' }}"
+  limiter: "{{ (searxng_base_dir | default('/opt/searxng')) ~ '/config/limiter.toml' }}"

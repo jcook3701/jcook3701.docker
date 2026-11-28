@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+ros2_container_engine: "docker"
+ros2_state: present
+ros2_debug_mode: false
+
+# ---------------------------------------------------------------------------
+# ROS 2 Container Image and Identity
+# ---------------------------------------------------------------------------
+ros2_image: "docker.io/library/ros:jazzy-ros-base"
+ros2_container_name: "ros2"
+ros2_pull_policy: "always"
+ros2_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Infrastructure Storage and Path Routing
+# ---------------------------------------------------------------------------
+ros2_base_dir: "/opt/ros2"
+
+# ---------------------------------------------------------------------------
+# Interactive Container Configuration
+# ---------------------------------------------------------------------------
+ros2_tty: true
+ros2_stdin_open: true
+
+# Keep the ROS 2 environment available for interactive development.
+# Replace this with a ROS node or launch command for a dedicated deployment.
+ros2_command:
+  - "sleep"
+  - "infinity"
+
+# ---------------------------------------------------------------------------
+# ROS 2 Networking and DDS Discovery
+# ---------------------------------------------------------------------------
+# Host networking supports DDS multicast discovery on Linux without
+# publishing a fixed range of DDS ports.
+ros2_network_mode: "host"
+ros2_ipc_mode: "host"
+ros2_domain_id: 0
+ros2_automatic_discovery_range: "SUBNET"
+
+# Empty values preserve the selected ROS image's middleware defaults.
+ros2_rmw_implementation: ""
+ros2_static_peers: ""
+
+# ---------------------------------------------------------------------------
+# Optional Hardware and Environment Overrides
+# ---------------------------------------------------------------------------
+# Device mapping examples: /dev/ttyUSB0:/dev/ttyUSB0
+ros2_devices: []
+ros2_extra_volumes: []
+ros2_extra_environment: {}

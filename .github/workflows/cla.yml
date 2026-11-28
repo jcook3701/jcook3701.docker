@@ -1,6 +1,6 @@
 # cla.yml for jcook3701.docker
 #
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, Jared Cook
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, Jared W. Cook
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # This program is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@ on:
     types: [
       opened,
       closed,
+      reopened,
       synchronize
     ]
 
@@ -35,24 +36,32 @@ permissions:
   pull-requests: write
   statuses: write
 
+concurrency:
+  group: "cla-signatures"
+  cancel-in-progress: false
+
 jobs:
   CLAAssistant:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: "CLA Assistant"
         if: >-
-            (github.event.comment.body == 'recheck' ||
-            github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') ||
-            github.event_name == 'pull_request_target'
-        uses: contributor-assistant/github-action@v2.6.1
+          github.event_name == 'pull_request_target' ||
+          (github.event.issue.pull_request &&
+          (github.event.comment.body == 'recheck' ||
+          github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA'))
+        # Pin privileged pull_request_target actions to a full commit SHA.
+        uses: contributor-license/cla-action@e764f53690399abf600e2932de7ffd607ddb108c # v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           path-to-signatures: "cla/v1/signatures.json"
-          path-to-document: "https://jcook3701.github.io/jcook3701.docker/manual/developer-resources/cla"
+          path-to-document: >-
+            https://github.com/jcook3701/jcook3701.docker/blob/main/docs/jekyll/_manual/developer-resources/cla.md
           # branch should not be protected
-          branch: "main" # Should match the branch that github pages are hosted from.
-          allowlist: "jcook3701,github-actions[bot],dependabot[bot],bot*"
+          branch: "main"
+          allowlist: "jcook3701,github-actions[bot],dependabot[bot]"
 
           # If the below optional inputs are not given, then default values will be taken:
           create-file-commit-message: "chore(CLA): Creating file for storing CLA Signatures."

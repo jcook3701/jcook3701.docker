@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+ollama_directory:
+  base: "{{ ollama_base_dir | default('/opt/ollama') }}"
+  backups: "{{ ollama_base_dir ~ '/backups' | default('/opt/ollama/backups') }}"
+  ollama: "{{ ollama_base_dir ~ '/ollama' | default('/opt/ollama/ollama') }}"
+  open_webui: "{{ ollama_base_dir ~ '/open-webui' | default('/opt/ollama/open-webui') }}"
+  n8n: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/n8n' }}"
+  mcp_inspector: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/mcp-inspector' }}"
+  searxng_config: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/searxng/config' }}"
+  searxng_cache: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/searxng/cache' }}"
+  searxng_valkey: "{{ (ollama_base_dir | default('/opt/ollama')) ~ '/searxng/valkey' }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+ollama_file:
+  compose: "{{ ollama_directory.base ~ '/compose.yml'
+                        | default('/opt/ollama/compose.yml') }}"
+  searxng_settings: "{{ ollama_directory.searxng_config ~ '/settings.yml'
+                        | default('/opt/ollama/searxng/config/settings.yml') }}"
+  searxng_limiter: "{{ ollama_directory.searxng_config ~ '/limiter.toml'
+                        | default('/opt/ollama/searxng/config/limiter.toml') }}"
+  secrets: "{{ ollama_directory.base ~ '/.env'
+                        | default('/opt/ollama/.env') }}"
+  mcp_inspector_catalog: "{{ ollama_directory.mcp_inspector ~ '/mcp.json'
+                        | default('/opt/ollama/mcp-inspector/mcp.json') }}"
+  mcp_inspector_secret_key: "{{ ollama_directory.base ~ '/mcp-inspector-secret-key'
+                        | default('/opt/ollama/mcp-inspector-secret-key') }}"

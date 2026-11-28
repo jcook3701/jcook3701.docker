@@ -1,0 +1,122 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+headscale_container_engine: "docker"
+headscale_state: present
+headscale_debug_mode: false
+
+# ---------------------------------------------------------------------------
+# Headscale Container Image and Identity
+# ---------------------------------------------------------------------------
+# Pin to a released Headscale version; match config.yaml to the image version.
+headscale_image: "docker.io/headscale/headscale:0.29.7"
+headscale_container_name: "headscale"
+headscale_pull_policy: "always"
+headscale_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Infrastructure Storage and Path Routing
+# ---------------------------------------------------------------------------
+headscale_base_dir: "/opt/headscale"
+
+# ---------------------------------------------------------------------------
+# Networking Configuration
+# ---------------------------------------------------------------------------
+# Override this for network access outside of the Docker host.
+headscale_host_bind_ip: "127.0.0.1"
+headscale_external_port: 8080
+headscale_internal_port: 8080
+
+# Optional metrics endpoint; always published to localhost only.
+headscale_metrics_enabled: false
+headscale_metrics_external_port: 9090
+headscale_metrics_internal_port: 9090
+
+# ---------------------------------------------------------------------------
+# Control Server and Logging
+# ---------------------------------------------------------------------------
+# Replace this placeholder with the HTTPS URL reachable by your clients.
+headscale_server_url: "https://headscale.example.com"
+headscale_trusted_proxies: []
+headscale_log_level: "info"
+headscale_log_format: "text"
+
+# ---------------------------------------------------------------------------
+# Tailnet Address Allocation
+# ---------------------------------------------------------------------------
+# Prefixes must remain within Tailscale's supported CGNAT and ULA ranges.
+headscale_prefix_v4: "100.64.0.0/10"
+headscale_prefix_v6: "fd7a:115c:a1e0::/48"
+headscale_prefix_allocation: "sequential"
+
+# ---------------------------------------------------------------------------
+# Headscale DNS Configuration
+# ---------------------------------------------------------------------------
+# MagicDNS domain must differ from the Headscale control server hostname.
+headscale_dns_magic_dns: true
+headscale_dns_base_domain: "tailnet.example.com"
+headscale_dns_override_local_dns: true
+headscale_dns_nameservers_global:
+  - "1.1.1.1"
+  - "1.0.0.1"
+headscale_dns_nameservers_split: {}
+headscale_dns_search_domains: []
+headscale_dns_extra_records: []
+
+# ---------------------------------------------------------------------------
+# DERP Relay Configuration
+# ---------------------------------------------------------------------------
+# Use the public DERP map. Embedded DERP requires separate HTTPS/STUN planning.
+headscale_derp_embedded_enabled: false
+headscale_derp_urls:
+  - "https://controlplane.tailscale.com/derpmap/default"
+headscale_derp_auto_update_enabled: true
+headscale_derp_update_frequency: "3h"
+
+# ---------------------------------------------------------------------------
+# Access Policy and Client Features
+# ---------------------------------------------------------------------------
+# With file mode and an empty path, no custom ACL policy file is loaded.
+headscale_policy_mode: "file"
+headscale_policy_path: ""
+headscale_taildrop_enabled: true
+headscale_logtail_enabled: false
+
+# ---------------------------------------------------------------------------
+# Additional Container Configuration
+# ---------------------------------------------------------------------------
+headscale_extra_environment: {}
+
+# ---------------------------------------------------------------------------
+# Optional Headplane Web Dashboard
+# ---------------------------------------------------------------------------
+headscale_manage_headplane: false
+headscale_headplane_image: "ghcr.io/tale/headplane:0.8.1"
+headscale_headplane_container_name: "headplane"
+headscale_headplane_host_bind_ip: "0.0.0.0"
+headscale_headplane_external_port: 3001
+headscale_headplane_internal_port: 3000
+headscale_headplane_base_url: ""
+headscale_headplane_cookie_secure: false
+headscale_headplane_api_key_expiration: "365d"
+
+# ---------------------------------------------------------------------------
+# Optional Headplane Integration Features
+# ---------------------------------------------------------------------------
+headscale_headplane_agent_enabled: false
+headscale_headplane_docker_enabled: false
+headscale_headplane_kubernetes_enabled: false
+headscale_headplane_kubernetes_pod_name: "headscale"
+headscale_headplane_proc_enabled: false
+
+# ---------------------------------------------------------------------------
+# Client Pre-Authentication Key Configuration
+# ---------------------------------------------------------------------------
+headscale_manage_client_preauth_key: false
+headscale_client_preauth_user: "homelab"
+headscale_client_preauth_key_reusable: true
+headscale_client_preauth_key_expiration: "720h"
+headscale_client_preauth_key_replace: false

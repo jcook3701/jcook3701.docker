@@ -1,0 +1,90 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+longmemory_container_engine: "docker"
+longmemory_state: "present"
+longmemory_debug_mode: false
+longmemory_teardown_remove_data: false
+longmemory_teardown_remove_images: false
+
+# ---------------------------------------------------------------------------
+# LongMemory Image and Container Lifecycle
+# ---------------------------------------------------------------------------
+longmemory_build_from_source: true
+longmemory_image: "longmemory:local"
+longmemory_container_name: "longmemory"
+longmemory_pull_policy: "missing"
+longmemory_pull_images: false
+longmemory_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Persistent Storage and Encryption
+# ---------------------------------------------------------------------------
+longmemory_base_dir: "/opt/longmemory"
+longmemory_api_key: ""
+
+# ---------------------------------------------------------------------------
+# Network Publication
+# ---------------------------------------------------------------------------
+longmemory_bind_ip: "127.0.0.1"
+longmemory_external_port: 7331
+longmemory_internal_port: 7331
+longmemory_shared_network: ""
+
+# ---------------------------------------------------------------------------
+# Dashboard Configuration
+# ---------------------------------------------------------------------------
+longmemory_enable_dashboard: true
+longmemory_dashboard_external_port: 7332
+longmemory_dashboard_image: "longmemory-dashboard:local"
+
+# ---------------------------------------------------------------------------
+# Upstream Source Repository Configuration
+# ---------------------------------------------------------------------------
+longmemory_repo_url: "https://github.com/CaviraOSS/LongMemory.git"
+longmemory_repo_version: "main"
+
+# ---------------------------------------------------------------------------
+# Model Context Protocol (MCP) Integration
+# ---------------------------------------------------------------------------
+longmemory_enable_mcp: true
+
+# ---------------------------------------------------------------------------
+# Cross-Origin Resource Sharing (CORS) Configuration
+# ---------------------------------------------------------------------------
+longmemory_allowed_origins: "http://127.0.0.1:7332"
+
+# ---------------------------------------------------------------------------
+# API Rate Limiting
+# ---------------------------------------------------------------------------
+longmemory_rate_limit_enabled: true
+longmemory_rate_limit_max_requests: 100
+
+# ---------------------------------------------------------------------------
+# Memory Embedding Configuration
+# ---------------------------------------------------------------------------
+longmemory_embedding_provider: "ollama"
+longmemory_embedding_tier: "deep"
+longmemory_embedding_dimension: 768
+
+# ---------------------------------------------------------------------------
+# Ollama Integration
+# ---------------------------------------------------------------------------
+longmemory_ollama_url: "http://host.docker.internal:11434"
+longmemory_ollama_embedding_model: "nomic-embed-text"
+
+# ---------------------------------------------------------------------------
+# Advanced Application Environment Configuration
+# ---------------------------------------------------------------------------
+longmemory_extra_environment: {}
+
+# ---------------------------------------------------------------------------
+# Container Resource Controls
+# ---------------------------------------------------------------------------
+longmemory_memory_limit: "2g"
+longmemory_cpu_limit: "2.0"
+longmemory_pids_limit: 256
+longmemory_stop_grace_period: "30s"

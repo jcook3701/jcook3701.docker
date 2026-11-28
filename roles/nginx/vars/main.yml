@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Infrastructure Directory Structure
+# ---------------------------------------------------------------------------
+nginx_directory:
+  base: "{{ nginx_base_dir | default('/opt/nginx') }}"
+  config: "{{ (nginx_base_dir | default('/opt/nginx')) ~ '/config' }}"
+  certs: "{{ (nginx_base_dir | default('/opt/nginx')) ~ '/certs' }}"
+
+# ---------------------------------------------------------------------------
+# Infrastructure File Locations
+# ---------------------------------------------------------------------------
+nginx_file:
+  compose: "{{ (nginx_base_dir | default('/opt/nginx')) ~ '/compose.yml' }}"
+  config: "{{ (nginx_base_dir | default('/opt/nginx')) ~ '/config/nginx.conf' }}"
+  certificate: "{{ (nginx_base_dir | default('/opt/nginx')) ~ '/certs/server.crt' }}"
+  private_key: "{{ (nginx_base_dir | default('/opt/nginx')) ~ '/certs/server.key' }}"

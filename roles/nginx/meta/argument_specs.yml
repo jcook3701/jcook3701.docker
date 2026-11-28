@@ -1,0 +1,205 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy a central Nginx reverse proxy using Docker Compose"
+    description:
+      - "Manage Nginx, backend routes, and optional UniFi inform forwarding."
+      - "Publish HTTP 8080 and HTTPS 8443 by default."
+    author:
+      - "Jared W. Cook"
+    options:
+      # ---------------------------------------------------------------------
+      # Runtime Orchestration Engine and Service State
+      # ---------------------------------------------------------------------
+      nginx_container_engine:
+        type: "str"
+        required: false
+        default: "docker"
+        choices:
+          - "docker"
+        description:
+          - "Container engine used by the shared lifecycle role."
+      nginx_state:
+        type: "str"
+        required: false
+        default: "present"
+        choices:
+          - "present"
+          - "absent"
+          - "teardown"
+        description:
+          - "Desired lifecycle state."
+      nginx_debug_mode:
+        type: "bool"
+        required: false
+        default: false
+        description:
+          - "Enable role debug output."
+      # ---------------------------------------------------------------------
+      # Service Container Image and Identity
+      # ---------------------------------------------------------------------
+      nginx_image:
+        type: "str"
+        required: false
+        default: "docker.io/library/nginx:1.30.7-alpine3.24"
+        description:
+          - "Official Nginx container image."
+      nginx_container_name:
+        type: "str"
+        required: false
+        default: "nginx"
+        description:
+          - "Nginx service container name."
+      nginx_pull_policy:
+        type: "str"
+        required: false
+        default: "missing"
+        choices:
+          - "always"
+          - "missing"
+          - "never"
+        description:
+          - "Docker Compose image pull policy."
+      nginx_pull_images:
+        type: "bool"
+        required: false
+        default: false
+        description:
+          - "Allow the shared lifecycle role to pull images during deployment."
+      nginx_restart_policy:
+        type: "str"
+        required: false
+        default: "unless-stopped"
+        choices:
+          - "no"
+          - "always"
+          - "on-failure"
+          - "unless-stopped"
+        description:
+          - "Docker Compose restart policy."
+      # ---------------------------------------------------------------------
+      # Infrastructure Storage and Path Routing
+      # ---------------------------------------------------------------------
+      nginx_base_dir:
+        type: "path"
+        required: false
+        default: "/opt/nginx"
+        description:
+          - "Root directory for the Compose deployment and configuration."
+      # ---------------------------------------------------------------------
+      # Networking Configuration
+      # ---------------------------------------------------------------------
+      nginx_host_bind_ip:
+        type: "str"
+        required: false
+        default: "0.0.0.0"
+        description:
+          - "Host address on which Nginx publishes its listeners."
+      nginx_http_external_port:
+        type: "int"
+        required: false
+        default: 8080
+        description:
+          - "Host HTTP listener port."
+      nginx_http_internal_port:
+        type: "int"
+        required: false
+        default: 8080
+        description:
+          - "Container HTTP listener port."
+      nginx_https_external_port:
+        type: "int"
+        required: false
+        default: 8443
+        description:
+          - "Host HTTPS listener port."
+      nginx_https_internal_port:
+        type: "int"
+        required: false
+        default: 8443
+        description:
+          - "Container HTTPS listener port."
+      nginx_proxy_network_name:
+        type: "str"
+        required: false
+        default: "jcook3701_proxy"
+        description:
+          - "Shared external Docker bridge network for proxied services."
+      # ---------------------------------------------------------------------
+      # TLS Configuration
+      # ---------------------------------------------------------------------
+      nginx_tls_bootstrap_self_signed:
+        type: "bool"
+        required: false
+        default: true
+        description:
+          - "Generate a bootstrap self-signed certificate when absent."
+      nginx_tls_bootstrap_days:
+        type: "int"
+        required: false
+        default: 365
+        description:
+          - "Validity in days for newly generated bootstrap certificates."
+      nginx_tls_bootstrap_subject_alt_names:
+        type: "list"
+        elements: "str"
+        required: false
+        default: []
+        description:
+          - "Optional DNS: and IP: entries for a newly generated bootstrap certificate."
+      # ---------------------------------------------------------------------
+      # Reverse Proxy Routing
+      # ---------------------------------------------------------------------
+      nginx_proxy_sites:
+        type: "dict"
+        required: false
+        default: {}
+        description:
+          - "Mapping of explicitly enabled virtual hosts to upstream targets."
+      nginx_unifi_inform_enabled:
+        type: "bool"
+        required: false
+        default: false
+        description:
+          - "Enable forwarding of UniFi device /inform requests."
+      nginx_unifi_inform_upstream_host:
+        type: "str"
+        required: false
+        default: "unifi-network"
+        description:
+          - "Docker DNS host of the UniFi inform endpoint."
+      nginx_unifi_inform_upstream_port:
+        type: "int"
+        required: false
+        default: 8080
+        description:
+          - "Internal TCP port of the UniFi inform endpoint."
+      # ---------------------------------------------------------------------
+      # Proxy Connection Handling
+      # ---------------------------------------------------------------------
+      nginx_client_max_body_size:
+        type: "str"
+        required: false
+        default: "100m"
+        description:
+          - "Maximum permitted client request body size."
+      nginx_proxy_connect_timeout:
+        type: "str"
+        required: false
+        default: "10s"
+        description:
+          - "Timeout while connecting to backend services."
+      nginx_proxy_read_timeout:
+        type: "str"
+        required: false
+        default: "3600s"
+        description:
+          - "Timeout while reading from backend services."
+      nginx_proxy_send_timeout:
+        type: "str"
+        required: false
+        default: "3600s"
+        description:
+          - "Timeout while sending requests to backend services."

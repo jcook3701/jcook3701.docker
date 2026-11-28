@@ -1,0 +1,168 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+argument_specs:
+  main:
+    short_description: "Deploy LongMemory shared AI memory."
+    options:
+      longmemory_container_engine:
+        description: "Container orchestration engine."
+        type: "str"
+        default: "docker"
+        choices:
+          - "docker"
+      longmemory_state:
+        description: "Desired deployment lifecycle."
+        type: "str"
+        default: "present"
+        choices:
+          - "present"
+          - "absent"
+          - "teardown"
+      longmemory_debug_mode:
+        description: "Display non-sensitive diagnostics."
+        type: "bool"
+        default: false
+      longmemory_teardown_remove_data:
+        description: "Permanently remove memory data and secrets."
+        type: "bool"
+        default: false
+      longmemory_teardown_remove_images:
+        description: "Remove stack images during teardown."
+        type: "bool"
+        default: false
+      longmemory_build_from_source:
+        description: "Build the backend locally with the upstream Dockerfile."
+        type: "bool"
+        default: true
+      longmemory_image:
+        description: "Backend image tag for local builds, or a reachable image when source builds are disabled."
+        type: "str"
+        default: "longmemory:local"
+      longmemory_container_name:
+        description: "Backend container name."
+        type: "str"
+        default: "longmemory"
+      longmemory_pull_policy:
+        description: "Compose pull policy for a prebuilt backend image."
+        type: "str"
+        default: "missing"
+        choices:
+          - "always"
+          - "missing"
+          - "never"
+      longmemory_pull_images:
+        description: "Force a pull of the prebuilt backend image."
+        type: "bool"
+        default: false
+      longmemory_restart_policy:
+        description: "Container restart policy."
+        type: "str"
+        default: "unless-stopped"
+        choices:
+          - "no"
+          - "always"
+          - "on-failure"
+          - "unless-stopped"
+      longmemory_base_dir:
+        description: "Absolute deployment root ending in longmemory."
+        type: "path"
+        default: "/opt/longmemory"
+      longmemory_api_key:
+        description: "Initial 64-character hexadecimal API key; empty generates one."
+        type: "str"
+        default: ""
+        no_log: true
+      longmemory_bind_ip:
+        description: "Published host address."
+        type: "str"
+        default: "127.0.0.1"
+      longmemory_external_port:
+        description: "Published API and MCP port."
+        type: "int"
+        default: 7331
+      longmemory_internal_port:
+        description: "Backend listen port."
+        type: "int"
+        default: 7331
+      longmemory_shared_network:
+        description: "Optional existing Docker network for private embedding service connections."
+        type: "str"
+        default: ""
+      longmemory_enable_dashboard:
+        description: "Build and deploy upstream dashboard."
+        type: "bool"
+        default: true
+      longmemory_dashboard_external_port:
+        description: "Published dashboard port."
+        type: "int"
+        default: 7332
+      longmemory_dashboard_image:
+        description: "Local dashboard build image."
+        type: "str"
+        default: "longmemory-dashboard:local"
+      longmemory_repo_url:
+        description: "Source repository for backend and dashboard builds."
+        type: "str"
+        default: "https://github.com/CaviraOSS/LongMemory.git"
+      longmemory_repo_version:
+        description: "Source branch, tag or commit for backend and dashboard builds."
+        type: "str"
+        default: "main"
+      longmemory_enable_mcp:
+        description: "Enable HTTP MCP."
+        type: "bool"
+        default: true
+      longmemory_allowed_origins:
+        description: "Comma-separated allowed origins."
+        type: "str"
+        default: "http://127.0.0.1:7332"
+      longmemory_rate_limit_enabled:
+        description: "Enable API rate limiting."
+        type: "bool"
+        default: true
+      longmemory_rate_limit_max_requests:
+        description: "API request limit."
+        type: "int"
+        default: 100
+      longmemory_embedding_provider:
+        description: "Embedding provider."
+        type: "str"
+        default: "ollama"
+      longmemory_embedding_tier:
+        description: "Embedding tier."
+        type: "str"
+        default: "deep"
+      longmemory_embedding_dimension:
+        description: "Embedding vector dimension."
+        type: "int"
+        default: 768
+      longmemory_ollama_url:
+        description: "Existing Ollama endpoint."
+        type: "str"
+        default: "http://host.docker.internal:11434"
+      longmemory_ollama_embedding_model:
+        description: "Ollama embedding model."
+        type: "str"
+        default: "nomic-embed-text"
+      longmemory_extra_environment:
+        description: "Additional backend environment variables; managed keys prohibited."
+        type: "dict"
+        default: {}
+        no_log: true
+      longmemory_memory_limit:
+        description: "Backend memory limit."
+        type: "str"
+        default: "2g"
+      longmemory_cpu_limit:
+        description: "Backend CPU limit."
+        type: "str"
+        default: "2.0"
+      longmemory_pids_limit:
+        description: "Backend process limit."
+        type: "int"
+        default: 256
+      longmemory_stop_grace_period:
+        description: "Graceful shutdown duration."
+        type: "str"
+        default: "30s"

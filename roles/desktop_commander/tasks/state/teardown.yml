@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: "Stop Desktop Commander without deleting home or cached authorization"
+  ansible.builtin.include_tasks: "uninstall.yml"
+
+- name: "Remove only the root-owned Desktop Commander deployment directory"
+  ansible.builtin.file:
+    path: "{{ desktop_commander_directory.base }}"
+    state: "absent"
+  become: true

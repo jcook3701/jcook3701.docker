@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# Infrastructure Directory Structure
+open_webui_directory:
+  base: "{{ open_webui_base_dir | default('/opt/open-webui') }}"
+  data: "{{ open_webui_data_dir }}"
+
+# Infrastructure File Locations
+open_webui_file:
+  compose: "{{ (open_webui_base_dir | default('/opt/open-webui')) ~ '/compose.yml' }}"
+  secrets: "{{ (open_webui_base_dir | default('/opt/open-webui')) ~ '/.env' }}"

@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+skillspector_container_engine: "docker"
+skillspector_state: "present"   # Choices: present, absent, teardown
+skillspector_debug_mode: false
+
+# ---------------------------------------------------------------------------
+# Upstream Source and Container Image
+# ---------------------------------------------------------------------------
+# Pinned to NVIDIA SkillSpector v2.13.6 (published 2026-11-16).
+skillspector_repository: "https://github.com/NVIDIA/SkillSpector.git"
+skillspector_version: "2.13.6"
+skillspector_revision: "e2674da339b0bddc6e565d059c0577c6d9cd25da"
+skillspector_image: "skillspector-local"
+skillspector_rebuild_image: false
+
+# ---------------------------------------------------------------------------
+# Deployment Paths and Dedicated Sandbox Identity
+# ---------------------------------------------------------------------------
+skillspector_base_dir: "/opt/skillspector"
+skillspector_wrapper_path: "/usr/local/bin/skillspector-docker"
+skillspector_user: "chat-gpt"
+skillspector_group: "chat-gpt"
+skillspector_user_home: "/home/chat-gpt"
+skillspector_workspace_dir: "{{ skillspector_user_home }}/workbench"
+skillspector_scan_dir: "{{ skillspector_workspace_dir }}/skill-scans"
+skillspector_reports_dir: "{{ skillspector_workspace_dir }}/skill-reports"
+
+# ---------------------------------------------------------------------------
+# Runtime Security / Resource Budgets
+# ---------------------------------------------------------------------------
+# A bridge network enables GitHub URL scans but can also reach LAN addresses.
+# Use 'none' only for local offline scans.
+skillspector_network_mode: "bridge"  # Choices: bridge, none
+skillspector_memory_limit: "2g"
+skillspector_cpu_limit: "2.0"
+skillspector_pids_limit: 256
+skillspector_tmpfs_size: "512m"
+
+# ---------------------------------------------------------------------------
+# Optional Local Ollama Analysis (No Cloud Credentials)
+# ---------------------------------------------------------------------------
+# Static analysis is enabled by default. Ollama requires reachable host port
+# 11434 and is never exposed merely by installing this role.
+skillspector_enable_llm: false
+skillspector_ollama_base_url: "http://host.docker.internal:11434/v1"
+skillspector_ollama_model: "qwen2.5-coder:7b"

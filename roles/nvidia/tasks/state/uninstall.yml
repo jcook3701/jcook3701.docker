@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+- name: Remove the Nvidia image from the local cache
+  community.docker.docker_image:
+    name: nvidia/cuda:12.8.1-base-ubuntu24.04
+    state: absent
+    force: true

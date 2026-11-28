@@ -1,0 +1,64 @@
+# SPDX-FileCopyrightText: Copyright © 2026, Jared W. Cook
+# SPDX-License-Identifier: AGPL-3.0-or-later
+---
+# ---------------------------------------------------------------------------
+# Runtime Orchestration Engine and Service State
+# ---------------------------------------------------------------------------
+nginx_container_engine: "docker"
+nginx_state: "present"
+nginx_debug_mode: false
+
+# ---------------------------------------------------------------------------
+# Service Container Image and Identity
+# ---------------------------------------------------------------------------
+nginx_image: "docker.io/library/nginx:1.30.7-alpine3.24"
+nginx_container_name: "nginx"
+nginx_pull_policy: "missing"
+nginx_pull_images: false
+nginx_restart_policy: "unless-stopped"
+
+# ---------------------------------------------------------------------------
+# Infrastructure Storage and Path Routing
+# ---------------------------------------------------------------------------
+nginx_base_dir: "/opt/nginx"
+
+# ---------------------------------------------------------------------------
+# Networking Configuration
+# ---------------------------------------------------------------------------
+nginx_host_bind_ip: "0.0.0.0"
+nginx_http_external_port: 8080
+nginx_http_internal_port: 8080
+nginx_https_external_port: 8443
+nginx_https_internal_port: 8443
+nginx_proxy_network_name: "jcook3701_proxy"
+
+# ---------------------------------------------------------------------------
+# TLS Configuration
+# ---------------------------------------------------------------------------
+# Generate a bootstrap certificate only when no certificate/key files exist.
+# For trusted HTTPS, replace the pair and disable bootstrap generation.
+nginx_tls_bootstrap_self_signed: true
+nginx_tls_bootstrap_days: 365
+nginx_tls_bootstrap_subject_alt_names: []
+
+# ---------------------------------------------------------------------------
+# Reverse Proxy Routing
+# ---------------------------------------------------------------------------
+# Sites default to disabled until explicitly listed in this mapping.
+# Each site supports enabled, server_name, upstream_host, upstream_port,
+# upstream_scheme, websocket, proxy_ssl_verify, allowed_clients, and proxy_buffering.
+nginx_proxy_sites: {}
+
+# Separate UniFi device inform traffic from virtual-host proxy settings.
+# Enable only after UniFi joins the proxy network and releases host port 8080.
+nginx_unifi_inform_enabled: false
+nginx_unifi_inform_upstream_host: "unifi-network"
+nginx_unifi_inform_upstream_port: 8080
+
+# ---------------------------------------------------------------------------
+# Proxy Connection Handling
+# ---------------------------------------------------------------------------
+nginx_client_max_body_size: "100m"
+nginx_proxy_connect_timeout: "10s"
+nginx_proxy_read_timeout: "3600s"
+nginx_proxy_send_timeout: "3600s"
